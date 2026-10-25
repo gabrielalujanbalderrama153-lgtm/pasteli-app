@@ -1,4 +1,5 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pasteli</title><meta name="description" content="Menú de Pasteli: pasteles, tartas y repostería en Chihuahua. Haz tu pedido por WhatsApp."><meta name="theme-color" content="#f2e2d4"><link rel="icon" type="image/png" href="media/logo.png"><meta property="og:title" content="Pasteli"><meta property="og:description" content="Sabores reales en cada bocado. Pide por WhatsApp."><meta property="og:image" content="media/logo.png"><style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
@@ -204,6 +205,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .doc .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
 .status{font-size:11.5px;font-weight:700;border-radius:99px;padding:3px 9px;display:inline-block}
 .status.vencida{background:var(--bad-bg);color:var(--bad)} .status.pronto{background:var(--warn-bg);color:var(--warn)} .status.ok{background:var(--none-bg);color:var(--muted)} .status.pagada{background:var(--ok-bg);color:var(--ok)}
+.flist{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.fchip{display:inline-flex;align-items:center}.fx{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:4px 6px}
 .file{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border:1px dashed var(--line);border-radius:9px;padding:4px 9px;color:var(--ink-2);text-decoration:none}
 .empty{text-align:center;padding:34px 16px;color:var(--muted)}
 .empty svg{width:72px;height:72px;margin-bottom:8px}
@@ -561,10 +563,93 @@ a.btn[aria-disabled="true"]{opacity:.55}
 
 <script type="application/json" id="catalogo-data">{"items":{"g-arlequin":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"g-coco":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"g-limon":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"g-bosque":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"g-selva":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"g-tiramisu":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"g-tresleches":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"t-aleman":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"t-chorreado":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"}]},"t-dulce":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"}]},"t-panque":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"}]},"t-redvelvet":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"t-xocolat":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"t-zanahoria":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0,"st":{"m":"siempre"}},{"k":"Mediano","r":"6 a 8 rebanadas","p":360,"bp":0,"n":"6–8"},{"k":"Grande","r":"12 a 14 rebanadas","p":495,"bp":0,"n":"12–14"},{"k":"Extra Grande","r":"18 a 20 rebanadas","p":720,"bp":1,"n":"18–20"},{"k":"Jumbo","r":"25 a 30 rebanadas","p":960,"bp":1,"n":"25–30"}]},"pq-grande":{"sz":[{"k":"Individual","r":"Porción individual","p":70,"bp":0}],"n":"Pay de Queso"}},"ver":"mvne2bvw"}</script>
 <script>
+/* Pasteli en la web: reemplaza las funciones de la app (base de datos, archivos, descargas) por el servidor propio en Netlify. */
+(function(){
+  const TK='pasteli-tok';
+  const tok={get(){try{return sessionStorage.getItem(TK)||''}catch(e){return ''}},set(v){try{v?sessionStorage.setItem(TK,v):sessionStorage.removeItem(TK)}catch(e){}}};
+  async function api(route,body,opts={}){
+    const h={...(opts.headers||{})};const t=tok.get();if(t)h.authorization='Bearer '+t;
+    let init={method:opts.method||(body===undefined?'GET':'POST'),headers:h};
+    if(body!==undefined){if(opts.raw){init.body=body}else{h['content-type']='application/json';init.body=JSON.stringify(body)}}
+    const r=await fetch('/api/'+route,init);let j=null;try{j=await r.json()}catch(e){}
+    if(r.status===401&&route.indexOf('auth/login')<0&&route.indexOf('auth/pass')<0){tok.set('');if(window.__webLocked)window.__webLocked()}
+    if(!r.ok){const e=new Error((j&&j.error)||'http_'+r.status);e.code=(j&&j.error)||'http_'+r.status;e.status=r.status;e.info=j;throw e}
+    return j}
+
+  /* ---------- base de datos con sincronización ---------- */
+  const cache={};      // col -> Map(id -> {data, etag})
+  const sigs={};       // col -> firma conocida
+  const colL={};       // col -> Set(listeners)
+  const docL={};       // 'col/id' -> Set(listeners)
+  let pending=0,timer=null,running=false,syncing=false,needSync=false;
+  const clone=o=>o==null?o:JSON.parse(JSON.stringify(o));
+  const snapDoc=(id,data)=>({id,exists:data!==undefined&&data!==null,data:()=>clone(data)});
+  function emitCol(c){const m=cache[c];if(!m)return;const docs=[...m.entries()].map(([id,v])=>snapDoc(id,v.data));const snap={docs,size:docs.length,empty:!docs.length};(colL[c]||new Set()).forEach(cb=>{try{cb(snap)}catch(e){console.error(e)}})}
+  function emitDoc(path){const [c,id]=path.split('/');const m=cache[c];if(!m)return;const v=m.get(id);const d=snapDoc(id,v?v.data:null);(docL[path]||new Set()).forEach(cb=>{try{cb(d)}catch(e){console.error(e)}})}
+  function emitAll(c){emitCol(c);Object.keys(docL).forEach(p=>{if(p.split('/')[0]===c)emitDoc(p)})}
+  const watched=()=>{const s=new Set(Object.keys(colL));Object.keys(docL).forEach(p=>s.add(p.split('/')[0]));return [...s]};
+  async function sync(){
+    if(!tok.get()||!running)return;
+    if(syncing||pending){needSync=true;return}
+    syncing=true;needSync=false;
+    try{const cols=watched();if(!cols.length)return;
+      const {changed}=await api('db/sync',{cols,sig:Object.fromEntries(cols.map(c=>[c,sigs[c]||'']))});
+      for(const [c,info] of Object.entries(changed||{})){
+        const m=cache[c]||(cache[c]=new Map());const want=[];
+        for(const [id,et] of Object.entries(info.etags)){const cur=m.get(id);if(!cur||cur.etag!==et)want.push(id)}
+        for(const id of [...m.keys()])if(!(id in info.etags))m.delete(id);
+        for(let i=0;i<want.length;i+=400){const {docs}=await api('db/get',{col:c,ids:want.slice(i,i+400)});for(const [id,v] of Object.entries(docs||{}))m.set(id,v)}
+        if(pending){needSync=true;continue}
+        sigs[c]=info.sig;emitAll(c)}
+      cols.forEach(c=>{if(!cache[c]){cache[c]=new Map();emitAll(c)}});
+    }catch(e){if(e.status!==401)console.warn('sync',e)}
+    finally{syncing=false;if(needSync)setTimeout(sync,300)}}
+  function loop(){clearTimeout(timer);if(!running)return;timer=setTimeout(async()=>{if(document.visibilityState!=='hidden')await sync();loop()},15000)}
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&running)sync()});
+  function localApply(path,mode,data){const [c,id]=path.split('/');const m=cache[c]||(cache[c]=new Map());
+    if(mode==='delete')m.delete(id);
+    else if(mode==='set')m.set(id,{data:clone(data),etag:'local'});
+    else{const cur=m.get(id);const next={...((cur&&cur.data)||{})};for(const [k,v] of Object.entries(data)){if(v&&typeof v==='object'&&v.__delete__===true)delete next[k];else next[k]=clone(v)}m.set(id,{data:next,etag:'local'})}
+    sigs[c]='';emitAll(c)}
+  async function write(path,mode,data){pending++;localApply(path,mode,data);
+    try{await api('db/write',{path,mode,data:mode==='delete'?undefined:data})}
+    catch(e){const err=new Error(e.code);err.code=e.code==='unauthorized'?'invalid_argument':e.code==='too_big'?'quota_exceeded':e.code;throw err}
+    finally{pending--;if(!pending)setTimeout(sync,150)}}
+  const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  function docRef(path){return {id:path.split('/')[1],path,
+    async get(){const [c,id]=path.split('/');const m=cache[c];if(m&&m.has(id)&&sigs[c])return snapDoc(id,m.get(id).data);
+      const {docs}=await api('db/get',{col:c,ids:[id]});const v=docs&&docs[id];return snapDoc(id,v?v.data:null)},
+    set(d){return write(path,'set',d)},update(d){return write(path,'update',d)},delete(){return write(path,'delete')},
+    onSnapshot(cb){(docL[path]||(docL[path]=new Set())).add(cb);const [c]=path.split('/');if(cache[c]&&sigs[c]!==undefined)setTimeout(()=>emitDoc(path),0);else sync();return ()=>docL[path].delete(cb)}}}
+  const db={doc:docRef,collection(c){return {
+    doc:id=>docRef(c+'/'+(id||newId())),
+    async add(d){const id=newId();await write(c+'/'+id,'set',d);return docRef(c+'/'+id)},
+    onSnapshot(cb){(colL[c]||(colL[c]=new Set())).add(cb);if(cache[c]&&sigs[c]!==undefined)setTimeout(()=>emitCol(c),0);else sync();return ()=>colL[c].delete(cb)}}}};
+
+  /* ---------- archivos ---------- */
+  const assets={async upload(blob,o){const type=(o&&o.type)||blob.type||'application/octet-stream';
+    if(blob.size>5.5*1024*1024){const e=new Error('too_large');e.code='too_large';throw e}
+    try{return await api('asset',blob,{raw:true,headers:{'content-type':type,'x-name':encodeURIComponent(blob.name||'archivo')}})}
+    catch(e){const err=new Error(e.code);err.code=e.code==='unauthorized'?'not_granted':e.code;throw err}}};
+
+  /* ---------- descargas ---------- */
+  const downloads={async save({filename,data}){const b=data instanceof Blob?data:new Blob([data]);const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename||'archivo';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);return {status:'saved'}}};
+
+  window.claude={use:async n=>n==='db'?db:n==='assets'?(tok.get()?assets:null):n==='downloads'?downloads:n==='user'?{}:null};
+  window.__web={api,tok,assets,
+    start(){running=true;sync();loop()},
+    stop(){running=false;clearTimeout(timer);for(const k in cache)delete cache[k];for(const k in sigs)delete sigs[k]},
+    refresh:sync};
+})();
+
+</script>
+<script>
 const APP='menu';
+const WEB=true; /* true en la versión publicada en Netlify (con servidor propio) */
+const NOAI=WEB?'La lectura automática con IA todavía no está activa en tu página. Registra los datos a mano.':'Abre la app en el asistente con tu cuenta.';
 const URL_MENU='https://claude.ai/artifact/Ju7KfrbQbYH92NTn4dDtFj';
 const MEDIA_NEG={logo:'e626dabddeb4b7a1b1d99984fcde03c4','f-canela-r':'18c3575f3d3bca13a7f3e899afea0add','f-canela-i':'aeab468de42f8e81e44591956da028ed','f-koh-r':'507f54720ad3ef40bd75a66590079fb2','f-koh-b':'7cb2704e73d22da7a9129718647539a9'};
-const __SRC=(()=>{try{const h=document.body.innerHTML;const a=h.indexOf('<!--PASTELI-SRC-BEGIN-->');return a>=0?h.slice(a):null}catch(e){return null}})();
+const __SRC=(()=>{try{const h=document.body.innerHTML;const a=h.indexOf('');return a>=0?h.slice(a):null}catch(e){return null}})();
 /* =========================================================
    Utilidades
    ========================================================= */
@@ -810,7 +895,7 @@ const SKEL_RESET=':root{color-scheme:light;padding-top:env(safe-area-inset-top,0
 function pageWith(cat){if(!__SRC)return null;const json=JSON.stringify(cat).replace(/</g,'\\u003c');
   const src=__SRC.replace(/(<script type="application\/json" id="catalogo-data">)[\s\S]*?(<\/script>)/,(m,a,b)=>a+json+b);
   return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+SKEL_RESET+'</style></head><body>'+src+'</body></html>'}
-async function publishCat(){const art=await window.claude?.use?.('artifact');const out=clone(S.draft);delete out.base;out.ver=Date.now().toString(36);const html=pageWith(out);
+async function publishCat(){if(WEB)return publishWeb();const art=await window.claude?.use?.('artifact');const out=clone(S.draft);delete out.base;out.ver=Date.now().toString(36);const html=pageWith(out);
   if(!art||!html){toast('Publicar no está disponible en esta vista.');return}
   S.publishing=true;renderNegocio();
   try{ss.set('pasteli-unlock','1');ss.set('pasteli-tab','cat');await art.publish(html);toast('Catálogo publicado')}
@@ -829,7 +914,7 @@ function stCtl(key,st,disabled){const m=st&&st.m||'';return `<div class="stc${di
   ${m==='num'?`<button type="button" class="qb" data-f="stdec" aria-label="Menos">−</button><span class="q num">${Number(st.n)||0}</span><button type="button" class="qb add" data-f="stinc" aria-label="Más">+</button>`:''}</div>`}
 function renderCat(m){ensureDraft();
   const sub=S.catSub||'prod';
-  const bar=`<div class="pubbar${S.dirty?' on':''}"><span>${S.publishing?'Publicando…':S.dirty?'Tienes cambios sin publicar. Los clientes los verán al publicar.':'Todo publicado. Los clientes ven exactamente esto.'}</span>${S.dirty&&!S.publishing?`<button class="btn sm ghost" data-act="catdiscard">Descartar</button><button class="btn sm primary" data-act="catpublish">Publicar cambios</button>`:S.publishing?'':`<button class="btn sm" data-act="netzip">⬇︎ Descargar para Netlify</button>`}</div>`;
+  const bar=`<div class="pubbar${S.dirty?' on':''}"><span>${S.publishing?'Publicando…':S.dirty?'Tienes cambios sin publicar. Los clientes los verán al publicar.':'Todo publicado. Los clientes ven exactamente esto.'}</span>${S.dirty&&!S.publishing?`<button class="btn sm ghost" data-act="catdiscard">Descartar</button><button class="btn sm primary" data-act="catpublish">Publicar cambios</button>`:S.publishing||WEB?'':`<button class="btn sm" data-act="netzip">⬇︎ Descargar para Netlify</button>`}</div>`;
   const seg=`<div class="seg">${[['prod','Productos y precios'],['vitrina','Vitrina de hoy']].map(([k,l])=>`<button class="chip" data-act="catsub" data-v="${k}" aria-pressed="${sub===k}">${l}</button>`).join('')}</div>`;
   if(sub==='vitrina'){m.innerHTML=bar+seg+renderVitrina();bindCat(m);return}
   const ids=[...BASE_M.map(b=>b.id),...Object.keys(S.draft.items).filter(id=>S.draft.items[id].nuevo)];
@@ -919,17 +1004,17 @@ async function pdfText(file){const lib=await loadPdf();const doc=await lib.getDo
     for(const it of tc.items){const y=Math.round(it.transform[5]);const k=[...lines.keys()].find(v=>Math.abs(v-y)<=2)??y;if(!lines.has(k))lines.set(k,[]);lines.get(k).push([it.transform[4],it.str])}
     out+=`\n--- página ${n} ---\n`+[...lines.entries()].sort((a,b)=>b[0]-a[0]).map(([,arr])=>arr.sort((a,b)=>a[0]-b[0]).map(x=>x[1]).join('  ')).join('\n');if(out.length>230000)break}
   return {text:out.slice(0,230000),pages:doc.numPages}}
-function pickVentas(){pickFile('application/pdf,.pdf,.csv,text/csv,.txt,image/*',importVentas,true)}
+function pickVentas(){pickFile('',importVentas,true)}
 function venStatus(html){pane(`<div class="sheet-head"><h2>Subir ventas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${html}`)}
 async function importVentas(files){const sample=await window.claude?.use?.('sample');
-  if(!sample){venStatus(`<div class="empty"><h3>El análisis automático no está disponible aquí</h3><p>Abre la app en el asistente con tu cuenta.</p></div>`);return}
+  if(!sample){venStatus(`<div class="empty"><h3>El análisis automático no está disponible aquí</h3><p>${NOAI}</p></div>`);return}
   venStatus(`<div class="reading"><span class="spin"></span><div><b>Leyendo ${esc(files.map(f=>f.name).join(', '))}…</b><span class="muted">Sacando el texto del reporte.</span></div></div>`);
   let text='';const imgs=[];const archivos=[];let lim=null;try{lim=await sample.limits()}catch(e){}
   try{for(const f of files){const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name),isImg=/^image\//.test(f.type);
-    if((isPdf||isImg)&&S.assets){const r=await uploadFile(f);if(r)archivos.push(r)}
+    if(S.assets){const r=await uploadFile(f);if(r)archivos.push(r)}
     if(isPdf){const t=await pdfText(f);if(t.text.replace(/---.*---/g,'').trim().length>40)text+=`\n=== ${f.name} ===\n`+t.text;else{const {imgs:pi}=await pdfImages(f,(lim?.images?.maxCount||0)-imgs.length);imgs.push(...pi)}}
     else if(isImg){if(imgs.length<(lim?.images?.maxCount||0))imgs.push(await shrink(f))}
-    else text+=`\n=== ${f.name} ===\n`+(await f.text()).slice(0,200000)}}
+    else{const t=await anyText(f);if(t)text+=`\n=== ${f.name} ===\n`+t}}}
   catch(e){venStatus(`<div class="empty"><h3>No pude abrir el archivo</h3><p>Sube el PDF tal como lo descargas del sistema de ventas.</p></div>`);return}
   if(!text.trim()&&!imgs.length){venStatus(`<div class="empty"><h3>El archivo no tiene texto que leer</h3><p>Prueba con otro PDF o un CSV del sistema de ventas.</p></div>`);return}
   venStatus(`<div class="reading"><span class="spin"></span><div><b>Analizando las ventas…</b><span class="muted">Puede tardar hasta un minuto o dos si el reporte es largo.</span></div></div>`);
@@ -1028,12 +1113,12 @@ const S={view:'home',cat:'all',cart:ls.get('pasteli-cart',[]),order:ls.get('past
   db:null,assets:null,user:null,menuFotos:{},menuPrecios:{},catSel:'gourmet',ventas:[],movs:[],vg:'mes',ig:'mes',catSub:'prod',draft:null,dirty:false,mediaDb:null,ready:false,dbTried:false,
   prods:new Map(),provs:new Map(),facturas:[],cxc:[],config:null,loaded:{p:false,v:false,f:false,c:false},
   pend:new Map(),timers:new Map(),
-  ntab:'bit',isub:'prod',pedidos:[],facCli:[],fac:null,bitPlan:null,bitDay:null,semF:null,q:'',provF:'',finProv:'',unlocked:ss.get('pasteli-unlock')==='1',pin:''};
+  ntab:'bit',isub:'prod',pedidos:[],facCli:[],fac:null,bitPlan:null,bitDay:null,semF:null,q:'',provF:'',finProv:'',unlocked:WEB?!!(window.__web&&window.__web.tok.get()):ss.get('pasteli-unlock')==='1',pin:''};
 
 /* =========================================================
    Navegación
    ========================================================= */
-function go(v){if(APP==='negocio')v='negocio';if(v!=='negocio'&&typeof SITE==='object')document.title=SITE.nombre||'Pasteli';if(v==='negocio'&&LOCAL_MEDIA){window.open(URL_MENU+'#negocio','_blank','noopener');return}S.view=v;['home','cliente','negocio'].forEach(x=>$('#v-'+x).hidden=x!==v);
+function go(v){if(APP==='negocio')v='negocio';if(v!=='negocio'&&typeof SITE==='object')document.title=SITE.nombre||'Pasteli';if(v==='negocio'&&LOCAL_MEDIA&&!WEB){window.open(URL_MENU+'#negocio','_blank','noopener');return}S.view=v;['home','cliente','negocio'].forEach(x=>$('#v-'+x).hidden=x!==v);
   try{history.replaceState(null,'',v==='home'?location.pathname:'#'+v)}catch(e){}
   if(v==='cliente')renderCliente(); if(v==='negocio')renderNegocio(); applyMedia(); window.scrollTo(0,0)}
 function paintHomeIcons(){$('#ico-cliente').innerHTML=photo(MBY['g-arlequin'],'ico-img');$('#ico-negocio').innerHTML=ill('ledger')}
@@ -1220,10 +1305,40 @@ function moveStock(id,delta,nota){const p=prod(id);if(!p)return;const s=Math.max
   clearTimeout(S.timers.get(id));S.timers.set(id,setTimeout(async()=>{const pd=S.pend.get(id);await write('productos/'+id,{stock:pd.stock,hist:pd.hist});S.pend.delete(id)},700));
   if(S.openDetail)S.openDetail();else renderNegocio();
 }
+/* ---------- Archivos de cualquier tipo ---------- */
+const FT={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',pdf:'application/pdf',mp4:'video/mp4',webm:'video/webm',csv:'text/csv',md:'text/markdown',json:'application/json',txt:'text/plain'};
+const DL_OK=/\.(gif|png|jpe?g|webp|mp4|webm|mov|txt|json|md|docx|pptx|epub|csv|ttf|html|svg|pdf|xlsx|zip)$/i;
+const extOf=n=>((String(n||'').match(/\.([a-z0-9]{1,8})$/i)||[])[1]||'').toLowerCase();
+const ENV_HEAD='PASTELI-ARCHIVO-1\n';const ASSETS=new Map();
+function b64of(buf){const u=new Uint8Array(buf);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+function bufOf(b64){const s=atob(b64);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
 async function uploadFile(file){if(!S.assets){toast('Para subir archivos necesitas permiso de edición en la app.');return null}
-  const ok=['image/png','image/jpeg','image/gif','image/webp','application/pdf'];let type=file.type;if(!ok.includes(type)){if(/\.pdf$/i.test(file.name))type='application/pdf';else if(/\.jpe?g$/i.test(file.name))type='image/jpeg';else if(/\.png$/i.test(file.name))type='image/png';else{toast('Formato no compatible. Usa JPG, PNG o PDF.');return null}}
-  if(file.size>20*1024*1024){toast('El archivo pesa más de 20 MB.');return null}
-  toast('Subiendo…');try{const r=await S.assets.upload(file,{type});toast('Archivo guardado');return {id:r.id,nombre:file.name,tipo:type}}catch(e){toast(e?.code==='too_large'?'Archivo demasiado grande.':e?.code==='unsupported_type'?'Formato no compatible.':'No se pudo subir el archivo.');return null}}
+  if(!file||!file.size){toast('El archivo está vacío.');return null}
+  const ext=extOf(file.name);const t=FT[ext]||(Object.values(FT).includes(file.type)?file.type:null);
+  if(WEB)return uploadWeb(file,ext,t);
+  toast('Subiendo '+file.name+'…');
+  if(t&&file.size<=20*1024*1024){try{const r=await S.assets.upload(file,{type:t});toast('Archivo guardado');return {id:r.id,nombre:file.name,tipo:t,peso:file.size}}
+    catch(e){if(e?.code==='rate_limited'){toast('Espera un momento y vuelve a intentar.');return null}if(e?.code==='quota_or_state'){toast('Ya no hay espacio para más archivos.');return null}}}
+  if(file.size>14*1024*1024){toast('Este tipo de archivo puede pesar hasta 14 MB (fotos y PDF hasta 20 MB). Comprímelo o divídelo.');return null}
+  try{const body=ENV_HEAD+JSON.stringify({n:file.name,t:file.type||''})+'\n'+b64of(await file.arrayBuffer());
+    const r=await S.assets.upload(new Blob([body],{type:'text/plain'}),{type:'text/plain'});toast('Archivo guardado');return {id:r.id,nombre:file.name,tipo:file.type||ext||'archivo',env:1,peso:file.size}}
+  catch(e){toast(e?.code==='too_large'?'Archivo demasiado grande.':e?.code==='quota_or_state'?'Ya no hay espacio para más archivos.':'No se pudo subir '+file.name);return null}}
+function dlName(a){const e=extOf(a.nombre);const b=String(a.nombre||'archivo').replace(/\.[^.]+$/,'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9._ -]+/g,'_').trim().slice(0,60)||'archivo';return e?b+'.'+e:b}
+async function openAsset(a){if(!a.env){window.open('/_blob/'+a.id,'_blank','noopener');return}
+  toast('Preparando '+(a.nombre||'archivo')+'…');try{const b=await fetchAsset(a);const nm=dlName(a);
+    if(DL_OK.test(nm))await saveFile(nm,b);else{const Z=await loadZip();const z=new Z();z.file(nm,b);await saveFile(nm.replace(/\.[^.]+$/,'')+'.zip',await z.generateAsync({type:'blob'}))}}catch(e){toast('No se pudo abrir el archivo')}}
+document.addEventListener('click',e=>{const t=e.target.closest?.('[data-aid]');if(!t)return;e.preventDefault();e.stopPropagation();const a=ASSETS.get(t.dataset.aid);if(a)openAsset(a)},true);
+let xlsxReady=null,mamReady=null;
+async function anyText(f){const e=extOf(f.name);
+  try{if(/^(xlsx|xlsm|xls|ods)$/.test(e)){if(!xlsxReady)xlsxReady=loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');await xlsxReady;const wb=XLSX.read(await f.arrayBuffer());return wb.SheetNames.map(n=>`[Hoja ${n}]\n`+XLSX.utils.sheet_to_csv(wb.Sheets[n])).join('\n').slice(0,200000)}
+    if(e==='docx'){if(!mamReady)mamReady=loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');await mamReady;return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value.slice(0,200000)}}catch(err){return null}
+  if(/^(csv|tsv|txt|md|json|xml|html?)$/.test(e)||/^text\//.test(f.type))return (await f.text()).slice(0,200000);
+  return null}
+function filesEdHTML(id,label){return `<div class="field full"><span>${label||'Archivos adjuntos'} <small class="muted" style="font-weight:500">foto, PDF, Excel, Word, CSV o cualquier otro</small></span><div class="flist" id="${id}"></div></div>`}
+function filesEd(id,list){const box=document.getElementById(id);if(!box)return;
+  const draw=()=>{box.innerHTML=list.map((a,i)=>`<span class="fchip">${fileChip(a)}<button type="button" class="fx" data-rm="${i}" aria-label="Quitar ${esc(a.nombre||'archivo')}">×</button></span>`).join('')+(S.assets?`<button type="button" class="btn sm" data-add>+ Agregar archivos</button>`:'<span class="muted" style="font-size:13px">Para adjuntar archivos necesitas permiso de edición en la app.</span>');
+    box.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{list.splice(+b.dataset.rm,1);draw()}));
+    box.querySelector('[data-add]')?.addEventListener('click',()=>pickFile('',async fs=>{for(const f of fs){const r=await uploadFile(f);if(r){list.push(r);draw()}}},true))};draw()}
 const blob=id=>'/_blob/'+id;
 const thumb=p=>p.foto?`<img src="${blob(p.foto)}" alt="" loading="lazy">`:ill(p.dibujo,p.color);
 
@@ -1254,8 +1369,8 @@ async function sha(t){if(window.crypto&&crypto.subtle){try{const b=await crypto.
 const passHash=(pass,salt)=>sha(salt+':'+pass);
 function newSalt(){const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(x=>x.toString(16).padStart(2,'0')).join('')}
 let gateFails=0,gateUntil=0;
-function unlockDone(){S.unlocked=true;S.gate='pin';ss.set('pasteli-unlock','1');S.pin='';renderNegocio();const n=alerts().length;if(n)toast(`Aviso: ${n} ${n===1?'producto necesita':'productos necesitan'} pedido`)}
-function renderPass(el,head){const create=!S.config?.passHash;
+function unlockDone(){if(WEB){S.assets=window.__web.assets;window.__web.start()}S.unlocked=true;S.gate='pin';ss.set('pasteli-unlock','1');S.pin='';renderNegocio();const n=alerts().length;if(n)toast(`Aviso: ${n} ${n===1?'producto necesita':'productos necesitan'} pedido`)}
+function renderPass(el,head){const create=WEB?S.webSetup===false:!S.config?.passHash;
   const g=create?'c':'p';if(el.dataset.g===g&&el.querySelector('#gp'))return;el.dataset.g=g;
   el.innerHTML=head()+`<main class="wrap"><div class="gate">${ICON.lock.replace('<svg','<svg width="34" height="34" style="color:var(--ink-2)"')}<h2 style="font-size:28px;margin-top:8px">${create?'Crea tu contraseña':'Contraseña'}</h2>
   <p class="muted">${create?'Es el segundo candado del panel, además del PIN. Usa al menos 8 caracteres y guárdala bien.':'PIN correcto. Ahora escribe tu contraseña.'}</p>
@@ -1269,18 +1384,20 @@ function renderPass(el,head){const create=!S.config?.passHash;
   $('#gp-show').addEventListener('change',e=>{el.querySelectorAll('#gp input[type=password],#gp input[data-pw]').forEach(i=>{i.dataset.pw=1;i.type=e.target.checked?'text':'password'})});
   $('#gp-back').addEventListener('click',()=>{S.gate='pin';S.pin='';renderNegocio()});
   $('#gp').addEventListener('submit',async e=>{e.preventDefault();const v=i1.value;
+    if(WEB){if(create){if(v.length<8){toast('Usa al menos 8 caracteres');return}if(v!==$('#gp-2').value){toast('Las contraseñas no coinciden');return}}webLogin(S.pinTry||'',v,i1);return}
     if(create){if(v.length<8){toast('Usa al menos 8 caracteres');return}if(v!==$('#gp-2').value){toast('Las contraseñas no coinciden');return}
       const salt=newSalt();if(await write('config/app',{...(S.config||{}),passHash:await passHash(v,salt),passSalt:salt},'set')){toast('Contraseña guardada');unlockDone()}return}
     if(Date.now()<gateUntil){toast(`Demasiados intentos. Espera ${Math.ceil((gateUntil-Date.now())/1000)} segundos.`);return}
     if(await passHash(v,S.config.passSalt||'')===S.config.passHash){gateFails=0;unlockDone()}
     else{gateFails++;i1.value='';if(gateFails>=5){gateUntil=Date.now()+60000;gateFails=0;toast('Demasiados intentos. Espera 1 minuto.')}else toast('Contraseña incorrecta')}})}
-function renderGate(el,head){if(S.gate!=='pass')delete el.dataset.g;if(S.config===null){el.innerHTML=head()+`<main class="wrap"><div class="empty"><p>Cargando…</p></div></main>`;return}
+function renderGate(el,head){if(S.gate!=='pass')delete el.dataset.g;if(!WEB&&S.config===null){el.innerHTML=head()+`<main class="wrap"><div class="empty"><p>Cargando…</p></div></main>`;return}
   if(S.gate==='pass'){renderPass(el,head);return}
   const pin=String(S.config?.pin||'2003');
   el.innerHTML=head()+`<main class="wrap"><div class="gate">${ICON.lock.replace('<svg','<svg width="34" height="34" style="color:var(--ink-2)"')}<h2 style="font-size:28px;margin-top:8px">Acceso del negocio</h2><p class="muted">Escribe el PIN de 4 dígitos.</p>
   <div class="pinshow">${[0,1,2,3].map(i=>`<i class="${S.pin.length>i?'f':''}"></i>`).join('')}</div>
   <div class="keypad">${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button data-act="pin" data-v="${k}" aria-label="${k==='⌫'?'Borrar':k}">${k}</button>`).join('')}</div></div></main>`;
   if(S.pin.length===4){if(Date.now()<gateUntil){S.pin='';toast(`Demasiados intentos. Espera ${Math.ceil((gateUntil-Date.now())/1000)} segundos.`);setTimeout(()=>renderGate(el,head),200);return}
+    if(WEB){S.pinTry=S.pin;S.pin='';S.gate='pass';renderNegocio();return}
     if(S.pin===pin){S.pin='';gateFails=0;S.gate='pass';renderNegocio()}else{S.pin='';gateFails++;if(gateFails>=5){gateUntil=Date.now()+60000;gateFails=0;toast('Demasiados intentos. Espera 1 minuto.')}else toast('PIN incorrecto');setTimeout(()=>renderGate(el,head),200)}}
 }
 
@@ -1291,7 +1408,7 @@ function renderInv(m){
   const sub=S.isub;
   m.innerHTML=`
   ${cnt.rojo+cnt.amarillo&&sub!=='pedir'?`<div class="alertbar"><span class="light l-rojo"></span><b>${cnt.rojo?cnt.rojo+' en mínimo':''}${cnt.rojo&&cnt.amarillo?' · ':''}${cnt.amarillo?cnt.amarillo+' por llegar al mínimo':''}</b><button class="btn sm dark" data-act="isub" data-v="pedir">Ver qué pedir</button></div>`:''}
-  <div class="upcard"><div><b>Actualizar inventario con foto o documento</b><span>Sube la foto de tu hoja de conteo, un PDF o un CSV con existencias, mínimos y máximos. La app lo lee y actualiza cada producto sola.</span></div><button class="btn primary" data-act="upinv">${ICON.cam.replace('<svg','<svg width="18" height="18"')} Agregar foto</button></div>
+  ${WEB?'':`<div class="upcard"><div><b>Actualizar inventario con foto o documento</b><span>Sube la foto de tu hoja de conteo, un PDF o un CSV con existencias, mínimos y máximos. La app lo lee y actualiza cada producto sola.</span></div><button class="btn primary" data-act="upinv">${ICON.cam.replace('<svg','<svg width="18" height="18"')} Agregar foto</button></div>`}
   <div class="sem-row">${['rojo','amarillo','verde','gris'].map(k=>`<button class="sem" data-act="semf" data-v="${k}" aria-pressed="${S.semF===k}"><span class="n num">${cnt[k]}</span><span class="l"><span class="light l-${k}"></span>${SEM_TXT[k]}</span></button>`).join('')}</div>
   <div class="seg">${[['prod','Productos'],['pedir','Qué pedir'],['prov','Proveedores'],['met','Métricas']].map(([k,l])=>`<button class="chip" data-act="isub" data-v="${k}" aria-pressed="${sub===k}">${l}</button>`).join('')}<span style="flex:1"></span><button class="btn sm primary" data-act="newprod">+ Producto</button></div>
   <div id="isub"></div>`;
@@ -1440,18 +1557,18 @@ async function pdfImages(file,maxPages){const lib=await loadPdf();const doc=awai
   for(let n=1;n<=Math.min(doc.numPages,maxPages);n++){const pg=await doc.getPage(n);const v0=pg.getViewport({scale:1});const vp=pg.getViewport({scale:Math.min(2.2,1800/Math.max(v0.width,v0.height))});
     const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;out.push(await canvasBlob(c))}
   return {imgs:out,pages:doc.numPages}}
-function pickInventario(){pickFile('image/*,application/pdf,.pdf,.csv,text/csv,.txt,text/plain',importInventario,true)}
+function pickInventario(){pickFile('',importInventario,true)}
 function invStatus(html){pane(`<div class="sheet-head"><h2>Actualizar inventario</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${html}`)}
 async function importInventario(files){
   const sample=await window.claude?.use?.('sample');
-  if(!sample){invStatus(`<div class="empty"><h3>La lectura automática no está disponible aquí</h3><p>Abre la app en el asistente con tu cuenta para que pueda leer el archivo.</p></div>`);return}
+  if(!sample){invStatus(`<div class="empty"><h3>La lectura automática no está disponible aquí</h3><p>${NOAI}</p></div>`);return}
   invStatus(`<div class="reading"><span class="spin"></span><div><b>Preparando ${files.length===1?'el archivo':files.length+' archivos'}…</b><span class="muted">${esc(files.map(f=>f.name).join(', '))}</span></div></div>`);
   let lim=null;try{lim=await sample.limits()}catch(e){}
   const maxImg=lim?.images?.maxCount||0;const imgs=[];let texto='';const archivos=[];let skipped=0;
   try{for(const f of files){
     const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name),isImg=/^image\//.test(f.type),isTxt=/\.(csv|txt)$/i.test(f.name)||/^text\//.test(f.type);
-    if((isPdf||isImg)&&S.assets){const r=await uploadFile(f);if(r)archivos.push(r)}
-    if(isTxt){texto+=`\n--- ${f.name} ---\n`+(await f.text()).slice(0,60000)}
+    if(S.assets){const r=await uploadFile(f);if(r)archivos.push(r)}
+    if(!isPdf&&!isImg){const t=await anyText(f);if(t)texto+=`\n--- ${f.name} ---\n`+t.slice(0,60000);else skipped++}
     else if(isImg){if(imgs.length<maxImg)imgs.push(await shrink(f));else skipped++}
     else if(isPdf){const {imgs:pi,pages}=await pdfImages(f,Math.max(0,maxImg-imgs.length));imgs.push(...pi);if(pages>pi.length)skipped+=pages-pi.length}
   }}catch(e){invStatus(`<div class="empty"><h3>No pude abrir el archivo</h3><p>Prueba con una foto (JPG o PNG), un PDF o un CSV.</p></div>`);return}
@@ -1558,7 +1675,7 @@ function editPlan(){const p=S.bitPlan||{dias:{}};
   $('#pl').addEventListener('submit',async e=>{e.preventDefault();const dias={};
     $('#pl').querySelectorAll('textarea').forEach(ta=>{const d=ta.dataset.d;const old=((p.dias||{})[d]||[]);dias[d]=ta.value.split('\n').map(x=>x.trim()).filter(Boolean).map((t,i)=>{const same=old.find(o=>o.t===t);return {id:same?same.id:`p${d}-${Date.now().toString(36)}${i}`,t}})});
     if(await write('bitacora/plan',{dias,actualizado:new Date().toISOString()},'set')){S.bitPlan={dias};closeSheet();toast('Plan guardado')}})}
-function pickPlan(){pickFile('image/*,application/pdf,.pdf,.csv,.txt,text/plain',importPlan,true)}
+function pickPlan(){pickFile('',importPlan,true)}
 async function importPlan(files){const sample=await window.claude?.use?.('sample');
   const st=h=>pane(`<div class="sheet-head"><h2>Plan de la semana</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${h}`);
   if(!sample){st(`<div class="empty"><h3>La lectura automática no está disponible aquí</h3><p>Usa “Editar a mano”.</p></div>`);return}
@@ -1566,7 +1683,7 @@ async function importPlan(files){const sample=await window.claude?.use?.('sample
   let text='';const imgs=[];let lim=null;try{lim=await sample.limits()}catch(e){}
   try{for(const f of files){const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name),isImg=/^image\//.test(f.type);
     if(isPdf){const t=await pdfText(f);if(t.text.replace(/---.*---/g,'').trim().length>20)text+=t.text;else{const {imgs:pi}=await pdfImages(f,(lim?.images?.maxCount||0)-imgs.length);imgs.push(...pi)}}
-    else if(isImg){if(imgs.length<(lim?.images?.maxCount||0))imgs.push(await shrink(f))}else text+=(await f.text()).slice(0,60000)}}catch(e){st(`<div class="empty"><h3>No pude abrir el archivo</h3></div>`);return}
+    else if(isImg){if(imgs.length<(lim?.images?.maxCount||0))imgs.push(await shrink(f))}else{const t=await anyText(f);if(t)text+=t.slice(0,60000)}}}catch(e){st(`<div class="empty"><h3>No pude abrir el archivo</h3></div>`);return}
   const prompt=`Este documento describe las tareas de una pastelería para cada día de la semana. Extrae las tareas por día. Si una tarea aplica todos los días, ponla en los 7. Si dice "entre semana", de lunes a viernes. Redacta cada tarea corta y clara, en español, empezando con verbo.
 Responde SOLO JSON: {"dias":{"1":["tarea"],"2":[],"3":[],"4":[],"5":[],"6":[],"0":[]}} donde 1=lunes ... 6=sábado, 0=domingo.
 ${text?'\nDOCUMENTO:\n'+text:''}`;
@@ -1713,7 +1830,7 @@ function editFacCli(id){const f=id?{...S.facCli.find(x=>x.id===id)}:{nombre:'',r
   ${id?`<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">${f.estado==='enviada'?`<button class="btn sm ghost" id="fe-reopen">Marcar como no enviada</button>`:''}${ask?`<button class="btn sm" style="color:var(--bad)" id="fe-del2">Sí, eliminar</button> <button class="btn sm ghost" id="fe-delno">Cancelar</button>`:`<button class="btn sm ghost" style="color:var(--bad)" id="fe-del">Eliminar solicitud</button>`}</div>`:''}`);
     const fill=o=>{Object.entries(o).forEach(([k,v])=>{const el=$('#fe-'+k);if(el&&v!=null&&v!=='')el.value=v})};
     document.querySelectorAll('[data-fup]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fup;const keep={};FAC_FIELDS.forEach(([q])=>{const el=$('#fe-'+q);if(el)keep[q]=el.value});
-      pickFile('image/*,application/pdf,.pdf',async file=>{toast('Subiendo…');const a=await upAsset(file);if(!a)return;Object.assign(f,keep);f[k]=a;if(id)await write('facturas_cli/'+id,{[k]:a});toast('Archivo guardado');paint()})}));
+      pickFile('',async file=>{const a=await uploadFile(file);if(!a)return;Object.assign(f,keep);f[k]=a;if(id)await write('facturas_cli/'+id,{[k]:a});toast('Archivo guardado');paint()})}));
     $('#fe-paste')?.addEventListener('input',e=>{const o=parseFacMsg(e.target.value);if(Object.keys(o).length){fill(o);toast('Datos llenados desde el mensaje')}});
     $('#fe-del')?.addEventListener('click',()=>{ask=true;paint()});$('#fe-delno')?.addEventListener('click',()=>{ask=false;paint()});
     $('#fe-del2')?.addEventListener('click',async()=>{try{await S.db.doc('facturas_cli/'+id).delete();closeSheet();toast('Solicitud eliminada')}catch(e){toast('No se pudo eliminar')}});
@@ -1734,7 +1851,9 @@ function facUpload(id){pickFile('application/pdf,.pdf,.xml,text/xml,application/
 
 let zipReady=null;function loadZip(){return zipReady||(zipReady=loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js').then(()=>window.JSZip))}
 const safeName=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9._-]+/g,'_').replace(/_+/g,'_').slice(0,60);
-async function fetchAsset(a){const r=await fetch(blob(a.id));if(!r.ok)throw new Error('fetch');return a.tipo==='xml'?new Blob([await r.text()],{type:'application/xml'}):await r.blob()}
+async function fetchAsset(a){const r=await fetch(blob(a.id));if(!r.ok)throw new Error('fetch');
+  if(a.env){const txt=await r.text();const i=txt.indexOf('\n',ENV_HEAD.length);const meta=JSON.parse(txt.slice(ENV_HEAD.length,i));return new Blob([bufOf(txt.slice(i+1))],{type:meta.t||'application/octet-stream'})}
+  return a.tipo==='xml'?new Blob([await r.text()],{type:'application/xml'}):await r.blob()}
 async function saveFile(filename,data){const dl=await window.claude?.use?.('downloads');if(!dl){toast('Las descargas no están disponibles en esta vista.');return false}
   try{await dl.save({filename,data});return true}catch(e){if(e?.code!=='declined')toast(e?.code==='rate_limited'?'Espera un momento y vuelve a intentar.':'No se pudo descargar.');return false}}
 async function facSend(id,via){const f=S.facCli.find(x=>x.id===id);if(!f||!f.pdf)return;
@@ -1756,7 +1875,7 @@ function facZipMenu(){const meses=[...new Set(S.facCli.map(f=>(f.fechaCompra||f.
 async function facZip(mes){const list=S.facCli.filter(f=>mes==='all'||(f.fechaCompra||f.creado||'').startsWith(mes));if(!list.length){toast('No hay facturas en ese periodo');return}
   toast('Armando el ZIP…');const JSZip=await loadZip();const z=new JSZip();let miss=0;
   for(const f of list){const dir=`${(f.fechaCompra||f.creado||'sin-fecha').slice(0,7)}/${safeName(f.rfc)}_${safeName(f.nombre)}_${(f.fechaCompra||'').replace(/-/g,'')}`;
-    for(const [a,nm] of [[f.pdf,'factura.pdf'],[f.xml,'factura.xml'],[f.ticketImg,'ticket'],[f.constancia,'constancia']]){if(!a)continue;const ext=nm.includes('.')?'':(a.tipo==='application/pdf'?'.pdf':a.tipo==='image/png'?'.png':'.jpg');try{z.file(`${dir}/${nm}${ext}`,await fetchAsset(a))}catch(e){miss++}}}
+    for(const [a,nm] of [[f.pdf,'factura.pdf'],[f.xml,'factura.xml'],[f.ticketImg,'ticket'],[f.constancia,'constancia']]){if(!a)continue;const ext=nm.includes('.')?'':('.'+(extOf(a.nombre)||(a.tipo==='application/pdf'?'pdf':a.tipo==='image/png'?'png':'jpg')));try{z.file(`${dir}/${nm}${ext}`,await fetchAsset(a))}catch(e){miss++}}}
   z.file('resumen_facturas.csv',toCSV(list.map(f=>({'Fecha compra':f.fechaCompra,'Nombre o razón social':f.nombre,RFC:f.rfc,'Régimen':lbl(REGIMENES,f.regimen),CP:f.cp,'Uso CFDI':lbl(USOS,f.uso),'Forma de pago':lbl(PAGOS,f.pago),Total:f.total,Ticket:f.ticket,Correo:f.correo,WhatsApp:f.tel,Estado:facSt(f)[1],'Enviada el':f.enviadaEl||'',Vía:f.via||'',PDF:f.pdf?'sí':'no',XML:f.xml?'sí':'no'}))));
   if(await saveFile(`Facturas_Pasteli_${mes==='all'?'todas':mes}.zip`,await z.generateAsync({type:'blob'}))){closeSheet();toast(miss?`ZIP listo (faltaron ${miss} archivos)`:'ZIP listo')}}
 
@@ -1800,8 +1919,8 @@ const SITE_RESET='*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidd
 function staticHTML(cat,local){if(!__SRC)return null;const json=JSON.stringify(cat).replace(/</g,'\\u003c');
   let src=__SRC.replace(/(<script type="application\/json" id="catalogo-data">)[\s\S]*?(<\/script>)/,(m,a,b)=>a+json+b)
     .replace('const LOCAL_MEDIA=null;','const LOCAL_MEDIA='+JSON.stringify(local)+';')
-    .replace(/<title>[\s\S]*?<\/title>/,'').replace('<!--PASTELI-SRC-BEGIN-->','')
-    .replace(/<p id="own-edit"[\s\S]*?<\/p>/,'').replace(/\bCl[a]ude\b/g,'el asistente');
+    .replace(/<title>[\s\S]*?<\/title>/,'').replace('','')
+    .replace(/<p id="own-edit"[\s\S]*?<\/p>/,'').replace(/\bClaude\b/g,'el asistente');
   return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>'+esc(SITE.nombre)+'</title><meta name="description" content="Menú de Pasteli: pasteles, tartas y repostería en Chihuahua. Haz tu pedido por WhatsApp."><meta name="theme-color" content="#f2e2d4"><link rel="icon" type="image/png" href="media/logo.png"><meta property="og:title" content="Pasteli · Menú"><meta property="og:description" content="Sabores reales en cada bocado. Pide por WhatsApp."><meta property="og:image" content="media/logo.png"><style>'+SITE_RESET+'</style></head><body>'+src+'</body></html>'}
 async function netlifyZip(){if(S.dirty){toast('Primero publica tus cambios');return}
   toast('Armando la carpeta para Netlify…');const JSZip=await loadZip();const z=new JSZip();const local={};const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','font/woff2':'woff2'};
@@ -1867,7 +1986,7 @@ function setSite(p,v,rerender){ensureDraft();if(!isObj(S.draft.site))S.draft.sit
   S.draft.site=cur;S.dirty=true;try{sessionStorage.setItem('pasteli-draft',JSON.stringify(S.draft))}catch(e){}
   applySite(cur);if(rerender)renderNegocio();else refreshBar()}
 function refreshBar(){const b=document.querySelector('#nmain .pubbar');if(b)b.outerHTML=pubBar()}
-function pubBar(){return `<div class="pubbar${S.dirty?' on':''}"><span>${S.publishing?'Publicando…':S.dirty?'Tienes cambios sin publicar. Los clientes los verán al publicar.':'Todo publicado. Los clientes ven exactamente esto.'}</span>${S.dirty&&!S.publishing?`<button class="btn sm ghost" data-act="catdiscard">Descartar</button><button class="btn sm primary" data-act="catpublish">Publicar cambios</button>`:S.publishing?'':`<button class="btn sm" data-act="netzip">⬇︎ Descargar para Netlify</button>`}</div>`}
+function pubBar(){return `<div class="pubbar${S.dirty?' on':''}"><span>${S.publishing?'Publicando…':S.dirty?'Tienes cambios sin publicar. Los clientes los verán al publicar.':'Todo publicado. Los clientes ven exactamente esto.'}</span>${S.dirty&&!S.publishing?`<button class="btn sm ghost" data-act="catdiscard">Descartar</button><button class="btn sm primary" data-act="catpublish">Publicar cambios</button>`:S.publishing||WEB?'':`<button class="btn sm" data-act="netzip">⬇︎ Descargar para Netlify</button>`}</div>`}
 const fIn=(p,label,full,ph,type)=>{const v=getPath(draftSite(),p);return `<label class="field${full?' full':''}"><span>${label}</span><input data-sp="${p}"${type?` type="${type}"`:''} value="${esc(v??'')}"${ph?` placeholder="${esc(ph)}"`:''}></label>`};
 const fTa=(p,label)=>`<label class="field full"><span>${label}</span><textarea data-sp="${p}" rows="2">${esc(getPath(draftSite(),p)??'')}</textarea></label>`;
 function renderSitio(m){const s=draftSite();const sub=S.sitSub||'ident';
@@ -1910,11 +2029,11 @@ function sitPreview(){S.prevFrom=S.ntab;go('home');toast('Vista previa: así se 
 function facStatus(f){if(f.estado==='pagada')return 'pagada';const d=daysTo(f.vence);if(d==null)return 'ok';if(d<0)return 'vencida';if(d<=7)return 'pronto';return 'ok'}
 const ST_TXT={pagada:'Pagada',vencida:'Vencida',pronto:'Vence pronto',ok:'Pendiente'};
 function vencTxt(f){const d=daysTo(f.vence);if(f.estado==='pagada')return 'Pagada '+fdate(f.pagadaEl);if(d==null)return 'Sin vencimiento';if(d<0)return `Venció hace ${-d} ${d===-1?'día':'días'}`;if(d===0)return 'Vence hoy';return `Vence en ${d} ${d===1?'día':'días'} · ${fdate(f.vence)}`}
-function fileChip(a,label){return a?.id?`<a class="file" href="${blob(a.id)}" target="_blank" rel="noopener">📎 ${esc(label||a.nombre||'Archivo')}</a>`:''}
+function fileChip(a,label){if(!a?.id)return '';ASSETS.set(a.id,a);return `<a class="file" href="${blob(a.id)}" target="_blank" rel="noopener"${a.env?` data-aid="${a.id}"`:''} title="${esc(a.nombre||'')}">📎 ${esc(label||a.nombre||'Archivo')}</a>`}
 function docRow(f,showProv=true){const st=facStatus(f);
   return `<div class="doc"><div><b>${showProv?esc(provName(f.prov))+' · ':''}${f.folio?'Factura '+esc(f.folio):'Factura'}</b><div class="meta">${fdate(f.fecha)} · <span class="status ${st}">${ST_TXT[st]}</span> ${esc(vencTxt(f))}</div></div>
   <div class="amt num">${money(f.monto)}</div>
-  <div class="acts">${fileChip(f.archivo,'Factura')}${(f.comprobantes||[]).map((c,i)=>fileChip(c,'Comprobante'+((f.comprobantes.length>1)?' '+(i+1):''))).join('')}
+  <div class="acts">${fileChip(f.archivo,'Factura')}${(f.comprobantes||[]).map((c,i)=>fileChip(c,'Comprobante'+((f.comprobantes.length>1)?' '+(i+1):''))).join('')}${(f.archivos||[]).map(a=>fileChip(a)).join('')}
    ${f.estado!=='pagada'?`<button class="btn sm primary" data-act="pagar" data-id="${f.id}">Registrar pago</button>`:''}<button class="btn sm ghost" data-act="editfac" data-id="${f.id}">Editar</button></div></div>`}
 function renderFin(m){
   if(!S.loaded.f){m.innerHTML='<div class="empty"><p>Cargando…</p></div>';return}
@@ -1941,7 +2060,7 @@ function renderCxp(m){
   ${pend.length?`<div class="group-h"><h3>Próximos pagos</h3><span class="muted">ordenados por vencimiento</span></div><div class="list">${pend.map(f=>docRow(f)).join('')}</div>`
   :`<div class="empty">${ill('ledger')}<h3>No hay cuentas por pagar</h3><p>Cuando subas una factura sin pagar en Finanzas, aparecerá aquí con su fecha de vencimiento.</p></div>`}<div class="sec-gap"></div>`;
 }
-function editFac(id){const f=id?S.facturas.find(x=>x.id===id):{prov:S.finProv||'',folio:'',monto:'',fecha:todayISO(),vence:'',notas:'',estado:'pendiente'};let file=null,confirmDel=false;
+function editFac(id){const f=id?S.facturas.find(x=>x.id===id):{prov:S.finProv||'',folio:'',monto:'',fecha:todayISO(),vence:'',notas:'',estado:'pendiente'};let file=null,confirmDel=false;const arch=[...(f.archivos||[])];
   const paint=()=>{pane(`<div class="grab"></div><div class="sheet-head"><h2>${id?'Editar factura':'Subir factura'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <form id="ff" class="fgrid">
    <label class="field full"><span>Proveedor</span><select id="ff-p" required><option value="">Elige proveedor</option>${[...S.provs.values()].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(v=>`<option value="${v.id}" ${v.id===f.prov?'selected':''}>${esc(v.nombre)}</option>`).join('')}</select></label>
@@ -1949,27 +2068,27 @@ function editFac(id){const f=id?S.facturas.find(x=>x.id===id):{prov:S.finProv||'
    <label class="field"><span>Monto</span><input id="ff-m" type="number" step="0.01" min="0" inputmode="decimal" required value="${f.monto??''}"></label>
    <label class="field"><span>Fecha de factura</span><input id="ff-d" type="date" value="${esc(f.fecha||'')}"></label>
    <label class="field"><span>Fecha de vencimiento</span><input id="ff-v" type="date" value="${esc(f.vence||'')}"></label>
-   <label class="field full"><span>Archivo de la factura (PDF o foto)</span><input id="ff-a" type="file" accept="image/*,application/pdf"></label>
+   <label class="field full"><span>Archivo de la factura (cualquier tipo)</span><input id="ff-a" type="file"></label>
    ${f.archivo?`<div class="full">${fileChip(f.archivo,'Factura actual')}</div>`:''}
-   ${!S.assets?'<p class="muted full" style="font-size:13px;margin:0">Para adjuntar archivos necesitas permiso de edición en la app.</p>':''}
+   ${filesEdHTML('ff-x','Otros archivos')}
    <label class="field full"><span>Notas</span><input id="ff-n" value="${esc(f.notas||'')}"></label>
    <label class="full" style="display:flex;gap:10px;align-items:center"><input id="ff-paid" type="checkbox" ${f.estado==='pagada'?'checked':''}> Ya está pagada</label>
    <button class="btn primary full" type="submit">Guardar</button>
   </form>${id?`<div style="text-align:center;margin-top:14px">${confirmDel?`<button class="btn sm" style="color:var(--bad)" id="ff-del2">Sí, eliminar</button> <button class="btn sm ghost" id="ff-delno">Cancelar</button>`:`<button class="btn sm ghost" style="color:var(--bad)" id="ff-del">Eliminar factura</button>`}</div>`:''}`);
-  const P=$('#sheet .pane');
+  const P=$('#sheet .pane');filesEd('ff-x',arch);
   P.querySelector('#ff-a').addEventListener('change',e=>file=e.target.files[0]||null);
   P.querySelector('#ff-del')?.addEventListener('click',()=>{confirmDel=true;paint()});P.querySelector('#ff-delno')?.addEventListener('click',()=>{confirmDel=false;paint()});
   P.querySelector('#ff-del2')?.addEventListener('click',async()=>{try{await S.db.doc('facturas/'+id).delete();closeSheet();toast('Factura eliminada')}catch(e){toast('No se pudo eliminar')}});
   P.querySelector('#ff').addEventListener('submit',async e=>{e.preventDefault();const prov=P.querySelector('#ff-p').value;const monto=num(P.querySelector('#ff-m').value);if(!prov||monto==null){toast('Elige proveedor y escribe el monto');return}
     let archivo=f.archivo||null;if(file){const r=await uploadFile(file);if(!r)return;archivo=r}
     const paid=P.querySelector('#ff-paid').checked;
-    const data={prov,folio:P.querySelector('#ff-f').value.trim(),monto,fecha:P.querySelector('#ff-d').value,vence:P.querySelector('#ff-v').value,notas:P.querySelector('#ff-n').value.trim(),archivo,estado:paid?'pagada':'pendiente',pagadaEl:paid?(f.pagadaEl||todayISO()):null,comprobantes:f.comprobantes||[]};
+    const data={prov,folio:P.querySelector('#ff-f').value.trim(),monto,fecha:P.querySelector('#ff-d').value,vence:P.querySelector('#ff-v').value,notas:P.querySelector('#ff-n').value.trim(),archivo,archivos:arch,estado:paid?'pagada':'pendiente',pagadaEl:paid?(f.pagadaEl||todayISO()):null,comprobantes:f.comprobantes||[]};
     const fid=id||('f-'+Date.now().toString(36));if(await write('facturas/'+fid,data,'set')){closeSheet();toast('Factura guardada')}})};paint()}
 function pagar(id){const f=S.facturas.find(x=>x.id===id);let file=null;
   pane(`<div class="grab"></div><div class="sheet-head"><h2>Registrar pago</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <p style="margin:0 0 10px"><b>${esc(provName(f.prov))}</b>${f.folio?' · Factura '+esc(f.folio):''} · <span class="num">${money(f.monto)}</span></p>
   <form id="pg" class="fgrid"><label class="field"><span>Fecha de pago</span><input id="pg-d" type="date" value="${todayISO()}"></label><label class="field"><span>Monto pagado</span><input id="pg-m" type="number" step="0.01" value="${f.monto??''}"></label>
-  <label class="field full"><span>Comprobante de pago (foto o PDF)</span><input id="pg-a" type="file" accept="image/*,application/pdf"></label>
+  <label class="field full"><span>Comprobante de pago (cualquier tipo, opcional)</span><input id="pg-a" type="file"></label>
   <button class="btn primary full" type="submit">Marcar como pagada</button></form>`);
   $('#pg-a').addEventListener('change',e=>file=e.target.files[0]||null);
   $('#pg').addEventListener('submit',async e=>{e.preventDefault();let comp=null;if(file){comp=await uploadFile(file);if(!comp)return}
@@ -1985,49 +2104,99 @@ function renderCxc(m){
   const row=c=>{const sal=cxcSaldo(c);const d=daysTo(c.vence);const st=c.estado==='cobrada'?'pagada':d==null?'ok':d<0?'vencida':d<=3?'pronto':'ok';
     return `<div class="doc"><div><b>${esc(c.cliente)}</b>${c.tel?` <span class="muted mono" style="font-size:12.5px">${esc(c.tel)}</span>`:''}<div class="meta">${esc(c.concepto||'')} · <span class="status ${st}">${c.estado==='cobrada'?'Cobrada':d==null?'Pendiente':d<0?'Vencida':'Pendiente'}</span> ${c.vence&&c.estado!=='cobrada'?'Cobrar '+fdate(c.vence):''}</div>${(c.abonos||[]).length?`<div class="meta">Abonos: ${(c.abonos||[]).map(a=>money(a.monto)+' ('+fdate(a.fecha)+')').join(', ')}</div>`:''}</div>
     <div class="amt num">${money(c.estado==='cobrada'?c.monto:sal)}<div class="muted" style="font-size:12px;font-family:var(--f-body);font-weight:500">${c.estado==='cobrada'?'total':'de '+money(c.monto)}</div></div>
-    <div class="acts">${c.estado!=='cobrada'?`<button class="btn sm primary" data-act="abono" data-id="${c.id}">Registrar abono</button><button class="btn sm" data-act="cobrada" data-id="${c.id}">Marcar cobrada</button>`:''}<button class="btn sm ghost" data-act="editcxc" data-id="${c.id}">Editar</button></div></div>`};
+    <div class="acts">${(c.archivos||[]).map(a=>fileChip(a)).join('')}${(c.abonos||[]).filter(a=>a.archivo).map(a=>fileChip(a.archivo,'Comprobante '+fdate(a.fecha))).join('')}${c.estado!=='cobrada'?`<button class="btn sm primary" data-act="abono" data-id="${c.id}">Registrar abono</button><button class="btn sm" data-act="cobrada" data-id="${c.id}">Marcar cobrada</button>`:''}<button class="btn sm ghost" data-act="editcxc" data-id="${c.id}">Editar</button></div></div>`};
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Por cobrar</div><div class="v num">${money(tot)}</div><div class="muted" style="font-size:12.5px">${pend.length} cuentas</div></div><div class="kpi"><div class="k">Vencido</div><div class="v num" style="color:${venc.length?'var(--bad)':'inherit'}">${money(venc.reduce((a,c)=>a+cxcSaldo(c),0))}</div></div><div class="kpi"><div class="k">Cobradas</div><div class="v num">${S.cxc.filter(c=>c.estado==='cobrada').length}</div></div></div>
   <div style="display:flex;justify-content:flex-end"><button class="btn primary" data-act="editcxc" data-id="">+ Nueva cuenta por cobrar</button></div>
   ${pend.length?`<div class="group-h"><h3>Pendientes</h3></div><div class="list">${pend.map(row).join('')}</div>`:`<div class="empty">${ill('cake','cream','straw')}<h3>Nadie te debe por ahora</h3><p>Registra aquí pedidos con anticipo, eventos o clientes a crédito para dar seguimiento al cobro.</p></div>`}
   ${done.length?`<div class="group-h"><h3>Cobradas recientes</h3></div><div class="list">${done.map(row).join('')}</div>`:''}<div class="sec-gap"></div>`;
 }
-function editCxc(id){const c=id?S.cxc.find(x=>x.id===id):{cliente:'',tel:'',concepto:'',monto:'',vence:'',abonos:[],estado:'pendiente'};
+function editCxc(id){const c=id?S.cxc.find(x=>x.id===id):{cliente:'',tel:'',concepto:'',monto:'',vence:'',abonos:[],estado:'pendiente'};const arch=[...(c.archivos||[])];
   pane(`<div class="grab"></div><div class="sheet-head"><h2>${id?'Editar cuenta':'Nueva cuenta por cobrar'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <form id="cf" class="fgrid"><label class="field"><span>Cliente</span><input id="c-n" required value="${esc(c.cliente)}"></label><label class="field"><span>Teléfono</span><input id="c-t" inputmode="tel" value="${esc(c.tel||'')}"></label>
   <label class="field full"><span>Concepto</span><input id="c-c" value="${esc(c.concepto||'')}" placeholder="Ej. Pastel Jumbo boda 15 nov"></label>
   <label class="field"><span>Monto total</span><input id="c-m" type="number" step="0.01" min="0" required value="${c.monto??''}"></label><label class="field"><span>Fecha de cobro</span><input id="c-v" type="date" value="${esc(c.vence||'')}"></label>
   ${!id?`<label class="field full"><span>Anticipo recibido (opcional)</span><input id="c-a" type="number" step="0.01" min="0"></label>`:''}
+  ${filesEdHTML('c-x','Archivos (nota, contrato, cotización, comprobantes…)')}
   <button class="btn primary full" type="submit">Guardar</button></form>${id?`<div style="text-align:center;margin-top:14px"><button class="btn sm ghost" style="color:var(--bad)" id="c-del">Eliminar</button></div>`:''}`);
+  filesEd('c-x',arch);
   $('#cf').addEventListener('submit',async e=>{e.preventDefault();const monto=num($('#c-m').value);if(!$('#c-n').value.trim()||monto==null){toast('Escribe cliente y monto');return}
     const ab=[...(c.abonos||[])];const ant=!id?num($('#c-a').value):null;if(ant)ab.push({monto:ant,fecha:todayISO()});
-    const data={cliente:$('#c-n').value.trim(),tel:$('#c-t').value.trim(),concepto:$('#c-c').value.trim(),monto,vence:$('#c-v').value,abonos:ab,estado:c.estado||'pendiente',cobradaEl:c.cobradaEl||null};
+    const data={cliente:$('#c-n').value.trim(),tel:$('#c-t').value.trim(),concepto:$('#c-c').value.trim(),monto,vence:$('#c-v').value,abonos:ab,archivos:arch,estado:c.estado||'pendiente',cobradaEl:c.cobradaEl||null};
     if(await write('cxc/'+(id||'c-'+Date.now().toString(36)),data,'set')){closeSheet();toast('Cuenta guardada')}});
   let armed=false;$('#c-del')?.addEventListener('click',async e=>{if(!armed){armed=true;e.target.textContent='Toca otra vez para eliminar';return}try{await S.db.doc('cxc/'+id).delete();closeSheet();toast('Cuenta eliminada')}catch(err){toast('No se pudo eliminar')}})}
 function abono(id){const c=S.cxc.find(x=>x.id===id);
   pane(`<div class="grab"></div><div class="sheet-head"><h2>Abono de ${esc(c.cliente)}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div><p class="muted">Saldo: <b class="num">${money(cxcSaldo(c))}</b></p>
-  <form id="ab" class="fgrid"><label class="field"><span>Monto</span><input id="ab-m" type="number" step="0.01" min="0" required></label><label class="field"><span>Fecha</span><input id="ab-d" type="date" value="${todayISO()}"></label><button class="btn primary full" type="submit">Guardar abono</button></form>`);
-  $('#ab').addEventListener('submit',async e=>{e.preventDefault();const v=num($('#ab-m').value);if(!v)return;const ab=[...(c.abonos||[]),{monto:v,fecha:$('#ab-d').value}];const sal=(Number(c.monto)||0)-ab.reduce((a,b)=>a+b.monto,0);
+  <form id="ab" class="fgrid"><label class="field"><span>Monto</span><input id="ab-m" type="number" step="0.01" min="0" required></label><label class="field"><span>Fecha</span><input id="ab-d" type="date" value="${todayISO()}"></label><label class="field full"><span>Comprobante (cualquier tipo, opcional)</span><input id="ab-a" type="file"></label><button class="btn primary full" type="submit">Guardar abono</button></form>`);
+  $('#ab').addEventListener('submit',async e=>{e.preventDefault();const v=num($('#ab-m').value);if(!v)return;const af=$('#ab-a').files[0];let archivo=null;if(af){archivo=await uploadFile(af);if(!archivo)return}
+    const ab=[...(c.abonos||[]),{monto:v,fecha:$('#ab-d').value,...(archivo?{archivo}:{})}];const sal=(Number(c.monto)||0)-ab.reduce((a,b)=>a+b.monto,0);
     if(await write('cxc/'+id,{abonos:ab,...(sal<=0.009?{estado:'cobrada',cobradaEl:$('#ab-d').value}:{})})){closeSheet();toast(sal<=0.009?'Cuenta liquidada':'Abono registrado')}})}
 
 function settings(){pane(`<div class="grab"></div><div class="sheet-head"><h2>Ajustes</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <form id="st" class="fgrid"><label class="field full"><span>Nuevo PIN (4 dígitos)</span><input id="st-pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="••••"></label><button class="btn primary full" type="submit">Cambiar PIN</button></form>
   <div class="sep"></div><span class="label">Contraseña</span>
   <form id="sp" class="fgrid"><label class="field full"><span>Contraseña actual</span><input id="sp-0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input id="sp-1" type="password" autocomplete="new-password"></label><label class="field"><span>Repite la nueva</span><input id="sp-2" type="password" autocomplete="new-password"></label><button class="btn primary full" type="submit">Cambiar contraseña</button></form>
-  <p class="muted" style="font-size:13px">Para entrar se piden el PIN y la contraseña. Además, los datos del negocio solo los puede leer tu cuenta (y quien invites como editor), aunque alguien adivine el PIN.</p>
+  <p class="muted" style="font-size:13px">${WEB?'Para entrar se piden el PIN y la contraseña. El servidor revisa los dos y bloquea varios minutos después de 5 intentos fallidos. Al cambiar el PIN o la contraseña se cierran las sesiones abiertas en otros aparatos.':'Para entrar se piden el PIN y la contraseña. Además, los datos del negocio solo los puede leer tu cuenta (y quien invites como editor), aunque alguien adivine el PIN.'}</p>
   <button class="btn block" style="margin-top:8px" data-act="lock">Bloquear panel</button>
-  <div class="sep"></div>${avisosHTML()}
+  ${WEB?`<div class="sep"></div><span class="label">Importar datos</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Carga el archivo <b>pasteli-datos.json</b> con tu inventario y proveedores de la app anterior.</p><button class="btn block" id="st-imp">⬆︎ Importar archivo de datos</button>`:`<div class="sep"></div>${avisosHTML()}`}
   <div class="sep"></div><span class="label">Descargas</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Un ZIP con inventario, movimientos, ventas, CxP, CxC, pedidos y facturas en archivos que abren en Excel.</p>
-  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);bindAvisos();
+  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);if(WEB){webSettings();return}bindAvisos();
   $('#st').addEventListener('submit',async e=>{e.preventDefault();const v=$('#st-pin').value;if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 números');return}if(await write('config/app',{...(S.config||{}),pin:v},'set')){closeSheet();toast('PIN actualizado')}});
   $('#sp').addEventListener('submit',async e=>{e.preventDefault();const cur=$('#sp-0').value,n1=$('#sp-1').value,n2=$('#sp-2').value;
     if(S.config?.passHash&&await passHash(cur,S.config.passSalt||'')!==S.config.passHash){toast('La contraseña actual no es correcta');return}
     if(n1.length<8){toast('La nueva contraseña debe tener al menos 8 caracteres');return}if(n1!==n2){toast('Las contraseñas nuevas no coinciden');return}
     const salt=newSalt();if(await write('config/app',{...(S.config||{}),passHash:await passHash(n1,salt),passSalt:salt},'set')){closeSheet();toast('Contraseña actualizada')}})}
 
+
+/* =========================================================
+   VERSIÓN WEB (Netlify): acceso, publicar, archivos e importación con el servidor propio
+   ========================================================= */
+async function webLogin(pin,pass,input){
+  if(S.webBusy)return;S.webBusy=true;
+  try{const r=await window.__web.api('auth/login',{pin,pass});window.__web.tok.set(r.token);S.webSetup=true;S.pinTry='';gateFails=0;toast(S.webFirst?'Contraseña guardada':'Bienvenido');unlockDone()}
+  catch(e){if(input)input.value='';
+    if(e.code==='locked'){toast(`Demasiados intentos. Espera ${Math.ceil((e.info?.wait||60)/60)} min.`)}
+    else if(e.code==='bad_login'){toast('PIN o contraseña incorrectos');S.gate='pin';S.pinTry='';renderNegocio()}
+    else if(e.code==='weak'){toast('Usa al menos 8 caracteres')}
+    else toast('No se pudo conectar. Revisa tu internet e intenta de nuevo.')}
+  finally{S.webBusy=false}}
+window.__webLocked=function(){if(!S.unlocked)return;window.__web.stop();S.assets=null;S.unlocked=false;S.gate='pin';closeSheet();renderNegocio();toast('Tu sesión terminó. Vuelve a entrar con tu PIN y contraseña.')};
+async function publishWeb(){const out=clone(S.draft);delete out.base;out.ver=Date.now().toString(36);
+  S.publishing=true;renderNegocio();
+  try{await window.__web.api('catalog',{cat:out});try{sessionStorage.removeItem('pasteli-draft')}catch(_){}
+    S.draft=null;S.dirty=false;S.publishing=false;adoptCat(out);toast('Publicado. Los clientes ya ven los cambios.');renderNegocio()}
+  catch(e){S.publishing=false;toast(e.code==='unauthorized'?'Tu sesión terminó; vuelve a entrar.':'No se pudo publicar. Intenta de nuevo.');renderNegocio()}}
+function adoptCat(cat){if(!cat||typeof cat!=='object')return;CAT={items:{},...cat};M=buildMenu(CAT);MBY=Object.fromEntries(M.map(x=>[x.id,x]));SITE=siteOf(CAT);applySite(SITE);paintHomeIcons();applyMedia();
+  if(S.view==='cliente'&&$('#sheet').hidden)renderCliente()}
+async function uploadWeb(file,ext,t){if(!S.assets){toast('Entra al panel para subir archivos.');return null}
+  let body=file,type=t||file.type||'application/octet-stream';const LIM=5.5*1024*1024;
+  if(file.size>LIM&&/^image\/(jpeg|png|webp|heic|heif)$/.test(file.type)){try{body=await shrink(file,2400);type='image/jpeg'}catch(e){}}
+  if(body.size>LIM){toast('El archivo pesa más de 5 MB. Comprímelo o divídelo e intenta de nuevo.');return null}
+  toast('Subiendo '+file.name+'…');
+  try{const blob=body===file?file:new File([body],file.name.replace(/\.[^.]+$/,'')+'.jpg',{type});const r=await S.assets.upload(blob,{type});toast('Archivo guardado');return {id:r.id,nombre:blob.name,tipo:type,peso:blob.size}}
+  catch(e){toast(e?.code==='too_large'?'El archivo pesa más de 5 MB.':'No se pudo subir '+file.name);return null}}
+function webSettings(){
+  $('#st').addEventListener('submit',async e=>{e.preventDefault();const v=$('#st-pin').value;if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 números');return}
+    try{const r=await window.__web.api('auth/pin',{pin:v});window.__web.tok.set(r.token);closeSheet();toast('PIN actualizado')}catch(err){toast('No se pudo cambiar el PIN')}});
+  $('#sp').addEventListener('submit',async e=>{e.preventDefault();const cur=$('#sp-0').value,n1=$('#sp-1').value,n2=$('#sp-2').value;
+    if(n1.length<8){toast('La nueva contraseña debe tener al menos 8 caracteres');return}if(n1!==n2){toast('Las contraseñas nuevas no coinciden');return}
+    try{const r=await window.__web.api('auth/pass',{cur,pass:n1});window.__web.tok.set(r.token);closeSheet();toast('Contraseña actualizada')}
+    catch(err){toast(err.code==='bad_pass'?'La contraseña actual no es correcta':'No se pudo cambiar la contraseña')}});
+  $('#st-imp')?.addEventListener('click',()=>pickFile('.json,application/json',async f=>{let d;try{d=JSON.parse(await f.text())}catch(e){toast('Ese archivo no es de datos de Pasteli');return}
+    const docs=d&&d.docs;if(!docs||typeof docs!=='object'){toast('Ese archivo no es de datos de Pasteli');return}
+    const ent=Object.entries(docs);toast(`Importando ${ent.length} registros…`);let n=0;
+    try{for(let i=0;i<ent.length;i+=60){const r=await window.__web.api('db/import',{docs:Object.fromEntries(ent.slice(i,i+60))});n+=r.n||0}
+      await window.__web.refresh();closeSheet();toast(`Listo: ${n} registros importados`)}catch(e){toast(`Se importaron ${n}. Vuelve a intentar para terminar.`)}}))}
+async function webBoot(){
+  try{const r=await fetch('/api/catalog',{cache:'no-store'});const j=await r.json();if(j&&j.cat&&j.cat.ver&&j.cat.ver!==CAT.ver)adoptCat(j.cat)}catch(e){}
+  try{const r=await fetch('/api/auth/status',{cache:'no-store'});const j=await r.json();S.webSetup=!!j.setup;S.webFirst=!j.setup}catch(e){}
+  if(S.unlocked){S.assets=window.__web.assets;window.__web.start()}
+  if(S.view==='negocio')renderNegocio()}
+
 /* =========================================================
    Eventos
    ========================================================= */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,v=t.dataset.v,id=t.dataset.id;
+  if(WEB&&['upinv','upplan','upven'].includes(a)){pane(`<div class="sheet-head"><h2>Lectura automática</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div><div class="empty"><h3>Todavía no está activa en tu página</h3><p>${NOAI}</p></div>`);return}
   if(a==='go')go(v);else if(a==='close'){closeSheet();S.openDetail=null;if(S.view==='negocio')renderNegocio()}
   else if(a==='cat'){S.cat=v;renderCliente()}else if(a==='item')openItem(id);else if(a==='cart')openCart();
   else if(a==='pin'){if(v==='⌫')S.pin=S.pin.slice(0,-1);else if(S.pin.length<4)S.pin+=v;renderNegocio()}
@@ -2050,16 +2219,17 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
   else if(a==='editcxc')editCxc(id);else if(a==='abono')abono(id);
   else if(a==='cobrada'){const c=S.cxc.find(x=>x.id===id);write('cxc/'+id,{estado:'cobrada',cobradaEl:todayISO()}).then(ok=>ok&&toast('Marcada como cobrada'))}
   else if(a==='netzip')netlifyZip();else if(a==='sitsub'){S.sitSub=v;renderNegocio()}else if(a==='sitlogo')sitLogo();else if(a==='sitlogodef')setSite('logo',null,true);else if(a==='sitpal')setSite('colores',clone(PALETAS[+v][1]),true);else if(a==='sitpreview')sitPreview();else if(a==='sitreset'){ensureDraft();S.draft.site={};S.dirty=true;try{sessionStorage.setItem('pasteli-draft',JSON.stringify(S.draft))}catch(_){}applySite(siteOf(S.draft));renderNegocio();toast('Restablecido. Publica para aplicarlo.')}else if(a==='factura')openFactura();else if(a==='facedit')editFacCli(id);else if(a==='facup')facUpload(id);else if(a==='facsend')facSend(id,v);else if(a==='faczip')facZipMenu();else if(a==='stats')exportStats();
-  else if(a==='settings')settings();else if(a==='lock'){S.unlocked=false;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
+  else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.irow')){e.preventDefault();openDetail(e.target.dataset.id)}});
 
 /* arranque */
-initCaps();
+initCaps();if(WEB)webBoot();
 applySite(siteOf(CAT));paintHomeIcons();applyMedia();
 const h=(location.hash||'').slice(1);const backTab=ss.get('pasteli-tab');
 if(APP==='negocio'){if(['bit','inv','ped','fac','ven','fin','cxp','cxc'].includes(h))S.ntab=h;go('negocio')}
 else if(backTab){ss.set('pasteli-tab','');S.ntab=backTab;try{sessionStorage.removeItem('pasteli-draft')}catch(_){}go('negocio')}
 else if(h==='editar'||h==='negocio'){if(h==='editar')S.ntab='cat';go('negocio')}else if(h==='factura'){go('cliente');openFactura()}else go(h==='cliente'?'cliente':'home');
 </script>
+
 </body></html>
