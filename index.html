@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pasteli</title><meta name="description" content="Menú de Pasteli: pasteles, tartas y repostería en Chihuahua. Haz tu pedido por WhatsApp."><meta name="theme-color" content="#f2e2d4"><link rel="icon" type="image/png" href="media/logo.png"><meta property="og:title" content="Pasteli"><meta property="og:description" content="Sabores reales en cada bocado. Pide por WhatsApp."><meta property="og:image" content="media/logo.png"><style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pasteli</title><meta name="description" content="Menú de Pasteli: pasteles, tartas y repostería en Chihuahua. Haz tu pedido por WhatsApp."><meta name="theme-color" content="#f2e2d4"><link rel="icon" type="image/png" href="media/logo.png"><meta property="og:title" content="Pasteli"><meta property="og:description" content="Sabores reales en cada bocado. Pide por WhatsApp."><meta property="og:image" content="media/logo.png"><style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Pasteli"><meta name="theme-color" content="#f2e2d4"></head><body>
 
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -205,6 +205,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .doc .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
 .status{font-size:11.5px;font-weight:700;border-radius:99px;padding:3px 9px;display:inline-block}
 .status.vencida{background:var(--bad-bg);color:var(--bad)} .status.pronto{background:var(--warn-bg);color:var(--warn)} .status.ok{background:var(--none-bg);color:var(--muted)} .status.pagada{background:var(--ok-bg);color:var(--ok)}
+.refs{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.refth{width:64px;height:64px;border-radius:12px;overflow:hidden;border:1px solid var(--line);display:block;background:var(--tile)}.refth img{width:100%;height:100%;object-fit:cover;display:block}
 .flist{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.fchip{display:inline-flex;align-items:center}.fx{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:4px 6px}
 .file{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border:1px dashed var(--line);border-radius:9px;padding:4px 9px;color:var(--ink-2);text-decoration:none}
 .empty{text-align:center;padding:34px 16px;color:var(--muted)}
@@ -1334,11 +1335,12 @@ async function anyText(f){const e=extOf(f.name);
     if(e==='docx'){if(!mamReady)mamReady=loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');await mamReady;return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value.slice(0,200000)}}catch(err){return null}
   if(/^(csv|tsv|txt|md|json|xml|html?)$/.test(e)||/^text\//.test(f.type))return (await f.text()).slice(0,200000);
   return null}
-function filesEdHTML(id,label){return `<div class="field full"><span>${label||'Archivos adjuntos'} <small class="muted" style="font-weight:500">foto, PDF, Excel, Word, CSV o cualquier otro</small></span><div class="flist" id="${id}"></div></div>`}
-function filesEd(id,list){const box=document.getElementById(id);if(!box)return;
+function refThumb(a){if(!a||!a.id)return '';ASSETS.set(a.id,a);const img=/^image\/(png|jpe?g|gif|webp)$/.test(a.tipo||'');return img?`<a class="refth" href="${blob(a.id)}" target="_blank" rel="noopener" title="${esc(a.nombre||'Referencia')}"><img src="${blob(a.id)}" alt="Referencia" loading="lazy"></a>`:fileChip(a)}
+function filesEdHTML(id,label,hint){return `<div class="field full"><span>${label||'Archivos adjuntos'} <small class="muted" style="font-weight:500">${hint||'foto, PDF, Excel, Word, CSV o cualquier otro'}</small></span><div class="flist" id="${id}"></div></div>`}
+function filesEd(id,list,accept){const box=document.getElementById(id);if(!box)return;
   const draw=()=>{box.innerHTML=list.map((a,i)=>`<span class="fchip">${fileChip(a)}<button type="button" class="fx" data-rm="${i}" aria-label="Quitar ${esc(a.nombre||'archivo')}">×</button></span>`).join('')+(S.assets?`<button type="button" class="btn sm" data-add>+ Agregar archivos</button>`:'<span class="muted" style="font-size:13px">Para adjuntar archivos necesitas permiso de edición en la app.</span>');
     box.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{list.splice(+b.dataset.rm,1);draw()}));
-    box.querySelector('[data-add]')?.addEventListener('click',()=>pickFile('',async fs=>{for(const f of fs){const r=await uploadFile(f);if(r){list.push(r);draw()}}},true))};draw()}
+    box.querySelector('[data-add]')?.addEventListener('click',()=>pickFile(accept||'',async fs=>{for(const f of fs){const r=await uploadFile(f);if(r){list.push(r);draw()}}},true))};draw()}
 const blob=id=>'/_blob/'+id;
 const thumb=p=>p.foto?`<img src="${blob(p.foto)}" alt="" loading="lazy">`:ill(p.dibujo,p.color);
 
@@ -1698,26 +1700,28 @@ function renderPedidos(m){
   const act=S.pedidos.filter(o=>o.estado!=='entregado').sort((a,b)=>(a.entrega||'9').localeCompare(b.entrega||'9')||(a.hora||'').localeCompare(b.hora||''));
   const done=S.pedidos.filter(o=>o.estado==='entregado').sort((a,b)=>(b.entrega||'').localeCompare(a.entrega||'')).slice(0,20);
   const row=o=>{const d=daysTo(o.entrega);const saldo=(Number(o.total)||0)-(Number(o.anticipo)||0);const st=o.estado==='entregado'?['pagada','Entregado']:d==null?['ok','Sin fecha']:d<0?['vencida','Atrasado']:d<=1?['vencida',d===0?'Hoy':'Mañana']:d<=3?['pronto',`En ${d} días`]:['ok',fdate(o.entrega)];
-    return `<div class="doc ped ${st[0]}"><div><b>${esc(o.cliente)}</b>${o.tel?` <span class="muted" style="font-size:12.5px;user-select:all">${esc(o.tel)}</span>`:''}<div class="meta"><span class="status ${st[0]}">${st[1]}</span> ${o.entrega?fdate(o.entrega):''}${o.hora?' · '+hora12(o.hora):''}${o.estado==='prep'?' · <b>En preparación</b>':''}</div><div class="meta" style="color:var(--ink)">${esc(o.items||'')}</div>${o.notas?`<div class="meta">${esc(o.notas)}</div>`:''}</div>
+    return `<div class="doc ped ${st[0]}"><div><b>${esc(o.cliente)}</b>${o.tel?` <span class="muted" style="font-size:12.5px;user-select:all">${esc(o.tel)}</span>`:''}<div class="meta"><span class="status ${st[0]}">${st[1]}</span> ${o.entrega?fdate(o.entrega):''}${o.hora?' · '+hora12(o.hora):''}${o.estado==='prep'?' · <b>En preparación</b>':''}</div><div class="meta" style="color:var(--ink)">${esc(o.items||'')}</div>${o.notas?`<div class="meta">${esc(o.notas)}</div>`:''}${(o.refs||[]).length?`<div class="refs">${o.refs.map(refThumb).join('')}</div>`:''}</div>
     <div class="amt num">${money(o.total)}${saldo>0&&o.estado!=='entregado'?`<div class="muted" style="font-size:12px;font-family:var(--f-ui)">resta ${money(saldo)}</div>`:''}</div>
     <div class="acts">${o.estado!=='entregado'?`${o.estado!=='prep'?`<button class="btn sm" data-act="pedst" data-id="${o.id}" data-v="prep">En preparación</button>`:''}<button class="btn sm primary" data-act="pedst" data-id="${o.id}" data-v="entregado">Entregado</button>`:''}${waNum(o.tel)?`<a class="wa-chip" target="_blank" rel="noopener" href="https://wa.me/${waNum(o.tel)}?text=${encodeURIComponent(`Hola ${o.cliente}, te escribimos de Pasteli sobre tu pedido para el ${o.entrega?fechaLarga(o.entrega):''}.`)}">${ICON.wa}<span>WhatsApp</span></a>`:''}<button class="btn sm ghost" data-act="pedido" data-id="${o.id}">Editar</button></div></div>`};
   const soon=act.filter(o=>daysTo(o.entrega)!=null&&daysTo(o.entrega)<=3);
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Pedidos pendientes</div><div class="v num">${act.length}</div></div><div class="kpi"><div class="k">Próximos 3 días</div><div class="v num" style="color:${soon.length?'var(--accent)':'inherit'}">${soon.length}</div></div><div class="kpi"><div class="k">Por cobrar en pedidos</div><div class="v num">${money(act.reduce((s,o)=>s+Math.max(0,(Number(o.total)||0)-(Number(o.anticipo)||0)),0))}</div></div></div>
   <div style="display:flex;justify-content:flex-end"><button class="btn primary" data-act="pedido" data-id="">+ Nuevo pedido</button></div>
-  ${act.length?`<div class="group-h"><h3>Por entregar</h3><span class="muted">Te avisamos 3 días antes</span></div><div class="list">${act.map(row).join('')}</div>`:`<div class="empty">${ill('cake','cream','straw')}<h3>No hay pedidos pendientes</h3><p>Registra aquí los pedidos de pasteles y eventos; la app te avisa 3 días antes de la entrega.</p></div>`}
+  ${act.length?`<div class="group-h"><h3>Por entregar</h3>${WEB?`<button class="btn sm ghost" data-act="avped">🔔 ${pedResumen()}</button>`:`<span class="muted">Te avisamos 3 días antes</span>`}</div><div class="list">${act.map(row).join('')}</div>`:`<div class="empty">${ill('cake','cream','straw')}<h3>No hay pedidos pendientes</h3><p>Registra aquí los pedidos de pasteles y eventos; la app te avisa 3 días antes de la entrega.</p></div>`}
   ${done.length?`<div class="group-h"><h3>Entregados recientes</h3></div><div class="list">${done.map(row).join('')}</div>`:''}<div class="sec-gap"></div>`}
-function editPedido(id){const o=id?S.pedidos.find(x=>x.id===id):{cliente:'',tel:'',items:'',entrega:addDays(todayISO(),3),hora:'',total:'',anticipo:'',notas:'',estado:'pendiente'};let ask=false;
+function editPedido(id){const o=id?S.pedidos.find(x=>x.id===id):{cliente:'',tel:'',items:'',entrega:addDays(todayISO(),3),hora:'',total:'',anticipo:'',notas:'',estado:'pendiente'};let ask=false;const refs=[...(o.refs||[])];
   const paint=()=>{pane(`<div class="sheet-head"><h2>${id?'Editar pedido':'Nuevo pedido'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <form id="pd" class="fgrid"><label class="field"><span>Cliente</span><input id="pd-c" required value="${esc(o.cliente)}"></label><label class="field"><span>WhatsApp</span><input id="pd-t" inputmode="tel" value="${esc(o.tel||'')}" placeholder="614 000 0000"></label>
   <label class="field full"><span>Qué pidió</span><textarea id="pd-i" rows="3" placeholder="Ej. Pastel Tres Leches grande, escribir “Feliz 15 Ana”">${esc(o.items||'')}</textarea></label>
   <label class="field"><span>Fecha de entrega</span><input id="pd-f" type="date" value="${esc(o.entrega||'')}" required></label><label class="field"><span>Hora</span><input id="pd-h" type="time" value="${esc(o.hora||'')}"></label>
   <label class="field"><span>Total</span><input id="pd-to" type="number" min="0" step="0.01" value="${o.total??''}"></label><label class="field"><span>Anticipo</span><input id="pd-a" type="number" min="0" step="0.01" value="${o.anticipo??''}"></label>
   <label class="field full"><span>Notas</span><input id="pd-n" value="${esc(o.notas||'')}" placeholder="Ej. entrega a domicilio, sin nuez"></label>
+  ${filesEdHTML('pd-x','Foto de referencia (opcional)','la inspiración o diseño que trae el cliente')}
   <button class="btn primary full" type="submit">Guardar pedido</button></form>
   ${id?`<div style="text-align:center;margin-top:14px">${ask?`<button class="btn sm" style="color:var(--bad)" id="pd-del2">Sí, eliminar</button> <button class="btn sm ghost" id="pd-delno">Cancelar</button>`:`<button class="btn sm ghost" style="color:var(--bad)" id="pd-del">Eliminar pedido</button>`}</div>`:''}`);
+  filesEd('pd-x',refs,'image/*,.pdf');
   $('#pd-del')?.addEventListener('click',()=>{ask=true;paint()});$('#pd-delno')?.addEventListener('click',()=>{ask=false;paint()});
   $('#pd-del2')?.addEventListener('click',async()=>{try{await S.db.doc('pedidos/'+id).delete();closeSheet();toast('Pedido eliminado')}catch(e){toast('No se pudo eliminar')}});
-  $('#pd').addEventListener('submit',async e=>{e.preventDefault();const data={cliente:$('#pd-c').value.trim(),tel:$('#pd-t').value.trim(),items:$('#pd-i').value.trim(),entrega:$('#pd-f').value,hora:$('#pd-h').value,total:num($('#pd-to').value),anticipo:num($('#pd-a').value),notas:$('#pd-n').value.trim(),estado:o.estado||'pendiente',creado:o.creado||new Date().toISOString()};
+  $('#pd').addEventListener('submit',async e=>{e.preventDefault();const data={cliente:$('#pd-c').value.trim(),tel:$('#pd-t').value.trim(),items:$('#pd-i').value.trim(),entrega:$('#pd-f').value,hora:$('#pd-h').value,total:num($('#pd-to').value),anticipo:num($('#pd-a').value),notas:$('#pd-n').value.trim(),refs,estado:o.estado||'pendiente',creado:o.creado||new Date().toISOString()};
     if(!data.cliente||!data.entrega){toast('Escribe cliente y fecha de entrega');return}
     if(await write('pedidos/'+(id||'o-'+Date.now().toString(36)),data,'set')){closeSheet();toast('Pedido guardado')}})};paint()}
 
@@ -1899,19 +1903,55 @@ async function exportStats(){toast('Armando el archivo…');const JSZip=await lo
 /* ----- ajustes de avisos al celular ----- */
 const AV_TIPOS=[['min','Productos en mínimo (PIDE YA)'],['mitad','Productos a la mitad'],['prov','Proveedores a los que toca pedir'],['ped','Pedidos a 3 días o menos'],['bit','Pendientes de la bitácora'],['fac','Facturas por hacer o enviar']];
 const AV_HORAS=[7,8,9,10,11,12,13,14,15,16,17,18,19,20];
-function avCfg(){const a=(S.config&&S.config.avisos)||{};return {activo:a.activo!==false,horas:Array.isArray(a.horas)?a.horas:[7,14],tipos:{min:true,mitad:true,prov:true,ped:true,bit:true,fac:true,...(a.tipos||{})}}}
+const AV_DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const AV_ANTES=[[0,'El mismo día'],[1,'1 día antes'],[2,'2 días antes'],[3,'3 días antes'],[5,'5 días antes'],[7,'1 semana antes']];
+function pedCfg(){const a=avCfg(),p=(S.config&&S.config.avisosPed)||{};return {dias:Array.isArray(p.dias)?p.dias:[0,1,2,3,4,5,6],horas:Array.isArray(p.horas)&&p.horas.length?p.horas:a.horas,antes:Array.isArray(p.antes)?p.antes:[3,2,1,0]}}
+function pedResumen(){const c=pedCfg(),mx=Math.max(...c.antes,0);return c.antes.length?(mx===0?'Te avisamos el día de la entrega':`Te avisamos hasta ${mx===7?'1 semana':mx+' día'+(mx>1?'s':'')} antes`):'Avisos de pedidos apagados'}
+/* avisos push en computadora y celular (solo web) */
+const b64u=s=>{const r=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+async function pushReg(){await navigator.serviceWorker.register('/sw.js');return navigator.serviceWorker.ready}
+function pushHTML(){return `<span class="label">Avisos en este aparato</span><p class="muted" id="pu-msg" style="font-size:13px;margin:4px 0 8px"></p><button class="btn primary block" id="pu-on" hidden></button><button class="btn block" id="pu-test" style="margin-top:6px" hidden>Mandar aviso de prueba</button>`}
+async function bindPush(){const msg=$('#pu-msg'),on=$('#pu-on'),test=$('#pu-test');if(!msg||!on)return;
+  if(!pushOK()||(isIOS()&&!isStandalone())){msg.textContent=isIOS()?'En iPhone primero abre esta página en Safari, toca Compartir → “Añadir a pantalla de inicio”, y abre la app desde ese icono. Luego vuelve aquí a activar los avisos.':'Este navegador no permite avisos. Prueba con Chrome, Edge, Firefox o Safari actualizado.';return}
+  if(Notification.permission==='denied'){msg.textContent='Los avisos están bloqueados en este navegador. Actívalos en la configuración del sitio y vuelve a intentar.';return}
+  let sub=null;try{sub=await (await pushReg()).pushManager.getSubscription()}catch(e){}
+  const paint=()=>{msg.textContent=sub?'Activados en este aparato ✓':'Apagados en este aparato.';on.textContent=sub?'Desactivar avisos aquí':'Activar avisos en este aparato';on.className='btn block'+(sub?'':' primary');on.hidden=false;test.hidden=!sub};paint();
+  on.onclick=async()=>{on.disabled=true;try{
+    if(sub){await window.__web.api('push/unsub',{endpoint:sub.endpoint});await sub.unsubscribe();sub=null;toast('Avisos apagados en este aparato')}
+    else{const perm=await Notification.requestPermission();if(perm!=='granted'){toast('No diste permiso para los avisos');return}
+      const {key}=await window.__web.api('push/key');const reg=await pushReg();sub=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)});
+      await window.__web.api('push/sub',{sub:sub.toJSON()});toast('Avisos activados en este aparato')}
+    paint()}catch(e){toast('No se pudo cambiar los avisos')}finally{on.disabled=false}};
+  test.onclick=async()=>{test.disabled=true;try{const r=await window.__web.api('push/test',{});toast(r.sent?'Te mandé un aviso de prueba':'No hay aparatos con avisos activos')}catch(e){toast('No se pudo mandar la prueba')}finally{test.disabled=false}}}
+function avPedSheet(){const c=pedCfg();pane(`<div class="grab"></div><div class="sheet-head"><h2>Avisos de pedidos</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p class="muted" style="font-size:13px;margin:0 0 8px">Elige cuándo quieres que te llegue el aviso de los pedidos por entregar, en la computadora y en el celular.</p>
+  <p class="muted" style="font-size:13px;margin:8px 0 6px">¿Qué días te aviso?</p><div class="dpick" id="ap-d">${AV_DIAS.map((d,i)=>`<label><input type="checkbox" value="${i}"${c.dias.includes(i)?' checked':''}><span>${d}</span></label>`).join('')}</div>
+  <p class="muted" style="font-size:13px;margin:12px 0 6px">¿A qué horas?</p><div class="dpick" id="ap-h">${AV_HORAS.map(h=>`<label><input type="checkbox" value="${h}"${c.horas.includes(h)?' checked':''}><span>${h12(h)}</span></label>`).join('')}</div>
+  <p class="muted" style="font-size:13px;margin:12px 0 6px">¿Con cuánta anticipación? (puedes marcar varias; los atrasados siempre se avisan)</p><div class="dpick" id="ap-a">${AV_ANTES.map(([d,l])=>`<label><input type="checkbox" value="${d}"${c.antes.includes(d)?' checked':''}><span>${l}</span></label>`).join('')}</div>
+  <button class="btn primary block" id="ap-save" style="margin-top:14px">Guardar</button>
+  <div class="sep"></div>${pushHTML()}`);
+  $('#ap-save').onclick=async()=>{const g=id=>[...document.querySelectorAll('#'+id+' input:checked')].map(i=>+i.value).sort((a,b)=>a-b);const dias=g('ap-d'),horas=g('ap-h'),antes=g('ap-a');
+    if(!dias.length||!horas.length){toast('Elige al menos un día y una hora');return}
+    if(await write('config/app',{...(S.config||{}),avisosPed:{dias,horas,antes}},'set')){closeSheet();toast('Avisos de pedidos guardados')}};
+  bindPush()}
+function avCfg(){const a=(S.config&&S.config.avisos)||{};return {activo:a.activo!==false,horas:Array.isArray(a.horas)?a.horas:[7,14],dias:Array.isArray(a.dias)?a.dias:[0,1,2,3,4,5,6],tipos:{min:true,mitad:true,prov:true,ped:true,bit:true,fac:true,...(a.tipos||{})}}}
 const h12=h=>`${h%12||12} ${h<12?'am':'pm'}`;
 function avisosHTML(){const a=avCfg();return `<span class="label">Avisos al celular</span>
   <label class="chkl"><input type="checkbox" id="av-on"${a.activo?' checked':''}><span>Mandarme avisos</span></label>
-  <p class="muted" style="font-size:13px;margin:8px 0 6px">¿A qué horas? (elige una o varias)</p>
+  <p class="muted" style="font-size:13px;margin:8px 0 6px">¿Qué días?</p>
+  <div class="dpick" id="av-d">${AV_DIAS.map((d,i)=>`<label><input type="checkbox" value="${i}"${a.dias.includes(i)?' checked':''}><span>${d}</span></label>`).join('')}</div>
+  <p class="muted" style="font-size:13px;margin:12px 0 6px">¿A qué horas? (elige una o varias)</p>
   <div class="dpick" id="av-h">${AV_HORAS.map(h=>`<label><input type="checkbox" value="${h}"${a.horas.includes(h)?' checked':''}><span>${h12(h)}</span></label>`).join('')}</div>
   <p class="muted" style="font-size:13px;margin:12px 0 6px">¿De qué quieres que te avise?</p>
   <div style="display:grid;gap:6px">${AV_TIPOS.map(([k,l])=>`<label class="chkl"><input type="checkbox" data-t="${k}"${a.tipos[k]?' checked':''}><span>${l}</span></label>`).join('')}</div>
   <button class="btn primary block" id="av-save" style="margin-top:12px">Guardar avisos</button>
   <p class="muted" style="font-size:12.5px;margin-top:6px">El aviso llega pocos minutos después de la hora elegida, solo si hay algo que atender.</p>`}
-function bindAvisos(){$('#av-save')?.addEventListener('click',async()=>{const horas=[...document.querySelectorAll('#av-h input:checked')].map(i=>+i.value).sort((a,b)=>a-b);const tipos={};document.querySelectorAll('[data-t]').forEach(i=>tipos[i.dataset.t]=i.checked);
-  const activo=$('#av-on').checked;if(activo&&!horas.length){toast('Elige al menos una hora');return}
-  if(await write('config/app',{...(S.config||{}),avisos:{activo,horas,tipos}},'set'))toast(activo?`Avisos a las ${horas.map(h12).join(', ')}`:'Avisos al celular apagados')})}
+function bindAvisos(){$('#av-save')?.addEventListener('click',async()=>{const horas=[...document.querySelectorAll('#av-h input:checked')].map(i=>+i.value).sort((a,b)=>a-b);const dias=[...document.querySelectorAll('#av-d input:checked')].map(i=>+i.value).sort((a,b)=>a-b);const tipos={};document.querySelectorAll('[data-t]').forEach(i=>tipos[i.dataset.t]=i.checked);
+  const activo=$('#av-on').checked;if(activo&&!horas.length){toast('Elige al menos una hora');return}if(activo&&!dias.length){toast('Elige al menos un día');return}
+  if(await write('config/app',{...(S.config||{}),avisos:{activo,horas,dias,tipos}},'set'))toast(activo?`Avisos a las ${horas.map(h12).join(', ')}`:'Avisos al celular apagados')})}
 
 
 /* ---------- Versión del menú para Netlify (sin el asistente) ---------- */
@@ -2137,9 +2177,9 @@ function settings(){pane(`<div class="grab"></div><div class="sheet-head"><h2>Aj
   <form id="sp" class="fgrid"><label class="field full"><span>Contraseña actual</span><input id="sp-0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input id="sp-1" type="password" autocomplete="new-password"></label><label class="field"><span>Repite la nueva</span><input id="sp-2" type="password" autocomplete="new-password"></label><button class="btn primary full" type="submit">Cambiar contraseña</button></form>
   <p class="muted" style="font-size:13px">${WEB?'Para entrar se piden el PIN y la contraseña. El servidor revisa los dos y bloquea varios minutos después de 5 intentos fallidos. Al cambiar el PIN o la contraseña se cierran las sesiones abiertas en otros aparatos.':'Para entrar se piden el PIN y la contraseña. Además, los datos del negocio solo los puede leer tu cuenta (y quien invites como editor), aunque alguien adivine el PIN.'}</p>
   <button class="btn block" style="margin-top:8px" data-act="lock">Bloquear panel</button>
-  ${WEB?`<div class="sep"></div><span class="label">Importar datos</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Carga el archivo <b>pasteli-datos.json</b> con tu inventario y proveedores de la app anterior.</p><button class="btn block" id="st-imp">⬆︎ Importar archivo de datos</button>`:`<div class="sep"></div>${avisosHTML()}`}
+  ${WEB?`<div class="sep"></div>${avisosHTML().replace('Avisos al celular','Avisos generales')}<div class="sep"></div>${pushHTML()}<div class="sep"></div><span class="label">Importar datos</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Carga el archivo <b>pasteli-datos.json</b> con tu inventario y proveedores de la app anterior.</p><button class="btn block" id="st-imp">⬆︎ Importar archivo de datos</button>`:`<div class="sep"></div>${avisosHTML()}`}
   <div class="sep"></div><span class="label">Descargas</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Un ZIP con inventario, movimientos, ventas, CxP, CxC, pedidos y facturas en archivos que abren en Excel.</p>
-  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);if(WEB){webSettings();return}bindAvisos();
+  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);if(WEB){webSettings();bindAvisos();bindPush();return}bindAvisos();
   $('#st').addEventListener('submit',async e=>{e.preventDefault();const v=$('#st-pin').value;if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 números');return}if(await write('config/app',{...(S.config||{}),pin:v},'set')){closeSheet();toast('PIN actualizado')}});
   $('#sp').addEventListener('submit',async e=>{e.preventDefault();const cur=$('#sp-0').value,n1=$('#sp-1').value,n2=$('#sp-2').value;
     if(S.config?.passHash&&await passHash(cur,S.config.passSalt||'')!==S.config.passHash){toast('La contraseña actual no es correcta');return}
@@ -2189,6 +2229,7 @@ function webSettings(){
 async function webBoot(){
   try{const r=await fetch('/api/catalog',{cache:'no-store'});const j=await r.json();if(j&&j.cat&&j.cat.ver&&j.cat.ver!==CAT.ver)adoptCat(j.cat)}catch(e){}
   try{const r=await fetch('/api/auth/status',{cache:'no-store'});const j=await r.json();S.webSetup=!!j.setup;S.webFirst=!j.setup}catch(e){}
+  try{if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js')}catch(e){}
   if(S.unlocked){S.assets=window.__web.assets;window.__web.start()}
   if(S.view==='negocio')renderNegocio()}
 
@@ -2219,7 +2260,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
   else if(a==='editcxc')editCxc(id);else if(a==='abono')abono(id);
   else if(a==='cobrada'){const c=S.cxc.find(x=>x.id===id);write('cxc/'+id,{estado:'cobrada',cobradaEl:todayISO()}).then(ok=>ok&&toast('Marcada como cobrada'))}
   else if(a==='netzip')netlifyZip();else if(a==='sitsub'){S.sitSub=v;renderNegocio()}else if(a==='sitlogo')sitLogo();else if(a==='sitlogodef')setSite('logo',null,true);else if(a==='sitpal')setSite('colores',clone(PALETAS[+v][1]),true);else if(a==='sitpreview')sitPreview();else if(a==='sitreset'){ensureDraft();S.draft.site={};S.dirty=true;try{sessionStorage.setItem('pasteli-draft',JSON.stringify(S.draft))}catch(_){}applySite(siteOf(S.draft));renderNegocio();toast('Restablecido. Publica para aplicarlo.')}else if(a==='factura')openFactura();else if(a==='facedit')editFacCli(id);else if(a==='facup')facUpload(id);else if(a==='facsend')facSend(id,v);else if(a==='faczip')facZipMenu();else if(a==='stats')exportStats();
-  else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
+  else if(a==='avped')avPedSheet();else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.irow')){e.preventDefault();openDetail(e.target.dataset.id)}});
 

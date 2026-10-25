@@ -2,6 +2,8 @@
 // Todo lo privado exige un token firmado; solo el catálogo publicado y las fotos son públicos.
 import { getStore } from '@netlify/blobs';
 import crypto from 'node:crypto';
+import { vapid, saveSub, removeSub, sendAll, countSubs } from '../lib/push.mjs';
+import { localNow, readCfg, compose, toPayload } from '../lib/avisos.mjs';
 
 export const config = { path: ['/api/*', '/_blob/*'] };
 
@@ -174,6 +176,27 @@ export default async (req) => {
       const ws = crypto.randomBytes(16).toString('hex');
       a.passSalt = ws; a.passHash = hash(n, ws); a.v++; await saveAuth(a);
       return json({ ok: true, token: await sign({ v: a.v, exp: Date.now() + TOKEN_HOURS * 3600e3 }) });
+    }
+
+    // Avisos push (computadora y celular)
+    if (route === 'push/key') { const k = await vapid(); return json({ key: k.publicKey, n: await countSubs() }); }
+    if (route === 'push/sub' && req.method === 'POST') {
+      try { await saveSub(body.sub, { ua: req.headers.get('user-agent'), nombre: body.nombre }); } catch { return err('bad_request'); }
+      return json({ ok: true, n: await countSubs() });
+    }
+    if (route === 'push/unsub' && req.method === 'POST') {
+      if (typeof body.endpoint === 'string') await removeSub(body.endpoint);
+      return json({ ok: true, n: await countSubs() });
+    }
+    if (route === 'push/test' && req.method === 'POST') {
+      const r = await sendAll({ title: 'Pasteli', body: 'Los avisos funcionan en este aparato ✓', tag: 'pasteli-test', url: '/#negocio' });
+      return json({ ok: true, ...r });
+    }
+    if (route === 'push/preview' && req.method === 'POST') {
+      const app = await st('db').get('d/config/app', { type: 'json' });
+      const cfg = readCfg(app);
+      const lines = await compose(cfg, localNow(), { general: true, pedidos: true });
+      return json({ n: lines.length, payload: toPayload(lines) });
     }
 
     // Publicar catálogo
