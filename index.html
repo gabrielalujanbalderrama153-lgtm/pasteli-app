@@ -1347,6 +1347,27 @@ const thumb=p=>p.foto?`<img src="${blob(p.foto)}" alt="" loading="lazy">`:ill(p.
 /* =========================================================
    NEGOCIO — vistas
    ========================================================= */
+/* ---------- PIN de finanzas (Ventas, Finanzas, CxP, CxC) ---------- */
+const FIN_TABS=['ven','fin','cxp','cxc'];let finFails=0,finUntil=0;
+function finGate(m){const has=!!(S.config&&S.config.finHash);
+  m.innerHTML=`<div class="gate">${ICON.lock.replace('<svg','<svg width="34" height="34" style="color:var(--ink-2)"')}<h2 style="font-size:28px;margin-top:8px">${has?'Finanzas protegidas':S.fpin1?'Repite el PIN':'Crea un PIN de finanzas'}</h2><p class="muted">${has?'Escribe el PIN de 4 dígitos para ver Ventas, Finanzas, CxP y CxC.':'Este PIN es distinto al del negocio y protege Ventas, Finanzas, CxP y CxC.'}</p>
+  <div class="pinshow">${[0,1,2,3].map(i=>`<i class="${(S.fpin||'').length>i?'f':''}"></i>`).join('')}</div>
+  <div class="keypad">${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button data-act="fpin" data-v="${k}" aria-label="${k==='⌫'?'Borrar':k}">${k}</button>`).join('')}</div></div>`;
+  if((S.fpin||'').length===4)finCheck(has)}
+async function finCheck(has){const p=S.fpin;S.fpin='';
+  if(has){if(Date.now()<finUntil){toast('Demasiados intentos. Espera un momento.');renderNegocio();return}
+    const h=await passHash(p,S.config.finSalt||'');if(h===S.config.finHash){S.finOk=true;finFails=0}else{finFails++;if(finFails>=5){finUntil=Date.now()+60000;finFails=0;toast('Demasiados intentos. Espera 1 minuto.')}else toast('PIN incorrecto')}
+    renderNegocio();return}
+  if(!S.fpin1){S.fpin1=p;renderNegocio();return}
+  if(S.fpin1!==p){S.fpin1=null;toast('No coinciden. Empieza de nuevo.');renderNegocio();return}
+  S.fpin1=null;const salt=newSalt(),hh=await passHash(p,salt);
+  if(await write('config/app',{...(S.config||{}),finHash:hh,finSalt:salt},'set')){S.finOk=true;toast('PIN de finanzas creado')}
+  renderNegocio()}
+function finSettingsHTML(){const has=!!(S.config&&S.config.finHash);return `<div class="sep"></div><span class="label">PIN de finanzas</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Protege Ventas, Finanzas, CxP y CxC con un PIN aparte del que abre el panel.</p>
+  <form id="fpf" class="fgrid">${has?`<label class="field full"><span>PIN actual</span><input id="fp-0" inputmode="numeric" maxlength="4" type="password" placeholder="••••"></label>`:''}<label class="field full"><span>${has?'Nuevo PIN (4 dígitos)':'Crear PIN (4 dígitos)'}</span><input id="fp-1" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" type="password" placeholder="••••"></label><button class="btn primary full" type="submit">${has?'Cambiar PIN de finanzas':'Crear PIN de finanzas'}</button></form>`}
+function bindFinPin(){$('#fpf')?.addEventListener('submit',async e=>{e.preventDefault();const has=!!(S.config&&S.config.finHash);const n=$('#fp-1').value;if(!/^\d{4}$/.test(n)){toast('El PIN debe tener 4 números');return}
+  if(has){const h=await passHash($('#fp-0').value,S.config.finSalt||'');if(h!==S.config.finHash){toast('El PIN actual no es correcto');return}}
+  const salt=newSalt(),hh=await passHash(n,salt);if(await write('config/app',{...(S.config||{}),finHash:hh,finSalt:salt},'set')){S.finOk=true;closeSheet();toast('PIN de finanzas guardado')}})}
 function renderNegocio(){
   const el=$('#v-negocio');
   const head=(extra='')=>APP==='menu'?`<header class="appbar"><div class="wrap"><button class="iconbtn" data-act="go" data-v="home" aria-label="Volver al inicio">${ICON.back}</button><h1>Negocio</h1>${extra}</div></header>`:`<header class="appbar"><div class="wrap"><div class="bar-logo" data-logo style="flex:0 0 auto;justify-content:flex-start;height:32px">${logoHTML()}</div><h1>Negocio</h1>${extra}</div></header>`;
@@ -1355,9 +1376,9 @@ function renderNegocio(){
   if(!S.unlocked){renderGate(el,head);return}
   const n=avisos().length;
   el.innerHTML=head(`<button class="iconbtn" data-act="avisos" aria-label="Avisos de hoy">${ICON.bell}${n?`<span class="dotn num">${n}</span>`:''}</button><button class="iconbtn" data-act="settings" aria-label="Ajustes">${ICON.gear}</button>`)+
-   `<div class="wrap"><div class="tabs" role="tablist">${[['bit','Bitácora'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']].map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${l}</button>`).join('')}</div></div>
+   `<div class="wrap"><div class="tabs" role="tablist">${[['bit','Bitácora'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']].map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${FIN_TABS.includes(k)&&!S.finOk?'🔒 ':''}${l}</button>`).join('')}</div></div>
    <main class="wrap" id="nmain"></main>`;
-  const m=$('#nmain');({bit:renderBit,ped:renderPedidos,inv:renderInv,cat:APP==='menu'?renderCat:renderMenuLink,sit:renderSitio,fac:renderFacturas,ven:renderVentas,fin:renderFin,cxp:renderCxp,cxc:renderCxc})[S.ntab](m);
+  const m=$('#nmain');const tabFn=({bit:renderBit,ped:renderPedidos,inv:renderInv,cat:APP==='menu'?renderCat:renderMenuLink,sit:renderSitio,fac:renderFacturas,ven:renderVentas,fin:renderFin,cxp:renderCxp,cxc:renderCxc})[S.ntab];(FIN_TABS.includes(S.ntab)&&!S.finOk?finGate:tabFn)(m);
   const sq=m.querySelector('#q');if(sq&&S.focusQ){sq.focus();sq.setSelectionRange(sq.value.length,sq.value.length);S.focusQ=false}
 }
 function renderMenuLink(m){m.innerHTML=`<div class="empty">${ill('slice','cream','straw')}<h3>El menú de clientes vive aparte</h3><p>Para que los clientes nunca vean datos del negocio, el menú es una página separada en Netlify (no necesitan el asistente). Para cambiar precios, tamaños, fotos o vitrina:</p><ol style="text-align:left;max-width:440px;margin:10px auto;line-height:1.6"><li>Toca <b>Editar menú</b> y haz tus cambios.</li><li>Toca <b>Publicar cambios</b>.</li><li>Toca <b>Descargar para Netlify</b> y descomprime el ZIP.</li><li>En Netlify, entra a tu sitio → <b>Deploys</b> y arrastra la carpeta.</li></ol><p style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a class="btn primary" href="${URL_MENU}#editar" target="_blank" rel="noopener">Editar menú</a><a class="btn" href="${URL_MENU}" target="_blank" rel="noopener">Ver como cliente</a><button class="btn ghost" data-act="copyorder" data-t="${URL_MENU}">Copiar enlace del menú</button></p></div>`}
@@ -2176,10 +2197,11 @@ function settings(){pane(`<div class="grab"></div><div class="sheet-head"><h2>Aj
   <div class="sep"></div><span class="label">Contraseña</span>
   <form id="sp" class="fgrid"><label class="field full"><span>Contraseña actual</span><input id="sp-0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input id="sp-1" type="password" autocomplete="new-password"></label><label class="field"><span>Repite la nueva</span><input id="sp-2" type="password" autocomplete="new-password"></label><button class="btn primary full" type="submit">Cambiar contraseña</button></form>
   <p class="muted" style="font-size:13px">${WEB?'Para entrar se piden el PIN y la contraseña. El servidor revisa los dos y bloquea varios minutos después de 5 intentos fallidos. Al cambiar el PIN o la contraseña se cierran las sesiones abiertas en otros aparatos.':'Para entrar se piden el PIN y la contraseña. Además, los datos del negocio solo los puede leer tu cuenta (y quien invites como editor), aunque alguien adivine el PIN.'}</p>
-  <button class="btn block" style="margin-top:8px" data-act="lock">Bloquear panel</button>
+  ${finSettingsHTML()}
+  <button class="btn block" style="margin-top:12px" data-act="lock">Bloquear panel</button>
   ${WEB?`<div class="sep"></div>${avisosHTML().replace('Avisos al celular','Avisos generales')}<div class="sep"></div>${pushHTML()}<div class="sep"></div><span class="label">Importar datos</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Carga el archivo <b>pasteli-datos.json</b> con tu inventario y proveedores de la app anterior.</p><button class="btn block" id="st-imp">⬆︎ Importar archivo de datos</button>`:`<div class="sep"></div>${avisosHTML()}`}
   <div class="sep"></div><span class="label">Descargas</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Un ZIP con inventario, movimientos, ventas, CxP, CxC, pedidos y facturas en archivos que abren en Excel.</p>
-  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);if(WEB){webSettings();bindAvisos();bindPush();return}bindAvisos();
+  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);bindFinPin();if(WEB){webSettings();bindAvisos();bindPush();return}bindAvisos();
   $('#st').addEventListener('submit',async e=>{e.preventDefault();const v=$('#st-pin').value;if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 números');return}if(await write('config/app',{...(S.config||{}),pin:v},'set')){closeSheet();toast('PIN actualizado')}});
   $('#sp').addEventListener('submit',async e=>{e.preventDefault();const cur=$('#sp-0').value,n1=$('#sp-1').value,n2=$('#sp-2').value;
     if(S.config?.passHash&&await passHash(cur,S.config.passSalt||'')!==S.config.passHash){toast('La contraseña actual no es correcta');return}
@@ -2199,7 +2221,7 @@ async function webLogin(pin,pass,input){
     else if(e.code==='weak'){toast('Usa al menos 8 caracteres')}
     else toast('No se pudo conectar. Revisa tu internet e intenta de nuevo.')}
   finally{S.webBusy=false}}
-window.__webLocked=function(){if(!S.unlocked)return;window.__web.stop();S.assets=null;S.unlocked=false;S.gate='pin';closeSheet();renderNegocio();toast('Tu sesión terminó. Vuelve a entrar con tu PIN y contraseña.')};
+window.__webLocked=function(){S.finOk=false;if(!S.unlocked)return;window.__web.stop();S.assets=null;S.unlocked=false;S.gate='pin';closeSheet();renderNegocio();toast('Tu sesión terminó. Vuelve a entrar con tu PIN y contraseña.')};
 async function publishWeb(){const out=clone(S.draft);delete out.base;out.ver=Date.now().toString(36);
   S.publishing=true;renderNegocio();
   try{await window.__web.api('catalog',{cat:out});try{sessionStorage.removeItem('pasteli-draft')}catch(_){}
@@ -2260,7 +2282,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
   else if(a==='editcxc')editCxc(id);else if(a==='abono')abono(id);
   else if(a==='cobrada'){const c=S.cxc.find(x=>x.id===id);write('cxc/'+id,{estado:'cobrada',cobradaEl:todayISO()}).then(ok=>ok&&toast('Marcada como cobrada'))}
   else if(a==='netzip')netlifyZip();else if(a==='sitsub'){S.sitSub=v;renderNegocio()}else if(a==='sitlogo')sitLogo();else if(a==='sitlogodef')setSite('logo',null,true);else if(a==='sitpal')setSite('colores',clone(PALETAS[+v][1]),true);else if(a==='sitpreview')sitPreview();else if(a==='sitreset'){ensureDraft();S.draft.site={};S.dirty=true;try{sessionStorage.setItem('pasteli-draft',JSON.stringify(S.draft))}catch(_){}applySite(siteOf(S.draft));renderNegocio();toast('Restablecido. Publica para aplicarlo.')}else if(a==='factura')openFactura();else if(a==='facedit')editFacCli(id);else if(a==='facup')facUpload(id);else if(a==='facsend')facSend(id,v);else if(a==='faczip')facZipMenu();else if(a==='stats')exportStats();
-  else if(a==='avped')avPedSheet();else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
+  else if(a==='fpin'){S.fpin=S.fpin||'';if(v==='⌫')S.fpin=S.fpin.slice(0,-1);else if(S.fpin.length<4)S.fpin+=v;renderNegocio()}else if(a==='avped')avPedSheet();else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.finOk=false;S.fpin='';S.fpin1=null;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.irow')){e.preventDefault();openDetail(e.target.dataset.id)}});
 
