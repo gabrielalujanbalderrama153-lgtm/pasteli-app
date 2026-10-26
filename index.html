@@ -1385,15 +1385,27 @@ function finSettingsHTML(){const has=!!(S.config&&S.config.finHash);return `<div
 function bindFinPin(){$('#fpf')?.addEventListener('submit',async e=>{e.preventDefault();const has=!!(S.config&&S.config.finHash);const n=$('#fp-1').value;if(!/^\d{4}$/.test(n)){toast('El PIN debe tener 4 números');return}
   if(has){const h=await passHash($('#fp-0').value,S.config.finSalt||'');if(h!==S.config.finHash){toast('El PIN actual no es correcto');return}}
   const salt=newSalt(),hh=await passHash(n,salt);if(await write('config/app',{...(S.config||{}),finHash:hh,finSalt:salt},'set')){S.finOk=true;closeSheet();toast('PIN de finanzas guardado')}})}
+/* ---------- pestañas visibles en este aparato ---------- */
+const TABS_ALL=()=>[['bit','Bitácora Admi'],['bitc','Caja Matutino'],['bitv','Caja Vespertino'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']];
+function tabsHidden(){try{return JSON.parse(localStorage.getItem('pasteli-tabs-hidden')||'[]')}catch(e){return []}}
+function negTabs(){const h=tabsHidden();return TABS_ALL().filter(([k])=>!h.includes(k))}
+function tabsSettingsHTML(){const h=tabsHidden();return `<div class="sep"></div><span class="label">Pestañas en este aparato</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Quita la palomita a las pestañas que no uses aquí. Solo cambia en este aparato; en los demás se siguen viendo.</p><div style="display:grid;gap:6px" id="tb-l">${TABS_ALL().map(([k,l])=>`<label class="chkl"><input type="checkbox" data-tb="${k}"${h.includes(k)?'':' checked'}><span>${l}</span></label>`).join('')}</div>`}
+function bindTabsSettings(){document.querySelectorAll('#tb-l input').forEach(i=>i.addEventListener('change',()=>{
+  const hid=[...document.querySelectorAll('#tb-l input:not(:checked)')].map(x=>x.dataset.tb);
+  if(hid.length>=TABS_ALL().length){i.checked=true;toast('Deja al menos una pestaña visible');return}
+  try{localStorage.setItem('pasteli-tabs-hidden',JSON.stringify(hid))}catch(e){toast('Este navegador no permite guardar esto');return}
+  if(hid.includes(S.ntab)){S.ntab=negTabs()[0][0]}
+  renderNegocio()}))}
 function renderNegocio(){
   const el=$('#v-negocio');
   const head=(extra='')=>APP==='menu'?`<header class="appbar"><div class="wrap"><button class="iconbtn" data-act="go" data-v="home" aria-label="Volver al inicio">${ICON.back}</button><h1>Negocio</h1>${extra}</div></header>`:`<header class="appbar"><div class="wrap"><div class="bar-logo" data-logo style="flex:0 0 auto;justify-content:flex-start;height:32px">${logoHTML()}</div><h1>Negocio</h1>${extra}</div></header>`;
   if(!S.dbTried){el.innerHTML=head()+`<main class="wrap"><div class="empty"><p>Cargando…</p></div></main>`;return}
   if(!S.db){el.innerHTML=head()+`<main class="wrap"><div class="empty">${ICON.lock.replace('<svg','<svg width="34" height="34"')}<h3>Acceso privado</h3><p>Este panel solo se abre con una cuenta autorizada de Pasteli.</p></div></main>`;return}
   if(!S.unlocked){renderGate(el,head);return}
+  if(!S.tabInit){S.tabInit=1;if(tabsHidden().includes(S.ntab)&&negTabs().length)S.ntab=negTabs()[0][0]}
   const n=avisos().length;
   el.innerHTML=head(`${S.finOk?`<button class="iconbtn" data-act="finlock" aria-label="Bloquear finanzas" title="Bloquear finanzas">${ICON.lock}</button>`:''}<button class="iconbtn" data-act="avisos" aria-label="Avisos de hoy">${ICON.bell}${n?`<span class="dotn num">${n}</span>`:''}</button><button class="iconbtn" data-act="settings" aria-label="Ajustes">${ICON.gear}</button>`)+
-   `<div class="wrap"><div class="tabs" role="tablist">${[['bit','Bitácora Admi'],['bitc','Caja Matutino'],['bitv','Caja Vespertino'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']].map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${FIN_TABS.includes(k)&&!S.finOk?'🔒 ':''}${l}</button>`).join('')}</div></div>
+   `<div class="wrap"><div class="tabs" role="tablist">${negTabs().map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${FIN_TABS.includes(k)&&!S.finOk?'🔒 ':''}${l}</button>`).join('')}</div></div>
    <main class="wrap" id="nmain"></main>`;
   const m=$('#nmain');const tabFn=({bit:renderBit,bitc:m=>renderBit(m,'c'),bitv:m=>renderBit(m,'v'),ped:renderPedidos,inv:renderInv,cat:APP==='menu'?renderCat:renderMenuLink,sit:renderSitio,fac:renderFacturas,ven:renderVentas,fin:renderFin,cxp:renderCxp,cxc:renderCxc})[S.ntab];(FIN_TABS.includes(S.ntab)&&!S.finOk?finGate:tabFn)(m);
   const sq=m.querySelector('#q');if(sq&&S.focusQ){sq.focus();sq.setSelectionRange(sq.value.length,sq.value.length);S.focusQ=false}
@@ -2221,11 +2233,11 @@ function settings(){pane(`<div class="grab"></div><div class="sheet-head"><h2>Aj
   <div class="sep"></div><span class="label">Contraseña</span>
   <form id="sp" class="fgrid"><label class="field full"><span>Contraseña actual</span><input id="sp-0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input id="sp-1" type="password" autocomplete="new-password"></label><label class="field"><span>Repite la nueva</span><input id="sp-2" type="password" autocomplete="new-password"></label><button class="btn primary full" type="submit">Cambiar contraseña</button></form>
   <p class="muted" style="font-size:13px">${WEB?'Para entrar se piden el PIN y la contraseña. El servidor revisa los dos y bloquea varios minutos después de 5 intentos fallidos. Al cambiar el PIN o la contraseña se cierran las sesiones abiertas en otros aparatos.':'Para entrar se piden el PIN y la contraseña. Además, los datos del negocio solo los puede leer tu cuenta (y quien invites como editor), aunque alguien adivine el PIN.'}</p>
-  ${finSettingsHTML()}${S.finOk?`<button class="btn block" style="margin-top:8px" data-act="finlock">🔒 Bloquear solo finanzas</button>`:''}
+  ${tabsSettingsHTML()}${finSettingsHTML()}${S.finOk?`<button class="btn block" style="margin-top:8px" data-act="finlock">🔒 Bloquear solo finanzas</button>`:''}
   <button class="btn block" style="margin-top:12px" data-act="lock">Bloquear panel</button>
   ${WEB?`<div class="sep"></div>${avisosHTML().replace('Avisos al celular','Avisos generales')}<div class="sep"></div>${pushHTML()}<div class="sep"></div><span class="label">Importar datos</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Carga el archivo <b>pasteli-datos.json</b> con tu inventario y proveedores de la app anterior.</p><button class="btn block" id="st-imp">⬆︎ Importar archivo de datos</button>`:`<div class="sep"></div>${avisosHTML()}`}
   <div class="sep"></div><span class="label">Descargas</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Un ZIP con inventario, movimientos, ventas, CxP, CxC, pedidos y facturas en archivos que abren en Excel.</p>
-  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);bindFinPin();if(WEB){webSettings();bindAvisos();bindPush();return}bindAvisos();
+  <button class="btn block" data-act="stats">⬇︎ Descargar estadísticas</button>`);bindFinPin();bindTabsSettings();if(WEB){webSettings();bindAvisos();bindPush();return}bindAvisos();
   $('#st').addEventListener('submit',async e=>{e.preventDefault();const v=$('#st-pin').value;if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 números');return}if(await write('config/app',{...(S.config||{}),pin:v},'set')){closeSheet();toast('PIN actualizado')}});
   $('#sp').addEventListener('submit',async e=>{e.preventDefault();const cur=$('#sp-0').value,n1=$('#sp-1').value,n2=$('#sp-2').value;
     if(S.config?.passHash&&await passHash(cur,S.config.passSalt||'')!==S.config.passHash){toast('La contraseña actual no es correcta');return}
