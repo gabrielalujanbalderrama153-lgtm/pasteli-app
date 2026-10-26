@@ -1659,16 +1659,21 @@ function orderDayChip(pid){const o=orderDayTxt(pid);return `<button class="odchi
 
 /* ----- avisos (lo que hay que atender hoy) ----- */
 function avisos(){const out=[];
-  const ps=allProds();ps.filter(p=>sem(p)==='rojo').forEach(p=>out.push({k:'rojo',t:`${p.nombre}: llegó al mínimo, pide ${qty(pedirQ(p))}`,sub:provName(p.prov),act:'detail',id:p.id}));
-  ps.filter(p=>sem(p)==='amarillo').forEach(p=>out.push({k:'amarillo',t:`${p.nombre}: va a la mitad`,sub:provName(p.prov),act:'detail',id:p.id}));
-  const today=todayISO();
-  S.pedidos.filter(o=>o.estado!=='entregado'&&o.entrega).forEach(o=>{const d=daysTo(o.entrega);if(d!=null&&d<=3)out.push({k:d<0?'rojo':d<=1?'rojo':'amarillo',t:`Pedido de ${o.cliente}: ${d<0?`era para hace ${-d} ${d===-1?'día':'días'}`:d===0?'se entrega HOY':d===1?'se entrega mañana':`se entrega en ${d} días`}`,sub:`${o.items||''}${o.hora?' · '+hora12(o.hora):''}`,act:'pedido',id:o.id})});
-  const fp=S.facCli.filter(f=>f.estado!=='enviada');if(fp.length){const sin=fp.filter(f=>!f.pdf).length;out.push({k:'tarea',t:`Facturas: ${sin?sin+' por hacer':''}${sin&&fp.length-sin?' · ':''}${fp.length-sin?(fp.length-sin)+' listas por enviar':''}`,sub:fp.slice(0,3).map(f=>f.nombre).join(' · '),act:'ntab',v:'fac'})}
-  const pend=bitTasks().filter(t=>!t.done);if(pend.length)out.push({k:'tarea',t:`Bitácora: ${pend.length} ${pend.length===1?'pendiente':'pendientes'} hoy`,sub:pend.slice(0,3).map(t=>t.t).join(' · '),act:'ntab',v:'bit'});
+  const ps=allProds();ps.filter(p=>sem(p)==='rojo').forEach(p=>out.push({k:'rojo',g:'P|'+provName(p.prov),t:`${p.nombre}: llegó al mínimo, pide ${qty(pedirQ(p))}`,act:'detail',id:p.id}));
+  ps.filter(p=>sem(p)==='amarillo').forEach(p=>out.push({k:'amarillo',g:'P|'+provName(p.prov),t:`${p.nombre}: va a la mitad`,act:'detail',id:p.id}));
+  const done0=(S.bitDay&&S.bitDay.done)||{};
+  autoTasks().filter(t=>t.pid&&!done0[t.id]).forEach(t=>out.push({k:t.urg?'rojo':'tarea',g:'P|'+provName(t.pid),t:t.t,act:'ntab',v:'inv'}));
+  S.pedidos.filter(o=>o.estado!=='entregado'&&o.entrega).forEach(o=>{const d=daysTo(o.entrega);if(d!=null&&d<=3)out.push({k:d<0?'rojo':d<=1?'rojo':'amarillo',g:'Pedidos de clientes',t:`Pedido de ${o.cliente}: ${d<0?`era para hace ${-d} ${d===-1?'día':'días'}`:d===0?'se entrega HOY':d===1?'se entrega mañana':`se entrega en ${d} días`}`,sub:`${o.items||''}${o.hora?' · '+hora12(o.hora):''}`,act:'pedido',id:o.id})});
+  const fp=S.facCli.filter(f=>f.estado!=='enviada');if(fp.length){const sin=fp.filter(f=>!f.pdf).length;out.push({k:'tarea',g:'Facturas',t:`Facturas: ${sin?sin+' por hacer':''}${sin&&fp.length-sin?' · ':''}${fp.length-sin?(fp.length-sin)+' listas por enviar':''}`,sub:fp.slice(0,3).map(f=>f.nombre).join(' · '),act:'ntab',v:'fac'})}
+  [['Bitácora Admi',undefined,'bit'],['Caja Matutino','c','bitc'],['Caja Vespertino','v','bitv']].forEach(([n,c,tab])=>bitTasks(c).filter(t=>!t.done&&!t.auto).forEach(t=>out.push({k:'tarea',g:n,t:t.t,act:'ntab',v:tab})));
   return out}
 function showAvisos(){const a=avisos();
+  const fixed=['Bitácora Admi','Caja Matutino','Caja Vespertino'],tail=['Pedidos de clientes','Facturas'];
+  const provs=[...new Set(a.filter(x=>x.g.startsWith('P|')).map(x=>x.g))].sort((x,y)=>x.localeCompare(y,'es'));
+  const item=x=>`<button class="aviso ${x.k}" data-act="${x.act}" data-id="${esc(x.id||'')}" data-v="${esc(x.v||'')}"><span class="ad"></span><span><b>${esc(x.t)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</span></button>`;
+  const sec=g=>{const l=a.filter(x=>x.g===g);return l.length?`<div class="group-h"><h3>${g.startsWith('P|')?'📦 '+esc(g.slice(2)):esc(g)}</h3><span class="muted">${l.length}</span></div><div class="list">${l.map(item).join('')}</div>`:''};
   pane(`<div class="sheet-head"><h2>Avisos de hoy</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
-  ${a.length?`<div class="list">${a.map(x=>`<button class="aviso ${x.k}" data-act="${x.act}" data-id="${esc(x.id||'')}" data-v="${esc(x.v||'')}"><span class="ad"></span><span><b>${esc(x.t)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</span></button>`).join('')}</div>`:`<div class="empty"><h3>Todo en orden</h3><p>No hay productos por pedir, pedidos próximos, facturas ni tareas pendientes.</p></div>`}
+  ${a.length?[...fixed,...provs,...tail].map(sec).join(''):`<div class="empty"><h3>Todo en orden</h3><p>No hay productos por pedir, pedidos próximos, facturas ni tareas pendientes.</p></div>`}
   <p class="muted" style="font-size:12.5px;margin-top:12px">También te llegan al celular a las horas que elijas en Ajustes ⚙️.</p>`)}
 let avisoShown=false;
 function maybeAvisos(){if(avisoShown||!S.unlocked||S.view!=='negocio'||!S.loaded.p||!S.loaded.bit||!S.loaded.ped)return;avisoShown=true;
