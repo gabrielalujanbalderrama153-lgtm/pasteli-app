@@ -1374,9 +1374,9 @@ async function finCheck(has){const p=S.fpin;S.fpin='';
   S.fpin1=null;const salt=newSalt(),hh=await passHash(p,salt);
   if(await write('config/app',{...(S.config||{}),finHash:hh,finSalt:salt},'set')){S.finOk=true;toast('PIN de finanzas creado')}
   renderNegocio()}
-function finAsk(cb){if(S.finOk){cb();return}
+function finAsk(cb,msg,btn){if(S.finOk){cb();return}
   const has=!!(S.config&&S.config.finHash);
-  pane(`<div class="sheet-head"><h2>PIN de finanzas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${has?`<p class="muted" style="font-size:13px">Las estadísticas incluyen ventas y cuentas. Escribe el PIN de finanzas para descargarlas.</p><form id="fa" class="fgrid"><label class="field full"><span>PIN de finanzas</span><input id="fa-p" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"></label><button class="btn primary full" type="submit">Descargar</button></form>`:`<div class="empty"><p>Primero crea tu PIN de finanzas: abre Ventas, Finanzas, CxP o CxC, o créalo en Ajustes → PIN de finanzas.</p></div>`}`);
+  pane(`<div class="sheet-head"><h2>PIN de finanzas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${has?`<p class="muted" style="font-size:13px">${msg||'Las estadísticas incluyen ventas y cuentas. Escribe el PIN de finanzas para descargarlas.'}</p><form id="fa" class="fgrid"><label class="field full"><span>PIN de finanzas</span><input id="fa-p" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"></label><button class="btn primary full" type="submit">${btn||'Descargar'}</button></form>`:`<div class="empty"><p>Primero crea tu PIN de finanzas: abre Ventas, Finanzas, CxP o CxC, o créalo en Ajustes → PIN de finanzas.</p></div>`}`);
   $('#fa')?.addEventListener('submit',async e=>{e.preventDefault();if(Date.now()<finUntil){toast('Demasiados intentos. Espera un momento.');return}
     const h=await passHash($('#fa-p').value,S.config.finSalt||'');
     if(h===S.config.finHash){finFails=0;S.finOk=true;closeSheet();renderNegocio();cb()}else{finFails++;if(finFails>=5){finUntil=Date.now()+60000;finFails=0;toast('Demasiados intentos. Espera 1 minuto.')}else toast('PIN incorrecto')}})}
@@ -2228,7 +2228,14 @@ function abono(id){const c=S.cxc.find(x=>x.id===id);
     const ab=[...(c.abonos||[]),{monto:v,fecha:$('#ab-d').value,...(archivo?{archivo}:{})}];const sal=(Number(c.monto)||0)-ab.reduce((a,b)=>a+b.monto,0);
     if(await write('cxc/'+id,{abonos:ab,...(sal<=0.009?{estado:'cobrada',cobradaEl:$('#ab-d').value}:{})})){closeSheet();toast(sal<=0.009?'Cuenta liquidada':'Abono registrado')}})}
 
-function settings(){pane(`<div class="grab"></div><div class="sheet-head"><h2>Ajustes</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+function settings(){
+  if(S.config&&S.config.finHash&&!S.finOk){
+    pane(`<div class="grab"></div><div class="sheet-head"><h2>Ajustes</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+    ${avisosHTML().replace('Avisos al celular','Avisos generales')}<div class="sep"></div>${WEB?pushHTML():''}${WEB?'<div class="sep"></div>':''}
+    <button class="btn block" id="st-unl">🔒 Abrir todos los ajustes (PIN de finanzas)</button>`);
+    bindAvisos();if(WEB)bindPush();
+    $('#st-unl').addEventListener('click',()=>finAsk(()=>settings(),'Escribe el PIN de finanzas para abrir todos los ajustes.','Abrir'));return}
+  pane(`<div class="grab"></div><div class="sheet-head"><h2>Ajustes</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <form id="st" class="fgrid"><label class="field full"><span>Nuevo PIN (4 dígitos)</span><input id="st-pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="••••"></label><button class="btn primary full" type="submit">Cambiar PIN</button></form>
   <div class="sep"></div><span class="label">Contraseña</span>
   <form id="sp" class="fgrid"><label class="field full"><span>Contraseña actual</span><input id="sp-0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input id="sp-1" type="password" autocomplete="new-password"></label><label class="field"><span>Repite la nueva</span><input id="sp-2" type="password" autocomplete="new-password"></label><button class="btn primary full" type="submit">Cambiar contraseña</button></form>
