@@ -103,12 +103,12 @@ export async function compose(cfg, now, want) {
     }
   }
   if (want.general && cfg.tipos.bit) {
-    for (const [name, planId, dayPre] of [['Admi', 'plan', ''], ['Caja', 'plan_caja', 'caja_']]) {
+    for (const [name, planId, dayPre] of [['Bitácora Admi', 'plan', ''], ['Caja Matutino', 'plan_caja', 'caja_'], ['Caja Vespertino', 'plan_cajav', 'cajav_']]) {
       const plan = await readDoc('bitacora', planId);
       const day = await readDoc('bitacora', dayPre + now.date);
       const done = (day && day.done) || {};
       const tasks = ((plan && plan.dias && plan.dias[now.dow]) || []).filter(t => !done[t.id]);
-      if (tasks.length) lines.push({ k: 'bit', t: `Bitácora ${name}: ${tasks.length} ${tasks.length === 1 ? 'pendiente' : 'pendientes'} hoy` });
+      if (tasks.length) lines.push({ k: 'bit', t: `${name}: ${tasks.length} ${tasks.length === 1 ? 'pendiente' : 'pendientes'} hoy` });
     }
   }
   return lines;
