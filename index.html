@@ -1005,6 +1005,11 @@ async function pdfText(file){const lib=await loadPdf();const doc=await lib.getDo
     for(const it of tc.items){const y=Math.round(it.transform[5]);const k=[...lines.keys()].find(v=>Math.abs(v-y)<=2)??y;if(!lines.has(k))lines.set(k,[]);lines.get(k).push([it.transform[4],it.str])}
     out+=`\n--- página ${n} ---\n`+[...lines.entries()].sort((a,b)=>b[0]-a[0]).map(([,arr])=>arr.sort((a,b)=>a[0]-b[0]).map(x=>x[1]).join('  ')).join('\n');if(out.length>230000)break}
   return {text:out.slice(0,230000),pages:doc.numPages}}
+/* WEB: Ventas y Plan de la semana solo guardan los archivos (sin lectura automática) */
+const archList=k=>((S.arch||{})[k])||[];
+async function archAdd(k,files){const cur=[...archList(k)];for(const f of files){const r=await uploadFile(f);if(r)cur.push({...r,fecha:todayISO()})}
+  if(cur.length!==archList(k).length&&await write('config/archivos',{...(S.arch||{}),[k]:cur},'set')){S.arch={...(S.arch||{}),[k]:cur};toast('Archivo guardado');renderNegocio()}}
+function archHTML(k,title){const l=archList(k);return l.length?`<div class="group-h"><h3>${title}</h3></div><div class="list">${l.map((a,i)=>[a,i]).reverse().map(([a,i])=>`<div class="doc"><div>${fileChip(a)}<div class="meta">${fdate(a.fecha)}</div></div><div class="acts"><button class="btn sm ghost" data-act="archdel" data-k="${k}" data-i="${i}">Quitar</button></div></div>`).join('')}</div>`:''}
 function pickVentas(){pickFile('',importVentas,true)}
 function venStatus(html){pane(`<div class="sheet-head"><h2>Subir ventas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${html}`)}
 async function importVentas(files){const sample=await window.claude?.use?.('sample');
@@ -1048,7 +1053,8 @@ function ventasRows(){/* si dos reportes cubren el mismo día, se usa el más re
 function renderVentas(m){
   if(!S.loaded.ven){m.innerHTML='<div class="empty"><p>Cargando…</p></div>';return}
   const g=S.vg||'mes';const rows=ventasRows();
-  const head=`<div class="upcard"><div><b>Subir reporte de ventas</b><span>Sube el PDF que descargas del sistema de ventas (diario, semanal o mensual). La app lo lee y arma las métricas; con el tiempo verás tus temporadas altas y bajas.</span></div><button class="btn primary" data-act="upven">Subir PDF</button></div>`;
+  const head=WEB?`<div class="upcard"><div><b>Subir reporte de ventas</b><span>Sube el reporte del sistema de ventas (PDF, Excel o foto). Se guarda aquí para que lo consultes o lo descargues cuando quieras.</span></div><button class="btn primary" data-act="upven">Subir archivo</button></div>`:`<div class="upcard"><div><b>Subir reporte de ventas</b><span>Sube el PDF que descargas del sistema de ventas (diario, semanal o mensual). La app lo lee y arma las métricas; con el tiempo verás tus temporadas altas y bajas.</span></div><button class="btn primary" data-act="upven">Subir PDF</button></div>`;
+  if(WEB&&!rows.length){m.innerHTML=head+(archHTML('ventas','Reportes subidos')||`<div class="empty">${ill('ledger')}<h3>Aún no hay reportes</h3><p>Sube tu primer reporte de ventas.</p></div>`)+'<div class="sec-gap"></div>';return}
   if(!rows.length){m.innerHTML=head+`<div class="empty">${ill('ledger')}<h3>Aún no hay ventas</h3><p>Sube tu primer reporte para ver ventas por día, semana y mes.</p></div>`;return}
   const agg=new Map();rows.forEach(r=>{const k=perKey(r.f,g);const o=agg.get(k)||{v:0,q:0};o.v+=r.i;o.q+=r.q;agg.set(k,o)});
   const keys=fillKeys([...agg.keys()],g);const data=keys.map(k=>({k,l:perLabel(k,g),v:Math.round((agg.get(k)?.v||0)),x:`${qty(agg.get(k)?.q||0)} piezas`}));
@@ -1288,6 +1294,7 @@ async function initCaps(){
   db.doc('bitacora/plan').onSnapshot(d=>{S.bitPlan=d.exists?d.data():null;S.loaded.bit=true;onData()},err);
   db.doc('bitacora/'+todayISO()).onSnapshot(d=>{S.bitDay=d.exists?d.data():null;onData()},err);
   db.doc('config/app').onSnapshot(d=>{S.config=d.exists?d.data():{};onData()},err);
+  if(WEB)db.doc('config/archivos').onSnapshot(d=>{S.arch=d.exists?d.data():{};if(S.view==='negocio'&&['ven','bit'].includes(S.ntab)&&$('#sheet').hidden&&S.unlocked&&(S.ntab!=='ven'||S.finOk))renderNegocio()},err);
 }
 let firstAlert=true;
 function onData(){setTimeout(maybeAvisos,0);
@@ -1690,7 +1697,8 @@ function renderBit(m){
   ${others.length?`<details class="others"><summary>¿Hiciste algo que no tocaba hoy? <span class="muted">Tareas de otros días</span></summary><div class="list tasks">${others.map(t=>taskRow(t,` <em>${DIAS_C[t.w]}</em>`)).join('')}</div></details>`:''}
   ${extraDone.length?`<div class="group-h"><h3>También se hizo hoy</h3></div><div class="list tasks">${extraDone.map(([id,o])=>taskRow({id,t:o.t||id,done:true,por:o})).join('')}</div>`:''}
   <form id="xt" class="addtask"><input id="xt-t" placeholder="Anotar algo que se hizo hoy (ej. limpieza de refrigerador)" aria-label="Agregar tarea hecha hoy"><button class="btn sm" type="submit">Anotar</button></form>
-  <div class="upcard"><div><b>Plan de la semana</b><span>Sube la foto, PDF o lista de qué hacer cada día. La app arma la bitácora de lunes a domingo y cada mañana te dice qué toca.</span></div><div class="ub"><button class="btn primary" data-act="upplan">Subir documento</button><button class="btn sm ghost" data-act="editplan">Editar a mano</button></div></div>
+  <div class="upcard"><div><b>Plan de la semana</b><span>${WEB?'Sube la foto, PDF o lista de qué hacer cada día; se guarda aquí para consultarla. Las tareas de cada día se escriben en “Editar a mano”.':'Sube la foto, PDF o lista de qué hacer cada día. La app arma la bitácora de lunes a domingo y cada mañana te dice qué toca.'}</span></div><div class="ub"><button class="btn primary" data-act="upplan">Subir documento</button><button class="btn sm ghost" data-act="editplan">Editar a mano</button></div></div>
+  ${WEB?archHTML('plan','Documentos del plan'):''}
   ${hasPlan?`<div class="weekgrid">${[1,2,3,4,5,6,0].map(d=>`<div class="wd${d===w?' today':''}"><b>${DIAS[d]}</b>${planFor(d).map(t=>`<span>${esc(t.t)}</span>`).join('')||'<span class="muted">—</span>'}</div>`).join('')}</div>`:''}
   <div class="sec-gap"></div>`;
   m.querySelectorAll('[data-task]').forEach(c=>c.addEventListener('change',()=>toggleTask(c.dataset.task,c.dataset.label,c.checked)));
@@ -2265,7 +2273,10 @@ async function webBoot(){
    Eventos
    ========================================================= */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,v=t.dataset.v,id=t.dataset.id;
-  if(WEB&&['upinv','upplan','upven'].includes(a)){pane(`<div class="sheet-head"><h2>Lectura automática</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div><div class="empty"><h3>Todavía no está activa en tu página</h3><p>${NOAI}</p></div>`);return}
+  if(WEB&&a==='upven'){pickFile('',fs=>archAdd('ventas',fs),true);return}
+  if(WEB&&a==='upplan'){pickFile('',fs=>archAdd('plan',fs),true);return}
+  if(a==='archdel'){const k=t.dataset.k,i=+t.dataset.i;const cur=archList(k).filter((_,j)=>j!==i);write('config/archivos',{...(S.arch||{}),[k]:cur},'set').then(ok=>{if(ok){S.arch={...(S.arch||{}),[k]:cur};toast('Archivo quitado');renderNegocio()}});return}
+  if(WEB&&['upinv'].includes(a)){pane(`<div class="sheet-head"><h2>Lectura automática</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div><div class="empty"><h3>Todavía no está activa en tu página</h3><p>${NOAI}</p></div>`);return}
   if(a==='go')go(v);else if(a==='close'){closeSheet();S.openDetail=null;if(S.view==='negocio')renderNegocio()}
   else if(a==='cat'){S.cat=v;renderCliente()}else if(a==='item')openItem(id);else if(a==='cart')openCart();
   else if(a==='pin'){if(v==='⌫')S.pin=S.pin.slice(0,-1);else if(S.pin.length<4)S.pin+=v;renderNegocio()}
