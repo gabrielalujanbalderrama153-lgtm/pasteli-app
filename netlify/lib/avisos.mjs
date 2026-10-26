@@ -107,7 +107,8 @@ export async function compose(cfg, now, want) {
       const plan = await readDoc('bitacora', planId);
       const day = await readDoc('bitacora', dayPre + now.date);
       const done = (day && day.done) || {};
-      const tasks = ((plan && plan.dias && plan.dias[now.dow]) || []).filter(t => !done[t.id]);
+      const no = (day && day.no) || {};
+      const tasks = ((plan && plan.dias && plan.dias[now.dow]) || []).filter(t => !done[t.id] && !no[t.id]);
       if (tasks.length) lines.push({ k: 'bit', t: `${name}: ${tasks.length} ${tasks.length === 1 ? 'pendiente' : 'pendientes'} hoy` });
     }
   }
