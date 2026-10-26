@@ -1120,7 +1120,7 @@ const S={view:'home',cat:'all',cart:ls.get('pasteli-cart',[]),order:ls.get('past
   db:null,assets:null,user:null,menuFotos:{},menuPrecios:{},catSel:'gourmet',ventas:[],movs:[],vg:'mes',ig:'mes',catSub:'prod',draft:null,dirty:false,mediaDb:null,ready:false,dbTried:false,
   prods:new Map(),provs:new Map(),facturas:[],cxc:[],config:null,loaded:{p:false,v:false,f:false,c:false},
   pend:new Map(),timers:new Map(),
-  ntab:'bit',isub:'prod',pedidos:[],facCli:[],fac:null,bitPlan:null,bitDay:null,semF:null,q:'',provF:'',finProv:'',unlocked:WEB?!!(window.__web&&window.__web.tok.get()):ss.get('pasteli-unlock')==='1',pin:''};
+  ntab:'bit',isub:'prod',pedidos:[],facCli:[],fac:null,bitPlan:null,bitDay:null,bitPlanC:null,bitDayC:null,semF:null,q:'',provF:'',finProv:'',unlocked:WEB?!!(window.__web&&window.__web.tok.get()):ss.get('pasteli-unlock')==='1',pin:''};
 
 /* =========================================================
    Navegación
@@ -1293,8 +1293,10 @@ async function initCaps(){
   db.collection('pedidos').onSnapshot(snap=>{S.pedidos=snap.docs.map(d=>({id:d.id,...d.data()}));S.loaded.ped=true;onData()},err);
   db.doc('bitacora/plan').onSnapshot(d=>{S.bitPlan=d.exists?d.data():null;S.loaded.bit=true;onData()},err);
   db.doc('bitacora/'+todayISO()).onSnapshot(d=>{S.bitDay=d.exists?d.data():null;onData()},err);
+  db.doc('bitacora/plan_caja').onSnapshot(d=>{S.bitPlanC=d.exists?d.data():null;onData()},err);
+  db.doc('bitacora/caja_'+todayISO()).onSnapshot(d=>{S.bitDayC=d.exists?d.data():null;onData()},err);
   db.doc('config/app').onSnapshot(d=>{S.config=d.exists?d.data():{};onData()},err);
-  if(WEB)db.doc('config/archivos').onSnapshot(d=>{S.arch=d.exists?d.data():{};if(S.view==='negocio'&&['ven','bit'].includes(S.ntab)&&$('#sheet').hidden&&S.unlocked&&(S.ntab!=='ven'||S.finOk))renderNegocio()},err);
+  if(WEB)db.doc('config/archivos').onSnapshot(d=>{S.arch=d.exists?d.data():{};if(S.view==='negocio'&&['ven','bit','bitc'].includes(S.ntab)&&$('#sheet').hidden&&S.unlocked&&(S.ntab!=='ven'||S.finOk))renderNegocio()},err);
 }
 let firstAlert=true;
 function onData(){setTimeout(maybeAvisos,0);
@@ -1389,9 +1391,9 @@ function renderNegocio(){
   if(!S.unlocked){renderGate(el,head);return}
   const n=avisos().length;
   el.innerHTML=head(`${S.finOk?`<button class="iconbtn" data-act="finlock" aria-label="Bloquear finanzas" title="Bloquear finanzas">${ICON.lock}</button>`:''}<button class="iconbtn" data-act="avisos" aria-label="Avisos de hoy">${ICON.bell}${n?`<span class="dotn num">${n}</span>`:''}</button><button class="iconbtn" data-act="settings" aria-label="Ajustes">${ICON.gear}</button>`)+
-   `<div class="wrap"><div class="tabs" role="tablist">${[['bit','Bitácora'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']].map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${FIN_TABS.includes(k)&&!S.finOk?'🔒 ':''}${l}</button>`).join('')}</div></div>
+   `<div class="wrap"><div class="tabs" role="tablist">${[['bit','Bitácora Admi'],['bitc','Bitácora Caja'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']].map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${FIN_TABS.includes(k)&&!S.finOk?'🔒 ':''}${l}</button>`).join('')}</div></div>
    <main class="wrap" id="nmain"></main>`;
-  const m=$('#nmain');const tabFn=({bit:renderBit,ped:renderPedidos,inv:renderInv,cat:APP==='menu'?renderCat:renderMenuLink,sit:renderSitio,fac:renderFacturas,ven:renderVentas,fin:renderFin,cxp:renderCxp,cxc:renderCxc})[S.ntab];(FIN_TABS.includes(S.ntab)&&!S.finOk?finGate:tabFn)(m);
+  const m=$('#nmain');const tabFn=({bit:renderBit,bitc:m=>renderBit(m,true),ped:renderPedidos,inv:renderInv,cat:APP==='menu'?renderCat:renderMenuLink,sit:renderSitio,fac:renderFacturas,ven:renderVentas,fin:renderFin,cxp:renderCxp,cxc:renderCxc})[S.ntab];(FIN_TABS.includes(S.ntab)&&!S.finOk?finGate:tabFn)(m);
   const sq=m.querySelector('#q');if(sq&&S.focusQ){sq.focus();sq.setSelectionRange(sq.value.length,sq.value.length);S.focusQ=false}
 }
 function renderMenuLink(m){m.innerHTML=`<div class="empty">${ill('slice','cream','straw')}<h3>El menú de clientes vive aparte</h3><p>Para que los clientes nunca vean datos del negocio, el menú es una página separada en Netlify (no necesitan el asistente). Para cambiar precios, tamaños, fotos o vitrina:</p><ol style="text-align:left;max-width:440px;margin:10px auto;line-height:1.6"><li>Toca <b>Editar menú</b> y haz tus cambios.</li><li>Toca <b>Publicar cambios</b>.</li><li>Toca <b>Descargar para Netlify</b> y descomprime el ZIP.</li><li>En Netlify, entra a tu sitio → <b>Deploys</b> y arrastra la carpeta.</li></ol><p style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a class="btn primary" href="${URL_MENU}#editar" target="_blank" rel="noopener">Editar menú</a><a class="btn" href="${URL_MENU}" target="_blank" rel="noopener">Ver como cliente</a><button class="btn ghost" data-act="copyorder" data-t="${URL_MENU}">Copiar enlace del menú</button></p></div>`}
@@ -1671,47 +1673,47 @@ function maybeAvisos(){if(avisoShown||!S.unlocked||S.view!=='negocio'||!S.loaded
   if(ss.get('pasteli-avisos')===todayISO())return;ss.set('pasteli-avisos',todayISO());if(avisos().length)showAvisos()}
 
 /* ----- bitácora ----- */
-function planFor(w){const p=S.bitPlan||{};return ((p.dias||{})[w]||[])}
+function planFor(w,c){const p=(c?S.bitPlanC:S.bitPlan)||{};return ((p.dias||{})[w]||[])}
 function autoTasks(){const out=[];const w=dowToday();
   for(const pv of S.provs.values()){const items=allProds().filter(p=>p.prov===pv.id&&['rojo','amarillo'].includes(sem(p)));const red=items.some(p=>sem(p)==='rojo');
     if((pv.diasPedido||[]).includes(w)||red)if(items.length||(pv.diasPedido||[]).includes(w))out.push({id:'auto-ped-'+pv.id,t:`Hacer pedido a ${pv.nombre}${items.length?` (${items.length} ${items.length===1?'producto':'productos'})`:''}`,auto:1,urg:red,pid:pv.id})}
   S.pedidos.filter(o=>o.estado!=='entregado'&&o.entrega&&daysTo(o.entrega)!=null&&daysTo(o.entrega)>=0&&daysTo(o.entrega)<=3).forEach(o=>out.push({id:'auto-pedido-'+o.id,t:`Preparar pedido de ${o.cliente} (${fdate(o.entrega)})`,auto:1,urg:daysTo(o.entrega)<=1}));
   return out}
-function bitTasks(){const done=(S.bitDay&&S.bitDay.done)||{};const w=dowToday();
-  return [...autoTasks(),...planFor(w)].map(t=>({...t,done:!!done[t.id],por:done[t.id]}))}
-async function toggleTask(id,label,on){const ref=S.db.doc('bitacora/'+todayISO());const cur=(S.bitDay&&S.bitDay.done)||{};const next={...cur};
+function bitTasks(c){const BD=c?S.bitDayC:S.bitDay;const done=(BD&&BD.done)||{};const w=dowToday();
+  return [...(c?[]:autoTasks()),...planFor(w,c)].map(t=>({...t,done:!!done[t.id],por:done[t.id]}))}
+async function toggleTask(id,label,on,c){const ref=S.db.doc('bitacora/'+(c?'caja_':'')+todayISO());const D=c?'bitDayC':'bitDay';const cur=(S[D]&&S[D].done)||{};const next={...cur};
   if(on)next[id]={at:new Date().toISOString(),t:label};else delete next[id];
-  S.bitDay={...(S.bitDay||{}),done:next};renderNegocio();try{await ref.set({...(S.bitDay||{}),done:next})}catch(e){toast('No se pudo guardar.')}}
-function renderBit(m){
+  S[D]={...(S[D]||{}),done:next};renderNegocio();try{await ref.set({...(S[D]||{}),done:next})}catch(e){toast('No se pudo guardar.')}}
+function renderBit(m,c){
   if(!S.loaded.bit){m.innerHTML='<div class="empty"><p>Cargando…</p></div>';return}
-  const w=dowToday();const tasks=bitTasks();const done=tasks.filter(t=>t.done).length;const doneMap=(S.bitDay&&S.bitDay.done)||{};
-  const others=[];for(let k=1;k<7;k++){const ww=(w+k)%7;planFor(ww).forEach(t=>others.push({...t,w:ww,done:!!doneMap[t.id]}))}
+  const w=dowToday();const tasks=bitTasks(c);const done=tasks.filter(t=>t.done).length;const BD=c?S.bitDayC:S.bitDay;const doneMap=(BD&&BD.done)||{};
+  const others=[];for(let k=1;k<7;k++){const ww=(w+k)%7;planFor(ww,c).forEach(t=>others.push({...t,w:ww,done:!!doneMap[t.id]}))}
   const extraDone=Object.entries(doneMap).filter(([id])=>!tasks.some(t=>t.id===id)&&!others.some(t=>t.id===id));
-  const av=avisos().filter(a=>a.k==='rojo');
-  const hasPlan=[0,1,2,3,4,5,6].some(d=>planFor(d).length);
+  const av=c?[]:avisos().filter(a=>a.k==='rojo');
+  const hasPlan=[0,1,2,3,4,5,6].some(d=>planFor(d,c).length);
   const taskRow=(t,extra='')=>`<label class="task${t.done?' done':''}${t.urg?' urg':''}"><input type="checkbox" data-task="${esc(t.id)}" data-label="${esc(t.t)}"${t.done?' checked':''}><span class="tk"></span><span class="tt">${esc(t.t)}${t.auto?'<em>automática</em>':''}${extra}</span>${t.done&&t.por?.at?`<small>${new Date(t.por.at).toLocaleTimeString('es-MX',{hour:'numeric',minute:'2-digit'})}</small>`:''}</label>`;
-  m.innerHTML=`<div class="bit-head"><div><span class="eyebrow">Bitácora</span><h2>${DIAS[w]} ${new Date().getDate()} de ${MESES[new Date().getMonth()]}</h2></div><div class="ring" style="--p:${tasks.length?Math.round(done/tasks.length*100):0}"><b class="num">${done}/${tasks.length}</b><span>hechas</span></div></div>
+  m.innerHTML=`<div class="bit-head"><div><span class="eyebrow">${c?'Bitácora Caja':'Bitácora Admi'}</span><h2>${DIAS[w]} ${new Date().getDate()} de ${MESES[new Date().getMonth()]}</h2></div><div class="ring" style="--p:${tasks.length?Math.round(done/tasks.length*100):0}"><b class="num">${done}/${tasks.length}</b><span>hechas</span></div></div>
   ${av.length?`<div class="alertbar"><span class="light l-rojo"></span><b>${av.length} ${av.length===1?'aviso urgente':'avisos urgentes'}: ${esc(av.slice(0,2).map(a=>a.t).join(' · '))}${av.length>2?'…':''}</b><button class="btn sm dark" data-act="avisos">Ver avisos</button></div>`:''}
   <div class="group-h"><h3>Para hoy</h3><span class="muted">Palomea lo que ya se hizo</span></div>
   <div class="list tasks">${tasks.map(t=>taskRow(t)).join('')||`<div class="empty"><p>${hasPlan?'Hoy no hay tareas programadas.':'Aún no hay tareas. Sube el documento de qué hacer cada día o agrégalas abajo.'}</p></div>`}</div>
   ${others.length?`<details class="others"><summary>¿Hiciste algo que no tocaba hoy? <span class="muted">Tareas de otros días</span></summary><div class="list tasks">${others.map(t=>taskRow(t,` <em>${DIAS_C[t.w]}</em>`)).join('')}</div></details>`:''}
   ${extraDone.length?`<div class="group-h"><h3>También se hizo hoy</h3></div><div class="list tasks">${extraDone.map(([id,o])=>taskRow({id,t:o.t||id,done:true,por:o})).join('')}</div>`:''}
   <form id="xt" class="addtask"><input id="xt-t" placeholder="Anotar algo que se hizo hoy (ej. limpieza de refrigerador)" aria-label="Agregar tarea hecha hoy"><button class="btn sm" type="submit">Anotar</button></form>
-  <div class="upcard"><div><b>Plan de la semana</b><span>${WEB?'Sube la foto, PDF o lista de qué hacer cada día; se guarda aquí para consultarla. Las tareas de cada día se escriben en “Editar a mano”.':'Sube la foto, PDF o lista de qué hacer cada día. La app arma la bitácora de lunes a domingo y cada mañana te dice qué toca.'}</span></div><div class="ub"><button class="btn primary" data-act="upplan">Subir documento</button><button class="btn sm ghost" data-act="editplan">Editar a mano</button></div></div>
-  ${WEB?archHTML('plan','Documentos del plan'):''}
-  ${hasPlan?`<div class="weekgrid">${[1,2,3,4,5,6,0].map(d=>`<div class="wd${d===w?' today':''}"><b>${DIAS[d]}</b>${planFor(d).map(t=>`<span>${esc(t.t)}</span>`).join('')||'<span class="muted">—</span>'}</div>`).join('')}</div>`:''}
+  <div class="upcard"><div><b>Plan de la semana</b><span>${WEB?'Sube la foto, PDF o lista de qué hacer cada día; se guarda aquí para consultarla. Las tareas de cada día se escriben en “Editar a mano”.':'Sube la foto, PDF o lista de qué hacer cada día. La app arma la bitácora de lunes a domingo y cada mañana te dice qué toca.'}</span></div><div class="ub"><button class="btn primary" data-act="upplan"${c?' data-c="1"':''}>Subir documento</button><button class="btn sm ghost" data-act="editplan"${c?' data-c="1"':''}>Editar a mano</button></div></div>
+  ${WEB?archHTML(c?'plancaja':'plan','Documentos del plan'):''}
+  ${hasPlan?`<div class="weekgrid">${[1,2,3,4,5,6,0].map(d=>`<div class="wd${d===w?' today':''}"><b>${DIAS[d]}</b>${planFor(d,c).map(t=>`<span>${esc(t.t)}</span>`).join('')||'<span class="muted">—</span>'}</div>`).join('')}</div>`:''}
   <div class="sec-gap"></div>`;
-  m.querySelectorAll('[data-task]').forEach(c=>c.addEventListener('change',()=>toggleTask(c.dataset.task,c.dataset.label,c.checked)));
-  m.querySelector('#xt').addEventListener('submit',e=>{e.preventDefault();const v=m.querySelector('#xt-t').value.trim();if(!v)return;toggleTask('x-'+Date.now().toString(36),v,true)});
+  m.querySelectorAll('[data-task]').forEach(ch=>ch.addEventListener('change',()=>toggleTask(ch.dataset.task,ch.dataset.label,ch.checked,c)));
+  m.querySelector('#xt').addEventListener('submit',e=>{e.preventDefault();const v=m.querySelector('#xt-t').value.trim();if(!v)return;toggleTask('x-'+Date.now().toString(36),v,true,c)});
 }
-function editPlan(){const p=S.bitPlan||{dias:{}};
-  pane(`<div class="sheet-head"><h2>Plan de la semana</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+function editPlan(c){const p=(c?S.bitPlanC:S.bitPlan)||{dias:{}};
+  pane(`<div class="sheet-head"><h2>Plan de la semana${c?' · Caja':''}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <p class="muted" style="margin-top:0">Una tarea por renglón.</p>
   <form id="pl" class="fgrid">${[1,2,3,4,5,6,0].map(d=>`<label class="field full"><span>${DIAS[d]}</span><textarea data-d="${d}" rows="3">${esc(((p.dias||{})[d]||[]).map(t=>t.t).join('\n'))}</textarea></label>`).join('')}
   <button class="btn primary full" type="submit">Guardar plan</button></form>`);
   $('#pl').addEventListener('submit',async e=>{e.preventDefault();const dias={};
     $('#pl').querySelectorAll('textarea').forEach(ta=>{const d=ta.dataset.d;const old=((p.dias||{})[d]||[]);dias[d]=ta.value.split('\n').map(x=>x.trim()).filter(Boolean).map((t,i)=>{const same=old.find(o=>o.t===t);return {id:same?same.id:`p${d}-${Date.now().toString(36)}${i}`,t}})});
-    if(await write('bitacora/plan',{dias,actualizado:new Date().toISOString()},'set')){S.bitPlan={dias};closeSheet();toast('Plan guardado')}})}
+    if(await write('bitacora/'+(c?'plan_caja':'plan'),{dias,actualizado:new Date().toISOString()},'set')){S[c?'bitPlanC':'bitPlan']={dias};closeSheet();toast('Plan guardado')}})}
 function pickPlan(){pickFile('',importPlan,true)}
 async function importPlan(files){const sample=await window.claude?.use?.('sample');
   const st=h=>pane(`<div class="sheet-head"><h2>Plan de la semana</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>${h}`);
@@ -2274,7 +2276,7 @@ async function webBoot(){
    ========================================================= */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,v=t.dataset.v,id=t.dataset.id;
   if(WEB&&a==='upven'){pickFile('',fs=>archAdd('ventas',fs),true);return}
-  if(WEB&&a==='upplan'){pickFile('',fs=>archAdd('plan',fs),true);return}
+  if(WEB&&a==='upplan'){pickFile('',fs=>archAdd(t.dataset.c?'plancaja':'plan',fs),true);return}
   if(a==='archdel'){const k=t.dataset.k,i=+t.dataset.i;const cur=archList(k).filter((_,j)=>j!==i);write('config/archivos',{...(S.arch||{}),[k]:cur},'set').then(ok=>{if(ok){S.arch={...(S.arch||{}),[k]:cur};toast('Archivo quitado');renderNegocio()}});return}
   if(WEB&&['upinv'].includes(a)){pane(`<div class="sheet-head"><h2>Lectura automática</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div><div class="empty"><h3>Todavía no está activa en tu página</h3><p>${NOAI}</p></div>`);return}
   if(a==='go')go(v);else if(a==='close'){closeSheet();S.openDetail=null;if(S.view==='negocio')renderNegocio()}
@@ -2284,7 +2286,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
   else if(a==='isub'){S.isub=v;renderNegocio()}else if(a==='semf'){S.semF=S.semF===v?null:v;S.isub='prod';renderNegocio()}
   else if(a==='inc'||a==='dec'){e.stopPropagation();moveStock(id,a==='inc'?1:-1)}
   else if(a==='detail'){if(e.target.closest('.qbtns'))return;openDetail(id)}
-  else if(a==='newprod')newProd();else if(a==='addwa'){e.preventDefault();addWa(id)}else if(a==='upinv')pickInventario();else if(a==='avisos')showAvisos();else if(a==='upplan')pickPlan();else if(a==='editplan')editPlan();else if(a==='pedido')editPedido(id);else if(a==='pedst'){write('pedidos/'+id,{estado:v}).then(ok=>ok&&toast(v==='entregado'?'Pedido entregado':'Pedido en preparación'))}else if(a==='catsel'){S.catSel=v;renderNegocio()}
+  else if(a==='newprod')newProd();else if(a==='addwa'){e.preventDefault();addWa(id)}else if(a==='upinv')pickInventario();else if(a==='avisos')showAvisos();else if(a==='upplan')(t.dataset.c?editPlan(true):pickPlan());else if(a==='editplan')editPlan(!!t.dataset.c);else if(a==='pedido')editPedido(id);else if(a==='pedst'){write('pedidos/'+id,{estado:v}).then(ok=>ok&&toast(v==='entregado'?'Pedido entregado':'Pedido en preparación'))}else if(a==='catsel'){S.catSel=v;renderNegocio()}
   else if(a==='catsub'){S.catSub=v;renderNegocio()}else if(a==='catnew')catNew();else if(a==='catpublish')publishCat();
   else if(a==='catdiscard'){S.draft=clone(CAT);S.draft.base=CAT.ver;S.dirty=false;try{sessionStorage.removeItem('pasteli-draft')}catch(_){}applySite(siteOf(CAT));renderNegocio()}
   else if(a==='catdesc'){S.descOpen=S.descOpen===id?null:id;renderNegocio()}
@@ -2307,7 +2309,7 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 initCaps();if(WEB)webBoot();
 applySite(siteOf(CAT));paintHomeIcons();applyMedia();
 const h=(location.hash||'').slice(1);const backTab=ss.get('pasteli-tab');
-if(APP==='negocio'){if(['bit','inv','ped','fac','ven','fin','cxp','cxc'].includes(h))S.ntab=h;go('negocio')}
+if(APP==='negocio'){if(['bit','bitc','inv','ped','fac','ven','fin','cxp','cxc'].includes(h))S.ntab=h;go('negocio')}
 else if(backTab){ss.set('pasteli-tab','');S.ntab=backTab;try{sessionStorage.removeItem('pasteli-draft')}catch(_){}go('negocio')}
 else if(h==='editar'||h==='negocio'){if(h==='editar')S.ntab='cat';go('negocio')}else if(h==='factura'){go('cliente');openFactura()}else go(h==='cliente'?'cliente':'home');
 </script>

@@ -103,11 +103,13 @@ export async function compose(cfg, now, want) {
     }
   }
   if (want.general && cfg.tipos.bit) {
-    const plan = await readDoc('bitacora', 'plan');
-    const day = await readDoc('bitacora', now.date);
-    const done = (day && day.done) || {};
-    const tasks = ((plan && plan.dias && plan.dias[now.dow]) || []).filter(t => !done[t.id]);
-    if (tasks.length) lines.push({ k: 'bit', t: `Bitácora: ${tasks.length} ${tasks.length === 1 ? 'pendiente' : 'pendientes'} hoy` });
+    for (const [name, planId, dayPre] of [['Admi', 'plan', ''], ['Caja', 'plan_caja', 'caja_']]) {
+      const plan = await readDoc('bitacora', planId);
+      const day = await readDoc('bitacora', dayPre + now.date);
+      const done = (day && day.done) || {};
+      const tasks = ((plan && plan.dias && plan.dias[now.dow]) || []).filter(t => !done[t.id]);
+      if (tasks.length) lines.push({ k: 'bit', t: `Bitácora ${name}: ${tasks.length} ${tasks.length === 1 ? 'pendiente' : 'pendientes'} hoy` });
+    }
   }
   return lines;
 }
