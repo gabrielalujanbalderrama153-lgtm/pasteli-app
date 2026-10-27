@@ -2,7 +2,7 @@
 // Todo lo privado exige un token firmado; solo el catálogo publicado y las fotos son públicos.
 import { getStore } from '@netlify/blobs';
 import crypto from 'node:crypto';
-import { vapid, saveSub, removeSub, sendAll, countSubs } from '../lib/push.mjs';
+import { vapid, saveSub, removeSub, sendAll, countSubs, listSubs, lastRun } from '../lib/push.mjs';
 import { localNow, readCfg, compose, toPayload } from '../lib/avisos.mjs';
 
 export const config = { path: ['/api/*', '/_blob/*'] };
@@ -37,6 +37,11 @@ async function sign(payload) {
   const mac = crypto.createHmac('sha256', await secret()).update(body).digest('base64url');
   return body + '.' + mac;
 }
+/* ---------- panel CP: PIN propio y solo las pestañas que el dueño elija ---------- */
+const CP_TABS = { ven: ['ventas'], fin: ['facturas', 'proveedores'], cxp: ['facturas', 'proveedores'], cxc: ['cxc'] };
+async function getCp() { return (await st('sys').get('cp', { type: 'json' })) || null; }
+const cpCols = cp => { const o = new Set(); ((cp && cp.tabs) || []).forEach(t => (CP_TABS[t] || []).forEach(c => o.add(c))); return o; };
+
 async function verify(req) {
   const h = req.headers.get('authorization') || '';
   const tok = h.startsWith('Bearer ') ? h.slice(7) : '';
@@ -48,20 +53,21 @@ async function verify(req) {
   if (!p || Date.now() > p.exp) return null;
   const a = await getAuth();
   if (!a || a.v !== p.v) return null;
+  if (p.role === 'cp') { const cp = await getCp(); if (!cp || cp.v !== p.cv) return null; p.cpRec = cp; }
   return p;
 }
 
 /* ---------- límite de intentos ---------- */
-async function locked() {
-  const t = (await st('sys').get('tries', { type: 'json' })) || { n: 0, until: 0 };
+async function locked(key = 'tries') {
+  const t = (await st('sys').get(key, { type: 'json' })) || { n: 0, until: 0 };
   return { t, wait: t.until > Date.now() ? Math.ceil((t.until - Date.now()) / 1000) : 0 };
 }
-async function fail(t) {
+async function fail(t, key = 'tries') {
   t.n = (t.n || 0) + 1;
   if (t.n >= 5) { t.until = Date.now() + 60000 * Math.min(30, 2 ** Math.floor(t.n / 5 - 1)); }
-  await st('sys').setJSON('tries', t);
+  await st('sys').setJSON(key, t);
 }
-async function okTries() { await st('sys').setJSON('tries', { n: 0, until: 0 }); }
+async function okTries(key = 'tries') { await st('sys').setJSON(key, { n: 0, until: 0 }); }
 
 /* ---------- base de datos (un blob por documento: d/<colección>/<id>) ---------- */
 function splitPath(p) {
@@ -126,7 +132,7 @@ export default async (req) => {
   try {
     if (path.startsWith('/_blob/')) return serveAsset(path.slice(7));
     const route = path.replace(/^\/api\//, '');
-    const body = req.method === 'POST' && route !== 'asset' ? await req.json().catch(() => ({})) : {};
+    const body = req.method === 'POST' && route !== 'asset' && route !== 'pub/upload' ? await req.json().catch(() => ({})) : {};
 
     // Catálogo publicado (público para leer)
     if (route === 'catalog' && req.method === 'GET') {
@@ -158,9 +164,90 @@ export default async (req) => {
       return json({ token: await sign({ v: a.v, exp: Date.now() + TOKEN_HOURS * 3600e3 }) });
     }
 
+    // Subida pública (foto de ticket / constancia desde el formulario de clientes). Solo imagen/PDF, límite de tamaño y de frecuencia.
+    if (route === 'pub/upload' && req.method === 'POST') {
+      const hour = new Date().toISOString().slice(0, 13);
+      const rl = (await st('sys').get('pubrate', { type: 'json' })) || {};
+      if (rl.h !== hour) { rl.h = hour; rl.n = 0; }
+      if (rl.n >= 60) return err('rate', 429);
+      const buf = Buffer.from(await req.arrayBuffer());
+      if (!buf.length) return err('empty');
+      if (buf.length > 8 * 1024 * 1024) return err('too_large', 413);
+      const hd = buf.subarray(0, 12);
+      let type = null;
+      if (hd[0] === 0xff && hd[1] === 0xd8) type = 'image/jpeg';
+      else if (hd.subarray(0, 4).toString('latin1') === '\x89PNG') type = 'image/png';
+      else if (hd.subarray(0, 4).toString('latin1') === 'RIFF' && hd.subarray(8, 12).toString('latin1') === 'WEBP') type = 'image/webp';
+      else if (hd.subarray(0, 5).toString('latin1') === '%PDF-') type = 'application/pdf';
+      if (!type) return err('bad_type', 415);
+      rl.n++; await st('sys').setJSON('pubrate', rl);
+      const id = crypto.randomBytes(16).toString('hex');
+      let name = 'archivo'; try { name = decodeURIComponent(req.headers.get('x-name') || 'archivo').slice(0, 120); } catch {}
+      await st('assets').set(id, buf, { metadata: { type, name, size: buf.length, subido: new Date().toISOString(), pub: true } });
+      return json({ id, url: '/_blob/' + id });
+    }
+
+    // Solicitud de factura desde el formulario de clientes: se guarda en Facturas del panel (además del WhatsApp).
+    if (route === 'pub/factura' && req.method === 'POST') {
+      const hour = new Date().toISOString().slice(0, 13);
+      const rl = (await st('sys').get('pubfac', { type: 'json' })) || {};
+      if (rl.h !== hour) { rl.h = hour; rl.n = 0; }
+      if (rl.n >= 40) return err('rate', 429);
+      const str = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
+      const d = {
+        nombre: str(body.nombre, 160), rfc: str(body.rfc, 13).toUpperCase(), regimen: str(body.regimen, 6), cp: str(body.cp, 5), uso: str(body.uso, 6),
+        correo: str(body.correo, 120), tel: str(body.tel, 30), fechaCompra: str(body.fechaCompra, 10), total: Math.max(0, Math.min(1e7, Number(body.total) || 0)),
+        ticket: str(body.ticket, 60), pago: str(body.pago, 6), notas: str(body.notas, 300),
+      };
+      if (!d.nombre || !/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(d.rfc) || !/^\d{5}$/.test(d.cp) || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.correo)) return err('bad_request', 400);
+      const id = /^fc-[a-z0-9]{6,20}$/.test(String(body.id || '')) ? body.id : 'fc-' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
+      const file = async (u, label) => {
+        const m = /\/_blob\/([a-f0-9]{32})$/.exec(String(u || '')); if (!m) return null;
+        const r = await st('assets').getWithMetadata(m[1], { type: 'arrayBuffer' }); const md = r && r.metadata;
+        if (!md || !md.pub) return null;
+        return { id: m[1], nombre: String(md.name || label).slice(0, 120), tipo: String(md.type || ''), peso: Number(md.size) || 0 };
+      };
+      const t = await file(body.ticketUrl, 'ticket'), c = await file(body.csfUrl, 'constancia');
+      const rec = { ...d, estado: 'pendiente', creado: new Date().toISOString(), origen: 'web', ...(t ? { ticketImg: t } : {}), ...(c ? { constancia: c } : {}) };
+      const r = await st('db').setJSON(dkey('facturas_cli', id), rec, { onlyIfNew: true });
+      if (r.modified) { rl.n++; await st('sys').setJSON('pubfac', rl); }
+      return json({ ok: true, id });
+    }
+
+    // Entrar al panel CP (solo PIN)
+    if (route === 'auth/cp' && req.method === 'POST') {
+      const a = await getAuth(), cp = await getCp();
+      if (!a || !cp || !cp.hash) return err('no_cp', 404);
+      const { t, wait } = await locked('triescp');
+      if (wait) return err('locked', 429, { wait });
+      if (!same(hash(String(body.pin || ''), cp.salt), cp.hash)) { await fail(t, 'triescp'); return err('bad_login', 401); }
+      await okTries('triescp');
+      return json({ token: await sign({ v: a.v, role: 'cp', cv: cp.v, exp: Date.now() + TOKEN_HOURS * 3600e3 }), tabs: cp.tabs || [] });
+    }
+    if (route === 'auth/cpinfo') { const cp = await getCp(); return json({ has: !!(cp && cp.hash) }); }
+
     // A partir de aquí todo exige sesión
     const who = await verify(req);
     if (!who) return err('unauthorized', 401);
+    const isCp = who.role === 'cp';
+    if (isCp && !['db/sync', 'db/get', 'db/write', 'asset'].includes(route)) return err('forbidden', 403);
+    const cpAllowed = isCp ? cpCols(who.cpRec) : null;
+    const cpCfgOk = id => id === 'app' || id === 'archivos';
+
+    if (route === 'cp/get') { const cp = await getCp(); return json({ has: !!(cp && cp.hash), tabs: (cp && cp.tabs) || [] }); }
+    if (route === 'cp/set' && req.method === 'POST') {
+      const cp0 = await getCp(); const tabs = (Array.isArray(body.tabs) ? body.tabs : (cp0 && cp0.tabs) || []).filter(t => CP_TABS[t]);
+      if (!tabs.length) return err('need_tab', 400);
+      let salt = cp0 && cp0.salt, h = cp0 && cp0.hash;
+      if (body.pin !== undefined && body.pin !== '') {
+        if (!/^\d{4}$/.test(String(body.pin))) return err('bad_format', 400);
+        salt = crypto.randomBytes(16).toString('hex'); h = hash(String(body.pin), salt);
+      }
+      if (!h) return err('need_pin', 400);
+      await st('sys').setJSON('cp', { salt, hash: h, tabs, v: ((cp0 && cp0.v) || 0) + 1 });
+      return json({ ok: true, has: true, tabs });
+    }
+    if (route === 'cp/off' && req.method === 'POST') { await st('sys').delete('cp'); return json({ ok: true }); }
 
     if (route === 'auth/pin' && req.method === 'POST') {
       const pin = String(body.pin || '');
@@ -179,6 +266,7 @@ export default async (req) => {
     }
 
     // Avisos push (computadora y celular)
+    if (route === 'push/status') return json({ run: await lastRun(), subs: await listSubs(), hora: new Date().toISOString() });
     if (route === 'push/key') { const k = await vapid(); return json({ key: k.publicKey, n: await countSubs() }); }
     if (route === 'push/sub' && req.method === 'POST') {
       try { await saveSub(body.sub, { ua: req.headers.get('user-agent'), nombre: body.nombre }); } catch { return err('bad_request'); }
@@ -209,7 +297,7 @@ export default async (req) => {
 
     // Sincronizar: firma por colección; si cambió, devuelve los etags de cada documento
     if (route === 'db/sync' && req.method === 'POST') {
-      const want = Array.isArray(body.cols) ? body.cols.filter(c => COLS.includes(c)) : [];
+      const want = (Array.isArray(body.cols) ? body.cols.filter(c => COLS.includes(c)) : []).filter(c => !isCp || cpAllowed.has(c) || c === 'config');
       const have = body.sig || {};
       const out = {};
       await Promise.all(want.map(async c => { const e = await listCol(c); const s = sig(e); if (have[c] !== s) out[c] = { sig: s, etags: e }; }));
@@ -218,14 +306,16 @@ export default async (req) => {
     // Leer documentos concretos
     if (route === 'db/get' && req.method === 'POST') {
       const c = body.col; if (!COLS.includes(c)) return err('bad_request');
-      const ids = (Array.isArray(body.ids) ? body.ids : []).filter(i => SAFE_SEG.test(i)).slice(0, 2000);
+      if (isCp && !cpAllowed.has(c) && c !== 'config') return err('forbidden', 403);
+      const ids = (Array.isArray(body.ids) ? body.ids : []).filter(i => SAFE_SEG.test(i) && (!isCp || c !== 'config' || cpCfgOk(i))).slice(0, 2000);
       const s = st('db'); const docs = {};
-      await Promise.all(ids.map(async id => { const r = await s.getWithMetadata(dkey(c, id), { type: 'json' }); if (r) docs[id] = { data: clean(c, id, r.data), etag: r.etag }; }));
+      await Promise.all(ids.map(async id => { const r = await s.getWithMetadata(dkey(c, id), { type: 'json' }); if (r) { let d = clean(c, id, r.data); if (isCp && c === 'config' && id === 'app') { d = { ...d }; ['finHash', 'finSalt', 'cpTabs'].forEach(k => delete d[k]); } docs[id] = { data: d, etag: r.etag }; } }));
       return json({ docs });
     }
     // Escribir
     if (route === 'db/write' && req.method === 'POST') {
       const p = splitPath(body.path); if (!p) return err('bad_path');
+      if (isCp && !(cpAllowed.has(p[0]) || (p[0] === 'config' && p[1] === 'archivos'))) return err('forbidden', 403);
       const mode = ['set', 'update', 'delete'].includes(body.mode) ? body.mode : 'update';
       if (mode !== 'delete' && (!body.data || typeof body.data !== 'object' || Array.isArray(body.data))) return err('bad_request');
       await writeDoc(p[0], p[1], body.data, mode);

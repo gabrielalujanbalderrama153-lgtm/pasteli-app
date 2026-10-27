@@ -54,6 +54,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;margin:0
 .panel-card p{margin:4px 0 0;color:var(--muted);font-size:16px}
 .panel-card .arr{font-size:22px;color:var(--ink-2)}
 .panel-card .badge{display:inline-flex;margin-top:8px;font-size:12px;font-weight:700;background:var(--bad-bg);color:var(--bad);border-radius:99px;padding:3px 9px}
+.panels>#priv:not([hidden]){display:contents}#priv:not([hidden])>.panel-card{animation:privIn .35s ease both}@keyframes privIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}body.is-home{overscroll-behavior-y:contain}
 .home-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin:34px auto 30px;color:var(--muted);font-size:13.5px;text-align:center}
 .route{max-width:760px;margin:6px auto 0;height:46px}
 @media (max-width:520px){.panel-card{grid-template-columns:auto 1fr auto;gap:14px;padding:18px}.panel-card .idx{display:none}.panel-card .ico{width:60px;height:60px}.panel-card .ico svg{width:46px;height:46px}.panel-card h2{font-size:20px}.panel-card p{font-size:14.5px}}
@@ -116,6 +117,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .opt b{flex:1}
 .opt small{display:block;color:var(--muted);font-weight:500}
 .pills{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.btn[data-k="add"][aria-disabled="true"]{pointer-events:auto;opacity:.6}
+.req{font:700 10.5px var(--f-ui);color:var(--accent);background:var(--warn-bg);border-radius:99px;padding:2px 8px;margin-left:6px;letter-spacing:.02em;text-transform:uppercase;vertical-align:1px}
+.label.need{color:var(--bad)}.label.need .req{background:var(--bad-bg);color:var(--bad)}
+.blk{border:1px solid var(--line);border-radius:14px;padding:10px 12px 2px;margin-bottom:8px;background:var(--surface)}
+.blk-n{display:flex;align-items:baseline;gap:8px;font:700 14px var(--f-ui);margin-bottom:2px}.blk-n small{font-weight:500;color:var(--muted);font-size:12px}
+.upbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.secret{overflow:hidden}.secret .panels{margin-top:22px}.secret-hint{text-align:center;font-size:12.5px;color:var(--muted);margin:10px 0 6px}
+.bulk{border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:0 0 12px;background:var(--surface)}
+.bulk h4{margin:0 0 4px;font:700 14px var(--f-ui)}.bulk .bkr{display:grid;grid-template-columns:1fr 96px auto;gap:8px;align-items:center;margin-top:8px}
+.bulk .bkr input{width:100%}.bulk .ask{background:var(--warn-bg);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
 .label{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;display:block}
 .stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface)}
 .stepper button{width:42px;height:42px;border:0;background:transparent;font-size:20px}
@@ -558,12 +569,20 @@ a.btn[aria-disabled="true"]{opacity:.55}
         <span class="pc-txt"><h2 data-s="inicio.c2t">Solicitar factura</h2><p data-s="inicio.c2d">Envía tus datos fiscales y te mandamos tu factura</p></span>
         <span class="arr">→</span>
       </button>
-      <button class="panel-card" id="card-negocio" data-act="go" data-v="negocio">
+      <div id="priv" hidden>
+      <button class="panel-card" id="card-negocio" data-act="gonegocio">
         <span class="idx">03</span>
         <span class="ico"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" style="color:var(--ink-2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="28" width="32" height="24" rx="5" style="fill:var(--surface-2)"/><path d="M23 28v-6a9 9 0 0 1 18 0v6"/><circle cx="32" cy="39" r="3" style="fill:var(--accent)" stroke="none"/><path d="M32 42v4"/></svg></span>
         <span class="pc-txt"><h2 data-s="inicio.c3t">Soy del negocio</h2></span>
         <span class="arr">→</span>
       </button>
+      <button class="panel-card" id="card-cp" data-act="gocp">
+        <span class="idx">04</span>
+        <span class="ico"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" style="color:var(--ink-2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="14" width="40" height="36" rx="6" style="fill:var(--surface-2)"/><path d="M20 38l8-8 7 6 9-11"/><circle cx="44" cy="25" r="2.5" style="fill:var(--accent)" stroke="none"/></svg></span>
+        <span class="pc-txt"><h2>CP</h2></span>
+        <span class="arr">→</span>
+      </button>
+    </div>
     </div>
     <div class="home-foot">
       <div><b>Visítanos</b><span id="foot-dir">Blvd. Ortiz Mena 3311-3<br>A tres cuadras del McDonald's Américas</span><span id="foot-wa"></span></div>
@@ -588,7 +607,7 @@ a.btn[aria-disabled="true"]{opacity:.55}
     let init={method:opts.method||(body===undefined?'GET':'POST'),headers:h};
     if(body!==undefined){if(opts.raw){init.body=body}else{h['content-type']='application/json';init.body=JSON.stringify(body)}}
     const r=await fetch('/api/'+route,init);let j=null;try{j=await r.json()}catch(e){}
-    if(r.status===401&&route.indexOf('auth/login')<0&&route.indexOf('auth/pass')<0){tok.set('');if(window.__webLocked)window.__webLocked()}
+    if(r.status===401&&route.indexOf('auth/login')<0&&route.indexOf('auth/cp')<0&&route.indexOf('auth/pass')<0){tok.set('');if(window.__webLocked)window.__webLocked()}
     if(!r.ok){const e=new Error((j&&j.error)||'http_'+r.status);e.code=(j&&j.error)||'http_'+r.status;e.status=r.status;e.info=j;throw e}
     return j}
 
@@ -652,7 +671,9 @@ a.btn[aria-disabled="true"]{opacity:.55}
   const downloads={async save({filename,data}){const b=data instanceof Blob?data:new Blob([data]);const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename||'archivo';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);return {status:'saved'}}};
 
   window.claude={use:async n=>n==='db'?db:n==='assets'?(tok.get()?assets:null):n==='downloads'?downloads:n==='user'?{}:null};
-  window.__web={api,tok,assets,
+  async function pubUpload(blob){const r=await fetch('/api/pub/upload',{method:'POST',headers:{'content-type':blob.type||'application/octet-stream','x-name':encodeURIComponent(blob.name||'archivo')},body:blob});let j=null;try{j=await r.json()}catch(e){}if(!r.ok){const e=new Error((j&&j.error)||'http_'+r.status);e.code=(j&&j.error)||'http_'+r.status;throw e}return j}
+  async function pubFactura(o){const r=await fetch('/api/pub/factura',{method:'POST',keepalive:true,headers:{'content-type':'application/json'},body:JSON.stringify(o)});if(!r.ok)throw new Error('http_'+r.status);return r.json()}
+  window.__web={api,tok,assets,pubUpload,pubFactura,
     start(){running=true;sync();loop()},
     stop(){running=false;clearTimeout(timer);for(const k in cache)delete cache[k];for(const k in sigs)delete sigs[k]},
     refresh:sync};
@@ -818,7 +839,7 @@ const BASE_M=[
  {id:'g-selva',cat:'gourmet',n:'Pastel Selva Negra',tam:ALL,img:'g-selva',...sab('selva'),k:'cake',c:'choc',x:'white'},
  {id:'g-tiramisu',cat:'gourmet',n:'Pastel Tiramisú',tam:ALL,img:'g-tiramisu',...sab('tiramisu'),k:'cake',c:'cara',x:'vanilla'},
  {id:'g-tresleches',cat:'gourmet',n:'Pastel Tres Leches',tam:ALL,img:'g-tresleches',...sab('tresleches'),k:'cake',c:'vanilla',x:'white'},
- {id:'g-combinado',cat:'gourmet',n:'Pasteli Combinado',sz:[{k:'Grande',n:'12',r:'12 rebanadas',p:515}],img:'g-combinado',multi:{l:'Elige 3 de estos 4 sabores',v:['Arlequín de Fresa','Tiramisú','Tres Leches','Selva Negra'],max:3,min:3},d:'¿No te decides? Combina en un solo pastel tres de nuestros sabores gourmet más queridos: Arlequín de Fresa, Tiramisú, Tres Leches o Selva Negra. Doce rebanadas para probar de todo, perfecto para eventos y regalos.',hi:['3 sabores en 1','12 rebanadas','Para compartir'],k:'combo',c:'cream'},
+ {id:'g-combinado',cat:'gourmet',n:'Pasteli Combinado',sz:[{k:'Grande',n:'12',r:'12 rebanadas',p:515}],img:'g-combinado',blocks:{l:'Arma tu pastel',per:4,n:3,min:2,v:['Arlequín de Fresa','Tiramisú','Tres Leches','Selva Negra']},d:'¿No te decides? Combina en un solo pastel dos o tres de nuestros sabores gourmet más queridos: Arlequín de Fresa, Tiramisú, Tres Leches o Selva Negra. Se arma en bloques de 4 rebanadas hasta completar las 12: por ejemplo 8 de uno y 4 de otro, o 4 de cada uno de tres sabores.',hi:['2 o 3 sabores en 1','12 rebanadas','Para compartir'],k:'combo',c:'cream'},
  // Tradicionales
  {id:'t-aleman',cat:'trad',n:'Pastel Alemán',tam:ALL,img:'t-aleman',...sab('aleman'),k:'cake',c:'choc',x:'cara'},
  {id:'t-chorreado',cat:'trad',n:'Pastel Chorreado',tam:GDE,img:'t-chorreado',...sab('chorreado'),k:'cake',c:'choc',x:'white'},
@@ -928,6 +949,12 @@ function saveSizes(id,rows){const on=rows.filter(r=>r.on).map(r=>{const o={k:r.k
 function stCtl(key,st,disabled){const m=st&&st.m||'';return `<div class="stc${disabled?' dis':''}" data-key="${key}">
   <select data-f="stm" aria-label="Vitrina"${disabled?' disabled':''}><option value=""${!m?' selected':''}>Sin dato</option><option value="siempre"${m==='siempre'?' selected':''}>Siempre hay</option><option value="num"${m==='num'?' selected':''}>Cantidad</option></select>
   ${m==='num'?`<button type="button" class="qb" data-f="stdec" aria-label="Menos">−</button><span class="q num">${Number(st.n)||0}</span><button type="button" class="qb add" data-f="stinc" aria-label="Más">+</button>`:''}</div>`}
+function bulkItems(i,scope){return [...BASE_M.map(b=>b.id),...Object.keys(S.draft.items).filter(id=>S.draft.items[id].nuevo)].map(draftItem).filter(it=>!(S.draft.items[it.id]&&S.draft.items[it.id].eliminado)&&(scope==='all'||it.cat===S.catSel)&&stdRows(it)[i].on)}
+function bulkCard(){const b=S.bulk||{scope:'cat'};const cname=(CATS.find(c=>c.id===S.catSel)||{}).n||'';
+  return `<div class="bulk"><h4>Cambiar precios por tamaño</h4><p class="muted" style="font-size:13px;margin:0">Cambia el precio de un tamaño en muchos productos de un solo movimiento. Solo se cambian los productos que ya tienen ese tamaño.</p>
+  <div class="seg" style="margin-top:8px"><button class="chip" data-act="bkscope" data-v="cat" aria-pressed="${b.scope!=='all'}">Solo ${esc(cname)}</button><button class="chip" data-act="bkscope" data-v="all" aria-pressed="${b.scope==='all'}">Todo el menú</button></div>
+  ${STD_SIZES.map((z,i)=>`<div class="bkr"><b>${z.k}</b><input type="number" min="0" step="1" inputmode="decimal" id="bk-${i}" placeholder="$ nuevo" value="${b.ask&&b.ask.i===i?b.ask.p:''}"><button class="btn sm" data-act="bkask" data-v="${i}">Aplicar</button></div>`).join('')}
+  ${b.ask?`<div class="ask">¿Poner <b>${STD_SIZES[b.ask.i].k}</b> en <b>${money(b.ask.p)}</b> en ${b.ask.n} producto${b.ask.n===1?'':'s'}?<div style="display:flex;gap:8px;margin-top:8px"><button class="btn sm primary" data-act="bkgo">Sí, cambiar</button><button class="btn sm ghost" data-act="bkno">Cancelar</button></div></div>`:''}</div>`}
 function renderCat(m){ensureDraft();
   const sub=S.catSub||'prod';
   const bar=`<div class="pubbar${S.dirty?' on':''}"><span>${S.publishing?'Publicando…':S.dirty?'Tienes cambios sin publicar. Los clientes los verán al publicar.':'Todo publicado. Los clientes ven exactamente esto.'}</span>${S.dirty&&!S.publishing?`<button class="btn sm ghost" data-act="catdiscard">Descartar</button><button class="btn sm primary" data-act="catpublish">Publicar cambios</button>`:S.publishing||WEB?'':`<button class="btn sm" data-act="netzip">⬇︎ Descargar para Netlify</button>`}</div>`;
@@ -935,7 +962,7 @@ function renderCat(m){ensureDraft();
   if(sub==='vitrina'){m.innerHTML=bar+seg+renderVitrina();bindCat(m);return}
   const ids=[...BASE_M.map(b=>b.id),...Object.keys(S.draft.items).filter(id=>S.draft.items[id].nuevo)];
   const items=ids.map(draftItem).filter(it=>it.cat===S.catSel);
-  m.innerHTML=bar+seg+`<div class="chips">${CATS.map(c=>`<button class="chip" data-act="catsel" data-v="${c.id}" aria-pressed="${S.catSel===c.id}">${esc(c.n)}</button>`).join('')}</div>
+  m.innerHTML=bar+seg+bulkCard()+`<div class="chips">${CATS.map(c=>`<button class="chip" data-act="catsel" data-v="${c.id}" aria-pressed="${S.catSel===c.id}">${esc(c.n)}</button>`).join('')}</div>
   <div style="display:flex;justify-content:flex-end;margin:4px 0 10px"><button class="btn sm primary" data-act="catnew">+ Agregar producto</button></div>
   <div class="list">${items.map(it=>catRow(it)).join('')||'<div class="empty"><p>No hay productos en esta categoría.</p></div>'}</div><div class="sec-gap"></div>`;
   bindCat(m)}
@@ -1135,14 +1162,18 @@ const S={view:'home',cat:'all',cart:ls.get('pasteli-cart',[]),order:ls.get('past
   db:null,assets:null,user:null,menuFotos:{},menuPrecios:{},catSel:'gourmet',ventas:[],movs:[],vg:'mes',ig:'mes',catSub:'prod',draft:null,dirty:false,mediaDb:null,ready:false,dbTried:false,
   prods:new Map(),provs:new Map(),facturas:[],cxc:[],config:null,loaded:{p:false,v:false,f:false,c:false},
   pend:new Map(),timers:new Map(),
-  ntab:'bit',isub:'prod',pedidos:[],facCli:[],fac:null,bitPlan:null,bitDay:null,bitPlanC:null,bitDayC:null,bitPlanV:null,bitDayV:null,semF:null,q:'',provF:'',finProv:'',unlocked:WEB?!!(window.__web&&window.__web.tok.get()):ss.get('pasteli-unlock')==='1',pin:''};
+  ntab:'bit',isub:'prod',pedidos:[],facCli:[],fac:null,bitPlan:null,bitDay:null,bitPlanC:null,bitDayC:null,bitPlanV:null,bitDayV:null,semF:null,q:'',provF:'',finProv:'',cpMode:WEB?isCP():false,unlocked:WEB?!!(window.__web&&window.__web.tok.get()):ss.get('pasteli-unlock')==='1',pin:''};
 
 /* =========================================================
    Navegación
    ========================================================= */
-function go(v){if(APP==='negocio')v='negocio';if(v!=='negocio'&&typeof SITE==='object')document.title=SITE.nombre||'Pasteli';if(v==='negocio'&&LOCAL_MEDIA&&!WEB){window.open(URL_MENU+'#negocio','_blank','noopener');return}S.view=v;['home','cliente','negocio'].forEach(x=>$('#v-'+x).hidden=x!==v);
+function go(v){if(APP==='negocio')v='negocio';if(v!=='negocio'&&typeof SITE==='object')document.title=SITE.nombre||'Pasteli';if(v==='negocio'&&LOCAL_MEDIA&&!WEB){window.open(URL_MENU+'#negocio','_blank','noopener');return}S.view=v;document.body.classList.toggle('is-home',v==='home');if(v==='home'){const pv=$('#priv');if(pv)pv.hidden=true}['home','cliente','negocio'].forEach(x=>$('#v-'+x).hidden=x!==v);
   try{history.replaceState(null,'',v==='home'?location.pathname:'#'+v)}catch(e){}
   if(v==='cliente')renderCliente(); if(v==='negocio')renderNegocio(); applyMedia(); window.scrollTo(0,0)}
+(function(){let y0=null,wd=0;const show=()=>{const p=$('#priv');if(p&&p.hidden)p.hidden=false};
+  document.addEventListener('touchstart',e=>{y0=(S.view==='home'&&window.scrollY<=0&&e.touches.length===1)?e.touches[0].clientY:null},{passive:true});
+  document.addEventListener('touchmove',e=>{if(y0!=null&&e.touches[0].clientY-y0>60){show();y0=null}},{passive:true});
+  document.addEventListener('wheel',e=>{if(S.view!=='home'||window.scrollY>0)return;if(e.deltaY<0){wd+=-e.deltaY;if(wd>100){show();wd=0}}else wd=0},{passive:true})})();
 function paintHomeIcons(){$('#ico-cliente').innerHTML=photo(MBY['g-arlequin'],'ico-img');$('#ico-negocio').innerHTML=ill('ledger')}
 
 /* =========================================================
@@ -1173,7 +1204,10 @@ function cartCount(){return S.cart.reduce((a,b)=>a+b.qty,0)}
 function cartTotal(){return S.cart.reduce((a,b)=>a+(b.price||0)*b.qty,0)}
 function saveCart(){ls.set('pasteli-cart',S.cart);ls.set('pasteli-order',S.order)}
 
-function renderCliente(){
+function snapScroll(el){const bar=el.querySelector('.chips,.tabs');return {x:bar?bar.scrollLeft:0,y:window.scrollY}}
+function restoreScroll(el,k){const bar=el.querySelector('.chips,.tabs');if(bar){bar.scrollLeft=k.x;const sel=bar.querySelector('[aria-pressed="true"],[aria-selected="true"]');if(sel){const r=sel.getBoundingClientRect(),b=bar.getBoundingClientRect();if(r.left<b.left+8||r.right>b.right-8)bar.scrollLeft+=(r.left+r.width/2)-(b.left+b.width/2)}}window.scrollTo(0,k.y)}
+function renderCliente(){const el=$('#v-cliente');const k=snapScroll(el);renderCliente0();restoreScroll(el,k)}
+function renderCliente0(){
   const el=$('#v-cliente');
   const cats=S.cat==='all'?CATS:CATS.filter(c=>c.id===S.cat);
   el.innerHTML=`<header class="appbar brandbar"><div class="wrap">
@@ -1201,31 +1235,37 @@ function renderCliente(){
 function sizeGuide(){return `<div class="size-guide">${TAM.map(t=>`<div class="sg"><b>${t.k}</b><span>${t.r}</span><em class="num">${money(t.p)}</em>${t.bp?'<small>Bajo pedido · 3 días de anticipación</small>':''}</div>`).join('')}</div>`}
 
 function openItem(id){
-  const it=MBY[id];const sz=sizesOf(it);let tam=sz?0:null,opt=it.opt?it.opt.v[0]:null,multi=[],q=1,nota='';
+  const it=MBY[id];const sz=sizesOf(it);let tam=sz&&sz.length===1?0:null,opt=it.opt&&it.opt.v.length===1?it.opt.v[0]:null,multi=[],q=1,nota='',blk=it.blocks?Array(it.blocks.n).fill(null):null,shake=false;
   const paint=()=>{
-    const T=tam!=null?sz[tam]:null;const price=T?T.p:priceOf(it);const bp=isBp(it,T);const mmin=it.multi?(it.multi.min||1):0;
+    const T=tam!=null?sz[tam]:null;const price=T?T.p:(sz?null:priceOf(it));const bp=isBp(it,T);const mmin=it.multi?(it.multi.min||1):0;
+    const need=[];if(sz&&tam==null)need.push('el tamaño');if(it.opt&&opt==null)need.push('el sabor');if(it.multi&&multi.length<mmin)need.push(`${mmin-multi.length} sabor${mmin-multi.length>1?'es':''} más`);
+    const bset=blk?blk.filter(Boolean):[];const bdist=new Set(bset).size;if(blk){if(bset.length<it.blocks.n)need.push(`${it.blocks.n-bset.length} bloque${it.blocks.n-bset.length>1?'s':''} de ${it.blocks.per} rebanadas`);else if(bdist<(it.blocks.min||1))need.push('al menos 2 sabores distintos')}
+    const bsum=blk&&bset.length?Object.entries(bset.reduce((a,v)=>(a[v]=(a[v]||0)+it.blocks.per,a),{})).sort((a,b)=>b[1]-a[1]).map(([v,n])=>`${n} rebanadas ${v}`).join(' + '):'';
     pane(`<div class="sheet-head float"><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
     <div class="hero-art${photoId(it)?' has-photo':''}">${photo(it)}</div>
     <div class="pd-head"><span class="eyebrow">${esc((CATS.find(c=>c.id===it.cat)||{}).n||'')}</span><h2>${esc(it.n)}</h2>
-      <div class="pd-price">${price!=null?`<span class="price big num">${money(price)}</span>`:`<span class="price soft">${it.bp?'Te cotizamos por WhatsApp':'Precio en sucursal'}</span>`}${T?`<span class="muted">${esc(T.k)} · ${esc(T.r)}</span>`:it.r?`<span class="muted">${esc(it.r)}</span>`:''}${!sz?(()=>{const a=availItem(it);return a?`<span class="avail ${a.c}">${a.t}</span>`:''})():''}</div></div>
+      <div class="pd-price">${price!=null?`<span class="price big num">${money(price)}</span>`:sz&&tam==null?`<span class="price soft">${priceLabel(it)}</span>`:`<span class="price soft">${it.bp?'Te cotizamos por WhatsApp':'Precio en sucursal'}</span>`}${T?`<span class="muted">${esc(T.k)} · ${esc(T.r)}</span>`:it.r?`<span class="muted">${esc(it.r)}</span>`:''}${!sz?(()=>{const a=availItem(it);return a?`<span class="avail ${a.c}">${a.t}</span>`:''})():''}</div></div>
     <p class="pd-desc">${esc(it.d)}</p>
     ${it.hi?`<div class="hi">${it.hi.map(h=>`<span>${esc(h)}</span>`).join('')}</div>`:''}
     ${bp?`<div class="bp-note">${ICON.clock}<span><b>${BP}.</b> Elige una fecha de recolección a partir de ${fechaLarga(minFecha(true))}.</span></div>`:''}
-    ${sz?`<span class="label">${sz.length>1?'Elige el tamaño':'Tamaño disponible'}</span><div class="sizes">${sz.map((t,i)=>`<button class="size" data-k="tam" data-i="${i}" aria-pressed="${tam===i}"><span class="s-name">${t.k}</span>${t.n?`<span class="s-reb">${ICON.slice}${t.n} rebanadas</span>`:t.r?`<span class="s-reb">${esc(t.r)}</span>`:''}<span class="s-price num">${t.p!=null?money(t.p):'<small style="font-size:14px;color:var(--muted)">Precio por confirmar</small>'}</span>${availSizeTxt(it,t)}</button>`).join('')}</div>`:''}
-    ${it.opt?`<span class="label">${esc(it.opt.l)}</span><div class="pills">${it.opt.v.map(v=>`<button class="chip" data-k="opt" data-v="${esc(v)}" aria-pressed="${opt===v}">${esc(v)}</button>`).join('')}</div>`:''}
+    ${sz?`<span class="label${shake&&tam==null?' need':''}">${sz.length>1?'Elige el tamaño':'Tamaño disponible'}${tam==null?' <b class="req">obligatorio</b>':''}</span><div class="sizes">${sz.map((t,i)=>`<button class="size" data-k="tam" data-i="${i}" aria-pressed="${tam===i}"><span class="s-name">${t.k}</span>${t.n?`<span class="s-reb">${ICON.slice}${t.n} rebanadas</span>`:t.r?`<span class="s-reb">${esc(t.r)}</span>`:''}<span class="s-price num">${t.p!=null?money(t.p):'<small style="font-size:14px;color:var(--muted)">Precio por confirmar</small>'}</span>${availSizeTxt(it,t)}</button>`).join('')}</div>`:''}
+    ${it.opt?`<span class="label${shake&&opt==null?' need':''}">${esc(it.opt.l)}${opt==null?' <b class="req">obligatorio</b>':''}</span><div class="pills">${it.opt.v.map(v=>`<button class="chip" data-k="opt" data-v="${esc(v)}" aria-pressed="${opt===v}">${esc(v)}</button>`).join('')}</div>`:''}
+    ${it.blocks?`<span class="label${shake&&need.some(x=>/bloque|distintos/.test(x))?' need':''}">${esc(it.blocks.l)} <span class="num">(${bset.length}/${it.blocks.n} bloques)</span> <b class="req">obligatorio</b></span><p class="muted" style="font-size:13px;margin:0 0 8px">Cada bloque son ${it.blocks.per} rebanadas. Elige el sabor de cada uno (mínimo 2 sabores distintos).</p>${blk.map((b,bi)=>`<div class="blk"><span class="blk-n">Bloque ${bi+1}<small>${it.blocks.per} rebanadas</small></span><div class="pills">${it.blocks.v.map(v=>`<button class="chip" data-k="blk" data-b="${bi}" data-v="${esc(v)}" aria-pressed="${b===v}">${esc(v)}</button>`).join('')}</div></div>`).join('')}${bsum?`<div class="bp-note" style="background:var(--tile)"><span>🍰 <b>Tu pastel:</b> ${esc(bsum)}</span></div>`:''}`:''}
     ${it.multi?`<span class="label">${esc(it.multi.l)} <span class="num">(${multi.length}/${it.multi.max})</span></span><div class="pills">${it.multi.v.map(v=>`<button class="chip" data-k="multi" data-v="${esc(v)}" aria-pressed="${multi.includes(v)}">${esc(v)}</button>`).join('')}</div>`:''}
     ${opt==='Lotus'||multi.includes('Lotus')?`<div class="bp-note">${ICON.clock}<span>Lotus requiere mínimo 4 horas de anticipación.</span></div>`:''}
     <label class="field" style="margin-top:14px"><span>Nota para este producto (opcional)</span><input id="it-nota" value="${esc(nota)}" placeholder="Ej. escribir “Feliz cumpleaños Ana”"></label>
     <div class="addrow">
       <div class="stepper"><button data-k="q" data-d="-1" aria-label="Menos">−</button><output class="num">${q}</output><button data-k="q" data-d="1" aria-label="Más">+</button></div>
-      <button class="btn primary" style="flex:1" data-k="add" ${it.multi&&multi.length<mmin?'aria-disabled="true"':''}>${it.multi&&multi.length<mmin?`Elige ${mmin-multi.length} más`:`Agregar · ${price!=null?money(price*q):'por confirmar'}`}</button>
+      <button class="btn primary" style="flex:1" data-k="add" ${need.length?'aria-disabled="true"':''}>${need.length?`Elige ${need[0]}`:`Agregar · ${price!=null?money(price*q):'por confirmar'}`}</button>
     </div>`);
     const p=$('#sheet .pane');
     p.querySelector('#it-nota').addEventListener('input',e=>nota=e.target.value);
     p.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.k;
       if(k==='tam')tam=+b.dataset.i;else if(k==='opt')opt=b.dataset.v;else if(k==='q')q=Math.max(1,q+(+b.dataset.d));
+      else if(k==='blk'){const bi=+b.dataset.b;blk[bi]=blk[bi]===b.dataset.v?null:b.dataset.v}
       else if(k==='multi'){const v=b.dataset.v;if(multi.includes(v))multi=multi.filter(x=>x!==v);else if(multi.length<it.multi.max)multi.push(v);else toast('Máximo '+it.multi.max+' sabores')}
-      else if(k==='add'){const det=[T?`${T.k} (${T.r})`:'',opt||'',multi.length?multi.join(' / '):'',nota.trim()?`“${nota.trim()}”`:''].filter(Boolean).join(' · ');
+      else if(k==='add'){if(need.length){shake=true;toast('Falta elegir '+need.join(' y '));paint();return}
+        const det=[T?`${T.k} (${T.r})`:'',opt||'',multi.length?multi.join(' / '):'',bsum,nota.trim()?`“${nota.trim()}”`:''].filter(Boolean).join(' · ');
         const key=id+'|'+det;const ex=S.cart.find(c=>c.key===key);if(ex)ex.qty+=q;else S.cart.push({key,id,n:it.n,det,qty:q,price,bp});
         saveCart();closeSheet();renderCliente();toast('Agregado a tu pedido');return}
       paint()}));
@@ -1269,6 +1309,8 @@ function openCart(){
     p.querySelector('#o-hora')?.addEventListener('change',e=>{S.order.hora=e.target.value;upd()});
     p.querySelector('#o-fecha')?.addEventListener('change',e=>{S.order.fecha=e.target.value<minF?minF:e.target.value;if(!slots(S.order.fecha).includes(S.order.hora))S.order.hora='';saveCart();paint()});
     p.querySelector('[data-k="copy"]')?.addEventListener('click',e=>copyText(orderText(),e.target));
+    p.querySelector('#send')?.addEventListener('click',e=>{const a=e.currentTarget;if(a.getAttribute('aria-disabled')==='true'){e.preventDefault();return}
+      setTimeout(()=>{S.cart=[];S.order={...S.order,fecha:'',hora:'',notas:''};saveCart();closeSheet();renderCliente();toast('¡Pedido enviado! Tu carrito quedó vacío.')},800)});
   };paint();
 }
 async function copyText(t,btn){try{await navigator.clipboard.writeText(t);toast('Copiado')}catch(e){const ta=document.createElement('textarea');ta.value=t;ta.style.width='100%';ta.rows=6;btn.replaceWith(ta);ta.select();toast('Selecciona y copia el texto')}}
@@ -1403,7 +1445,9 @@ function bindFinPin(){$('#fpf')?.addEventListener('submit',async e=>{e.preventDe
 /* ---------- pestañas visibles en este aparato ---------- */
 const TABS_ALL=()=>[['bit','Bitácora Admi'],['bitc','Caja Matutino'],['bitv','Caja Vespertino'],['inv','Inventario'],['ped','Pedidos'],['fac','Facturas'],['cat',APP==='menu'?'Editar catálogo':'Menú'],...(APP==='menu'?[['sit','Mi página']]:[]),['ven','Ventas'],['fin','Finanzas'],['cxp','CxP'],['cxc','CxC']];
 function tabsHidden(){try{return JSON.parse(localStorage.getItem('pasteli-tabs-hidden')||'[]')}catch(e){return []}}
-function negTabs(){const h=tabsHidden();return TABS_ALL().filter(([k])=>!h.includes(k))}
+function isCP(){try{const t=window.__web.tok.get();if(!t)return false;return JSON.parse(atob(t.split('.')[0].replace(/-/g,'+').replace(/_/g,'/'))).role==='cp'}catch(e){return false}}
+function cpTabs(){try{return JSON.parse(ss.get('pasteli-cptabs')||'[]')}catch(e){return []}}
+function negTabs(){if(isCP()){const t=cpTabs();return TABS_ALL().filter(([k])=>t.includes(k)&&FIN_TABS.includes(k))}const h=tabsHidden();return TABS_ALL().filter(([k])=>!h.includes(k))}
 function tabsSettingsHTML(){const h=tabsHidden();return `<div class="sep"></div><span class="label">Pestañas en este aparato</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Quita la palomita a las pestañas que no uses aquí. Solo cambia en este aparato; en los demás se siguen viendo.</p><div style="display:grid;gap:6px" id="tb-l">${TABS_ALL().map(([k,l])=>`<label class="chkl"><input type="checkbox" data-tb="${k}"${h.includes(k)?'':' checked'}><span>${l}</span></label>`).join('')}</div>`}
 function bindTabsSettings(){document.querySelectorAll('#tb-l input').forEach(i=>i.addEventListener('change',()=>{
   const hid=[...document.querySelectorAll('#tb-l input:not(:checked)')].map(x=>x.dataset.tb);
@@ -1411,15 +1455,17 @@ function bindTabsSettings(){document.querySelectorAll('#tb-l input').forEach(i=>
   try{localStorage.setItem('pasteli-tabs-hidden',JSON.stringify(hid))}catch(e){toast('Este navegador no permite guardar esto');return}
   if(hid.includes(S.ntab)){S.ntab=negTabs()[0][0]}
   renderNegocio()}))}
-function renderNegocio(){
+function renderNegocio(){const el=$('#v-negocio');const k=snapScroll(el);renderNegocio0();restoreScroll(el,k)}
+function renderNegocio0(){
   const el=$('#v-negocio');
-  const head=(extra='')=>APP==='menu'?`<header class="appbar"><div class="wrap"><button class="iconbtn" data-act="go" data-v="home" aria-label="Volver al inicio">${ICON.back}</button><h1>Negocio</h1>${extra}</div></header>`:`<header class="appbar"><div class="wrap"><div class="bar-logo" data-logo style="flex:0 0 auto;justify-content:flex-start;height:32px">${logoHTML()}</div><h1>Negocio</h1>${extra}</div></header>`;
+  const head=(extra='')=>APP==='menu'?`<header class="appbar"><div class="wrap"><button class="iconbtn" data-act="go" data-v="home" aria-label="Volver al inicio">${ICON.back}</button><h1>${S.cpMode?'CP':'Negocio'}</h1>${extra}</div></header>`:`<header class="appbar"><div class="wrap"><div class="bar-logo" data-logo style="flex:0 0 auto;justify-content:flex-start;height:32px">${logoHTML()}</div><h1>${S.cpMode?'CP':'Negocio'}</h1>${extra}</div></header>`;
   if(!S.dbTried){el.innerHTML=head()+`<main class="wrap"><div class="empty"><p>Cargando…</p></div></main>`;return}
   if(!S.db){el.innerHTML=head()+`<main class="wrap"><div class="empty">${ICON.lock.replace('<svg','<svg width="34" height="34"')}<h3>Acceso privado</h3><p>Este panel solo se abre con una cuenta autorizada de Pasteli.</p></div></main>`;return}
   if(!S.unlocked){renderGate(el,head);return}
   if(!S.tabInit){S.tabInit=1;if(tabsHidden().includes(S.ntab)&&negTabs().length)S.ntab=negTabs()[0][0]}
-  const n=avisos().length;
-  el.innerHTML=head(`${S.finOk?`<button class="iconbtn" data-act="finlock" aria-label="Bloquear finanzas" title="Bloquear finanzas">${ICON.lock}</button>`:''}<button class="iconbtn" data-act="avisos" aria-label="Avisos de hoy">${ICON.bell}${n?`<span class="dotn num">${n}</span>`:''}</button><button class="iconbtn" data-act="settings" aria-label="Ajustes">${ICON.gear}</button>`)+
+  if(isCP()){const t=negTabs();if(!t.length){el.innerHTML=head(`<button class="iconbtn" data-act="lock" aria-label="Salir">${ICON.lock}</button>`)+`<main class="wrap"><div class="empty"><h3>Sin pestañas</h3><p>El dueño aún no eligió pestañas para CP.</p></div></main>`;return}if(!t.some(x=>x[0]===S.ntab))S.ntab=t[0][0]}
+  const n=isCP()?0:avisos().length;
+  el.innerHTML=head(isCP()?`<button class="iconbtn" data-act="lock" aria-label="Salir de CP" title="Salir">${ICON.lock}</button>`:`${S.finOk?`<button class="iconbtn" data-act="finlock" aria-label="Bloquear finanzas" title="Bloquear finanzas">${ICON.lock}</button>`:''}<button class="iconbtn" data-act="avisos" aria-label="Avisos de hoy">${ICON.bell}${n?`<span class="dotn num">${n}</span>`:''}</button><button class="iconbtn" data-act="settings" aria-label="Ajustes">${ICON.gear}</button>`)+
    `<div class="wrap"><div class="tabs" role="tablist">${negTabs().map(([k,l])=>`<button class="tab" role="tab" data-act="ntab" data-v="${k}" aria-selected="${S.ntab===k}">${FIN_TABS.includes(k)&&!S.finOk?'🔒 ':''}${l}</button>`).join('')}</div></div>
    <main class="wrap" id="nmain"></main>`;
   const m=$('#nmain');const tabFn=({bit:renderBit,bitc:m=>renderBit(m,'c'),bitv:m=>renderBit(m,'v'),ped:renderPedidos,inv:renderInv,cat:APP==='menu'?renderCat:renderMenuLink,sit:renderSitio,fac:renderFacturas,ven:renderVentas,fin:renderFin,cxp:renderCxp,cxc:renderCxc})[S.ntab];(FIN_TABS.includes(S.ntab)&&!S.finOk?finGate:tabFn)(m);
@@ -1436,7 +1482,11 @@ async function sha(t){if(window.crypto&&crypto.subtle){try{const b=await crypto.
 const passHash=(pass,salt)=>sha(salt+':'+pass);
 function newSalt(){const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(x=>x.toString(16).padStart(2,'0')).join('')}
 let gateFails=0,gateUntil=0;
-function unlockDone(){if(WEB){S.assets=window.__web.assets;window.__web.start()}S.unlocked=true;S.gate='pin';ss.set('pasteli-unlock','1');S.pin='';renderNegocio();const n=alerts().length;if(n)toast(`Aviso: ${n} ${n===1?'producto necesita':'productos necesitan'} pedido`)}
+async function cpLogin(pin){S.pin='';if(S.webBusy)return;S.webBusy=true;
+  try{const r=await window.__web.api('auth/cp',{pin});window.__web.tok.set(r.token);ss.set('pasteli-cptabs',JSON.stringify(r.tabs||[]));gateFails=0;unlockDone()}
+  catch(e){if(e.code==='locked')toast(`Demasiados intentos. Espera ${Math.ceil((e.info?.wait||60)/60)} min.`);else if(e.code==='no_cp')toast('El panel CP todavía no está activado');else if(e.code==='bad_login')toast('PIN incorrecto');else toast('No se pudo conectar. Intenta de nuevo.');renderNegocio()}
+  finally{S.webBusy=false}}
+function unlockDone(){if(WEB){S.assets=window.__web.assets;window.__web.start()}if(WEB&&isCP())S.finOk=true;else if(WEB)pushResync();S.unlocked=true;S.gate='pin';ss.set('pasteli-unlock','1');S.pin='';renderNegocio();const n=isCP()?0:alerts().length;if(n)toast(`Aviso: ${n} ${n===1?'producto necesita':'productos necesitan'} pedido`)}
 function renderPass(el,head){const create=WEB?S.webSetup===false:!S.config?.passHash;
   const g=create?'c':'p';if(el.dataset.g===g&&el.querySelector('#gp'))return;el.dataset.g=g;
   el.innerHTML=head()+`<main class="wrap"><div class="gate">${ICON.lock.replace('<svg','<svg width="34" height="34" style="color:var(--ink-2)"')}<h2 style="font-size:28px;margin-top:8px">${create?'Crea tu contraseña':'Contraseña'}</h2>
@@ -1460,10 +1510,11 @@ function renderPass(el,head){const create=WEB?S.webSetup===false:!S.config?.pass
 function renderGate(el,head){if(S.gate!=='pass')delete el.dataset.g;if(!WEB&&S.config===null){el.innerHTML=head()+`<main class="wrap"><div class="empty"><p>Cargando…</p></div></main>`;return}
   if(S.gate==='pass'){renderPass(el,head);return}
   const pin=String(S.config?.pin||'2003');
-  el.innerHTML=head()+`<main class="wrap"><div class="gate">${ICON.lock.replace('<svg','<svg width="34" height="34" style="color:var(--ink-2)"')}<h2 style="font-size:28px;margin-top:8px">Acceso del negocio</h2><p class="muted">Escribe el PIN de 4 dígitos.</p>
+  el.innerHTML=head()+`<main class="wrap"><div class="gate">${ICON.lock.replace('<svg','<svg width="34" height="34" style="color:var(--ink-2)"')}<h2 style="font-size:28px;margin-top:8px">${S.cpMode?'Acceso CP':'Acceso del negocio'}</h2><p class="muted">Escribe el PIN de 4 dígitos.</p>
   <div class="pinshow">${[0,1,2,3].map(i=>`<i class="${S.pin.length>i?'f':''}"></i>`).join('')}</div>
   <div class="keypad">${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button data-act="pin" data-v="${k}" aria-label="${k==='⌫'?'Borrar':k}">${k}</button>`).join('')}</div></div></main>`;
   if(S.pin.length===4){if(Date.now()<gateUntil){S.pin='';toast(`Demasiados intentos. Espera ${Math.ceil((gateUntil-Date.now())/1000)} segundos.`);setTimeout(()=>renderGate(el,head),200);return}
+    if(WEB&&S.cpMode){cpLogin(S.pin);return}
     if(WEB){S.pinTry=S.pin;S.pin='';S.gate='pass';renderNegocio();return}
     if(S.pin===pin){S.pin='';gateFails=0;S.gate='pass';renderNegocio()}else{S.pin='';gateFails++;if(gateFails>=5){gateUntil=Date.now()+60000;gateFails=0;toast('Demasiados intentos. Espera 1 minuto.')}else toast('PIN incorrecto');setTimeout(()=>renderGate(el,head),200)}}
 }
@@ -1611,7 +1662,7 @@ function newProd(){
     if(await write('productos/'+id,{nombre:n,prov:$('#n-p').value,stock:s,min:num($('#n-min').value),max:num($('#n-max').value),costo:num($('#n-c').value),pres:'',ubic:'',dibujo:'box',color:'cara',foto,orden:ord,hist:[{t:new Date().toISOString(),d:s,s,nota:'Alta de producto'}]},'set')){closeSheet();toast('Producto agregado')}})}
 
 /* ---------- Fotos del menú (editores) ---------- */
-function pickFile(accept,cb,multiple){const i=document.createElement('input');i.type='file';i.accept=accept;if(multiple)i.multiple=true;i.style.display='none';document.body.appendChild(i);i.addEventListener('change',()=>{const f=[...i.files];i.remove();if(f.length)cb(multiple?f:f[0])});i.click()}
+function pickFile(accept,cb,multiple,capture){const i=document.createElement('input');i.type='file';i.accept=accept;if(multiple)i.multiple=true;if(capture)i.setAttribute('capture',capture);i.style.display='none';document.body.appendChild(i);i.addEventListener('change',()=>{const f=[...i.files];i.remove();if(f.length)cb(multiple?f:f[0])});i.click()}
 
 /* ---------- Subir inventario (foto, PDF o CSV) y actualizar solo ---------- */
 let pdfReady=null;
@@ -1703,7 +1754,7 @@ function showAvisos(){const a=avisos();
   ${a.length?[...fixed,...provs,...tail].map(sec).join(''):`<div class="empty"><h3>Todo en orden</h3><p>No hay productos por pedir, pedidos próximos, facturas ni tareas pendientes.</p></div>`}
   <p class="muted" style="font-size:12.5px;margin-top:12px">También te llegan al celular a las horas que elijas en Ajustes ⚙️.</p>`)}
 let avisoShown=false;
-function maybeAvisos(){if(avisoShown||!S.unlocked||S.view!=='negocio'||!S.loaded.p||!S.loaded.bit||!S.loaded.ped)return;avisoShown=true;
+function maybeAvisos(){if(isCP()||avisoShown||!S.unlocked||S.view!=='negocio'||!S.loaded.p||!S.loaded.bit||!S.loaded.ped)return;avisoShown=true;
   if(ss.get('pasteli-avisos')===todayISO())return;ss.set('pasteli-avisos',todayISO());if(avisos().length)showAvisos()}
 
 /* ----- bitácora ----- */
@@ -1842,17 +1893,27 @@ const lbl=(list,k)=>{const f=list.find(x=>x[0]===k);return f?`${f[0]} ${f[1]}`:(
 const RFC_RE=/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
 const FAC_FIELDS=[['nombre','Nombre o razón social'],['rfc','RFC'],['regimen','Régimen fiscal'],['cp','Código postal fiscal'],['uso','Uso de CFDI'],['correo','Correo'],['tel','WhatsApp'],['fechaCompra','Fecha de compra'],['total','Total'],['ticket','Ticket o folio'],['pago','Forma de pago'],['notas','Notas']];
 
-function avisoPrivTxt(){return `<p><b>Aviso de privacidad simplificado.</b> ${esc(SITE.nombre)} (${esc(SITE.contacto.dir1)}, ${esc(SITE.contacto.ciudad)}) usa los datos que nos envías —nombre o razón social, RFC, régimen fiscal, código postal, correo y teléfono— únicamente para emitir y enviarte tu factura (CFDI) y cumplir obligaciones fiscales. No los compartimos con terceros, salvo el SAT y el proveedor de timbrado cuando la ley lo exige. Puedes pedir acceso, corrección o eliminación de tus datos escribiendo al WhatsApp ${esc(telFmt(SITE.contacto.wa))}.</p>`}
+function avisoPrivTxt(){return `<p><b>Aviso de privacidad simplificado.</b> ${esc(SITE.nombre)} (${esc(SITE.contacto.dir1)}, ${esc(SITE.contacto.ciudad)}) usa los datos que nos envías —nombre o razón social, RFC, régimen fiscal, código postal, correo y teléfono— únicamente para emitir y enviarte tu factura (CFDI) y cumplir obligaciones fiscales. Las fotos o archivos que adjuntas (ticket y constancia) se guardan en nuestro servidor con un enlace privado que se comparte solo en el mensaje de WhatsApp. No los compartimos con terceros, salvo el SAT y el proveedor de timbrado cuando la ley lo exige. Puedes pedir acceso, corrección o eliminación de tus datos escribiendo al WhatsApp ${esc(telFmt(SITE.contacto.wa))}.</p>`}
 
 /* ----- lado cliente ----- */
 function facDraft(){const saved=ls.get('pasteli-fiscal',null);return {nombre:'',rfc:'',regimen:'',cp:'',uso:'G03',correo:'',tel:'',...(saved||{}),fechaCompra:todayISO(),total:'',ticket:'',pago:'',recordar:!!saved,acepto:false,paso:0}}
+function facAttach(){const up=S.facUp||{};const l=[];if(up.ticket&&up.ticket.url)l.push(`📎 Foto del ticket: ${up.ticket.url}`);if(up.csf&&up.csf.url)l.push(`📎 Constancia de situación fiscal: ${up.csf.url}`);
+  return l.length?l:[`📎 En seguida envío la foto de mi ticket${S.facFiles&&S.facFiles.csf?' y mi Constancia de Situación Fiscal':''}.`]}
 function facText(f){const g=[[`🧾 SOLICITUD DE FACTURA — ${SITE.nombre}`],
   [`Nombre o razón social: ${f.nombre.trim().toUpperCase()}`,`RFC: ${f.rfc}`,`Régimen fiscal: ${lbl(REGIMENES,f.regimen)}`,`Código postal fiscal: ${f.cp}`,`Uso de CFDI: ${lbl(USOS,f.uso)}`,`Correo: ${f.correo.trim()}`,`WhatsApp: ${f.tel.trim()}`],
-  [`Fecha de compra: ${f.fechaCompra}`,`Total: ${money(num(f.total))}`,`Ticket o folio: ${f.ticket.trim()}`,`Forma de pago: ${lbl(PAGOS,f.pago)}`],[`📎 En seguida envío la foto de mi ticket${S.facFiles&&S.facFiles.csf?' y mi Constancia de Situación Fiscal':''}.`]];
+  [`Fecha de compra: ${f.fechaCompra}`,`Total: ${money(num(f.total))}`,`Ticket o folio: ${f.ticket.trim()}`,`Forma de pago: ${lbl(PAGOS,f.pago)}`],facAttach()];
   return g.map(x=>x.filter(Boolean).join('\n')).join('\n\n')}
-function facErrors(f){const e=[];if(!f.nombre.trim())e.push('nombre o razón social');if(!RFC_RE.test(f.rfc))e.push('RFC válido');if(!f.regimen)e.push('régimen fiscal');if(!/^\d{5}$/.test(f.cp))e.push('código postal de 5 dígitos');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.correo.trim()))e.push('correo');if(waNum(f.tel).length<12)e.push('WhatsApp de 10 dígitos');if(!(num(f.total)>0))e.push('total');if(!f.ticket.trim())e.push('ticket o folio');if(!f.pago)e.push('forma de pago');if(!(S.facFiles&&S.facFiles.ticket))e.push('foto del ticket');if(!f.acepto)e.push('aceptar el aviso de privacidad');return e}
-function facSlot(k,label,sub){const file=S.facFiles&&S.facFiles[k];const url=file&&file.type.startsWith('image/')?URL.createObjectURL(file):null;
-  return `<div class="upslot${file?' on':''}"><span class="up-th">${url?`<img src="${url}" alt="">`:file?'📄':ICON.cam}</span><span class="up-tx"><b>${label}</b><small>${file?esc(file.name):sub}</small></span>${file?`<button type="button" class="btn sm ghost" data-unslot="${k}">Quitar</button>`:''}<button type="button" class="btn sm${file?' ghost':' primary'}" data-slot="${k}">${file?'Cambiar':'Agregar'}</button></div>`}
+function facErrors(f){const e=[];if(!f.nombre.trim())e.push('nombre o razón social');if(!RFC_RE.test(f.rfc))e.push('RFC válido');if(!f.regimen)e.push('régimen fiscal');if(!/^\d{5}$/.test(f.cp))e.push('código postal de 5 dígitos');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.correo.trim()))e.push('correo');if(waNum(f.tel).length<12)e.push('WhatsApp de 10 dígitos');if(!(num(f.total)>0))e.push('total');if(!f.ticket.trim())e.push('ticket o folio');if(!f.pago)e.push('forma de pago');if(!(S.facFiles&&S.facFiles.ticket))e.push('foto del ticket');else if(WEB&&!(S.facUp&&S.facUp.ticket&&S.facUp.ticket.state==='ok'))e.push(S.facUp&&S.facUp.ticket&&S.facUp.ticket.state==='err'?'volver a subir la foto del ticket':'esperar a que termine de subir la foto del ticket');if(WEB&&S.facFiles&&S.facFiles.csf&&!(S.facUp&&S.facUp.csf&&S.facUp.csf.state==='ok'))e.push('esperar a que suba la constancia (o quitarla)');if(!f.acepto)e.push('aceptar el aviso de privacidad');return e}
+function facSlot(k,label,sub){const file=S.facFiles&&S.facFiles[k];const up=(S.facUp||{})[k]||{};const url=file&&file.type.startsWith('image/')?URL.createObjectURL(file):null;
+  const stx=file&&WEB?(up.state==='ok'?'<small style="color:var(--ok)">✓ lista para enviar en el mensaje</small>':up.state==='err'?'<small style="color:var(--bad)">No se pudo subir. Vuelve a elegirla.</small>':'<small>Subiendo…</small>'):'';
+  const btns=k==='ticket'?[['cam','📷 Tomar foto'],['gal','🖼 Galería']]:[['cam','📷 Foto'],['pdf','📄 PDF o archivo']];
+  return `<div class="upslot${file?' on':''}"><span class="up-th">${url?`<img src="${url}" alt="">`:file?'📄':ICON.cam}</span><span class="up-tx"><b>${label}</b><small>${file?esc(file.name):sub}</small>${stx}</span><span class="upbtns">${file?`<button type="button" class="btn sm ghost" data-unslot="${k}">Quitar</button>`:''}${btns.map(([m,l])=>`<button type="button" class="btn sm${file?' ghost':' primary'}" data-slot="${k}" data-m="${m}">${l}</button>`).join('')}</span></div>`}
+async function facSet(k,file){S.facFiles=S.facFiles||{};S.facUp=S.facUp||{};S.facFiles[k]=file;S.facUp[k]={state:WEB?'up':'ok'};openFactura();if(!WEB)return;
+  try{let blob=file;if(file.type.startsWith('image/')){const b=await shrink(file,1800);blob=new File([b],'archivo.jpg',{type:'image/jpeg'})}
+    if(blob.size>5*1024*1024){S.facUp[k]={state:'err'};toast('El archivo pesa más de 5 MB. Elige uno más ligero.');openFactura();return}
+    const r=await window.__web.pubUpload(blob);if(S.facFiles[k]!==file)return;S.facUp[k]={state:'ok',url:location.origin+r.url}}
+  catch(e){if(S.facFiles[k]!==file)return;S.facUp[k]={state:'err'};toast(e&&e.code==='rate_limited'?'Demasiados archivos seguidos. Intenta en un rato.':'No se pudo subir el archivo')}
+  if(S.fac&&!$('#sheet').hidden&&$('#fc'))openFactura()}
 async function facShareFiles(){const ff=S.facFiles||{};if(!ff.ticket){toast('Agrega la foto del ticket');return}
   const prep=async(file,name)=>{if(file.type.startsWith('image/')){try{const b=await shrink(file,1800);return new File([b],name+'.jpg',{type:'image/jpeg'})}catch(_){}}return new File([file],name+(file.type==='application/pdf'?'.pdf':'.'+(file.name.split('.').pop()||'jpg')),{type:file.type})};
   const rfc=(S.fac&&S.fac.rfc)||'cliente';const files=[await prep(ff.ticket,'Ticket_'+rfc)];if(ff.csf)files.push(await prep(ff.csf,'Constancia_'+rfc));
@@ -1861,7 +1922,7 @@ async function facShareFiles(){const ff=S.facFiles||{};if(!ff.ticket){toast('Agr
 function openFactura(){S.fac=S.fac||facDraft();const f=S.fac;
   const opt=(list,cur,ph)=>`<option value="">${ph}</option>`+list.map(([k,l])=>`<option value="${k}"${cur===k?' selected':''}>${k} · ${esc(l)}</option>`).join('');
   pane(`<div class="sheet-head"><h2>Solicitar factura</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
-  <p class="muted" style="margin:0 0 12px">Llena tus datos tal como aparecen en tu Constancia de Situación Fiscal. Se envían por WhatsApp a ${esc(SITE.nombre)} y te mandamos tu factura (PDF y XML) por correo o WhatsApp.</p>
+  <p class="muted" style="margin:0 0 12px">Llena tus datos tal como aparecen en tu Constancia de Situación Fiscal. Se envían por WhatsApp a ${esc(SITE.nombre)} (y quedan registrados en su sistema) y te mandamos tu factura (PDF y XML) por correo o WhatsApp.</p>
   <form id="fc" class="fgrid" novalidate>
     <label class="field full"><span>Nombre o razón social</span><input id="fc-nombre" autocomplete="organization" value="${esc(f.nombre)}" placeholder="Sin “S.A. de C.V.” si así viene en tu constancia"></label>
     <label class="field"><span>RFC</span><input id="fc-rfc" autocapitalize="characters" maxlength="13" value="${esc(f.rfc)}" placeholder="XAXX010101000"></label>
@@ -1874,28 +1935,28 @@ function openFactura(){S.fac=S.fac||facDraft();const f=S.fac;
     <label class="field"><span>Fecha de compra</span><input id="fc-fechaCompra" type="date" max="${todayISO()}" value="${esc(f.fechaCompra)}"></label>
     <label class="field"><span>Total pagado</span><input id="fc-total" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(f.total)}" placeholder="$"></label>
     <label class="field full"><span>Ticket o folio</span><input id="fc-ticket" value="${esc(f.ticket)}" placeholder="Número que viene en tu ticket"></label>
-    <div class="full upslots">${facSlot('ticket','Foto del ticket','Obligatoria')}${facSlot('csf','Constancia de Situación Fiscal','Opcional · foto o PDF')}</div>
+    <div class="full upslots">${facSlot('ticket','Foto del ticket','Obligatoria · toma la foto o elígela')}${facSlot('csf','Constancia de Situación Fiscal','Opcional · foto o PDF desde tus archivos')}</div>
     <label class="chkl full"><input type="checkbox" id="fc-recordar"${f.recordar?' checked':''}><span>Recordar mis datos fiscales en este teléfono</span></label>
     <label class="chkl full"><input type="checkbox" id="fc-acepto"${f.acepto?' checked':''}><span>Acepto el <button type="button" class="linkbtn" id="fc-aviso">aviso de privacidad</button></span></label>
   </form>
   <div id="fc-priv" hidden class="privbox">${avisoPrivTxt()}</div>
   <div class="bp-note" style="margin-top:14px">${ICON.clock}<span>Solicítala dentro del mismo mes de tu compra y ten a la mano tu ticket.</span></div>
-  <a class="btn wa block" id="fc-send" target="_blank" rel="noopener" href="#">1 · Enviar mis datos por WhatsApp</a>
-  <button class="btn block" id="fc-files" type="button" style="margin-top:10px"${f.paso?'':' disabled'}>2 · Enviar foto del ticket${S.facFiles?.csf?' y constancia':''}</button>
+  <a class="btn wa block" id="fc-send" target="_blank" rel="noopener" href="#">${WEB?'Enviar solicitud por WhatsApp':'1 · Enviar mis datos por WhatsApp'}</a>
+  ${WEB?'':`<button class="btn block" id="fc-files" type="button" style="margin-top:10px"${f.paso?'':' disabled'}>2 · Enviar foto del ticket${S.facFiles?.csf?' y constancia':''}</button>`}
   <p id="fc-hint" class="muted" style="font-size:13px;text-align:center;margin:8px 0 0"></p>`);
   const p=$('#sheet .pane');
   const upd=()=>{const e=facErrors(f);const a=p.querySelector('#fc-send');a.href=`https://wa.me/${WA}?text=${encodeURIComponent(facText(f))}`;
     if(e.length){a.setAttribute('aria-disabled','true')}else a.removeAttribute('aria-disabled');
-    p.querySelector('#fc-hint').textContent=e.length?'Falta: '+e.join(', ')+'.':f.paso?'Ahora toca el paso 2 para mandar tus fotos al mismo chat.':`Se abre el chat de ${SITE.nombre} con tus datos escritos; solo presiona enviar.`;
+    p.querySelector('#fc-hint').textContent=e.length?'Falta: '+e.join(', ')+'.':WEB?`Se abre el chat de ${SITE.nombre} con tus datos y los enlaces de tus fotos ya escritos; solo presiona enviar.`:f.paso?'Ahora toca el paso 2 para mandar tus fotos al mismo chat.':`Se abre el chat de ${SITE.nombre} con tus datos escritos; solo presiona enviar.`;
     if(f.recordar){const {nombre,rfc,regimen,cp,uso,correo,tel}=f;ls.set('pasteli-fiscal',{nombre,rfc,regimen,cp,uso,correo,tel})}else{try{localStorage.removeItem('pasteli-fiscal')}catch(_){}}};
   FAC_FIELDS.forEach(([k])=>{const el=p.querySelector('#fc-'+k);if(!el)return;el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{let v=el.value;if(k==='rfc'){v=v.toUpperCase().replace(/[^A-ZÑ&0-9]/g,'');el.value=v}if(k==='cp'){v=v.replace(/\D/g,'');el.value=v}f[k]=v;upd()})});
   p.querySelector('#fc-recordar').addEventListener('change',e=>{f.recordar=e.target.checked;upd()});
   p.querySelector('#fc-acepto').addEventListener('change',e=>{f.acepto=e.target.checked;upd()});
   p.querySelector('#fc-aviso').addEventListener('click',e=>{e.preventDefault();const b=p.querySelector('#fc-priv');b.hidden=!b.hidden});
-  p.querySelector('#fc-send').addEventListener('click',e=>{if(facErrors(f).length){e.preventDefault();toast('Completa los datos que faltan');return}f.paso=1;setTimeout(()=>{const b=p.querySelector('#fc-files');if(b){b.disabled=false;b.classList.add('primary')}upd()},300)});
-  p.querySelector('#fc-files').addEventListener('click',()=>facShareFiles());
-  p.querySelectorAll('[data-slot]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.slot;pickFile(k==='csf'?'image/*,application/pdf,.pdf':'image/*',file=>{S.facFiles=S.facFiles||{};S.facFiles[k]=file;openFactura()})}));
-  p.querySelectorAll('[data-unslot]').forEach(b=>b.addEventListener('click',()=>{delete S.facFiles[b.dataset.unslot];openFactura()}));
+  p.querySelector('#fc-send').addEventListener('click',e=>{if(facErrors(f).length){e.preventDefault();toast('Completa los datos que faltan');return}f.paso=1;if(WEB){const up=S.facUp||{};f.rid=f.rid||'fc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);window.__web.pubFactura({...f,id:f.rid,ticketUrl:up.ticket&&up.ticket.url,csfUrl:up.csf&&up.csf.url}).catch(()=>{});setTimeout(()=>{S.fac=null;S.facFiles=null;S.facUp=null;closeSheet();toast('¡Listo! Se abrió WhatsApp con tu solicitud y tus archivos. Solo presiona enviar.')},900);return}setTimeout(()=>{const b=p.querySelector('#fc-files');if(b){b.disabled=false;b.classList.add('primary')}upd()},300)});
+  p.querySelector('#fc-files')?.addEventListener('click',()=>facShareFiles());
+  p.querySelectorAll('[data-slot]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.slot,m=b.dataset.m;pickFile(m==='pdf'?'application/pdf,.pdf':'image/*',file=>facSet(k,file),false,m==='cam'?'environment':'')}));
+  p.querySelectorAll('[data-unslot]').forEach(b=>b.addEventListener('click',()=>{delete S.facFiles[b.dataset.unslot];if(S.facUp)delete S.facUp[b.dataset.unslot];openFactura()}));
   upd()}
 
 /* ----- lado negocio ----- */
@@ -1915,7 +1976,7 @@ function renderFacturas(m){
     <button class="btn sm ghost" data-act="facedit" data-id="${f.id}">Datos</button></div></div>`};
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Por facturar</div><div class="v num" style="color:${pend.filter(f=>!f.pdf).length?'var(--accent)':'inherit'}">${pend.filter(f=>!f.pdf).length}</div></div><div class="kpi"><div class="k">Listas por enviar</div><div class="v num">${pend.filter(f=>f.pdf).length}</div></div><div class="kpi"><div class="k">Enviadas este mes</div><div class="v num">${env.filter(f=>(f.enviadaEl||'').startsWith(mes)).length}</div></div></div>
   <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><button class="btn" data-act="faczip">⬇︎ Descargar todas (ZIP)</button><button class="btn primary" data-act="facedit" data-id="">+ Nueva solicitud</button></div>
-  <p class="muted" style="font-size:13px;margin:10px 0 0">Los clientes llenan sus datos en el menú (botón “Factura”) y te llegan por WhatsApp. Pega ese mensaje en “Nueva solicitud” y se llena solo. Timbras en tu sistema de facturación, subes el PDF y XML aquí y los envías con un toque.</p>
+  <p class="muted" style="font-size:13px;margin:10px 0 0">Los clientes llenan sus datos en el menú (botón “Factura”) y te llegan por WhatsApp; además aparecen aquí solos. Pega ese mensaje en “Nueva solicitud” y se llena solo. Timbras en tu sistema de facturación, subes el PDF y XML aquí y los envías con un toque.</p>
   ${pend.length?`<div class="group-h"><h3>Pendientes</h3></div><div class="list">${pend.map(row).join('')}</div>`:`<div class="empty">${ill('ledger')}<h3>No hay facturas pendientes</h3><p>Cuando un cliente te mande su solicitud, regístrala aquí.</p></div>`}
   ${env.length?`<div class="group-h"><h3>Enviadas</h3></div><div class="list">${env.slice(0,40).map(row).join('')}</div>`:''}<div class="sec-gap"></div>`}
 
@@ -2020,7 +2081,7 @@ const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notific
 const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 async function pushReg(){await navigator.serviceWorker.register('/sw.js');return navigator.serviceWorker.ready}
-function pushHTML(){return `<span class="label">Avisos en este aparato</span><p class="muted" id="pu-msg" style="font-size:13px;margin:4px 0 8px"></p><button class="btn primary block" id="pu-on" hidden></button><button class="btn block" id="pu-test" style="margin-top:6px" hidden>Mandar aviso de prueba</button>`}
+function pushHTML(){return `<span class="label">Avisos en este aparato</span><p class="muted" id="pu-msg" style="font-size:13px;margin:4px 0 8px"></p><button class="btn primary block" id="pu-on" hidden></button><button class="btn block" id="pu-test" style="margin-top:6px" hidden>Mandar aviso de prueba</button><div id="pu-st" class="muted" style="font-size:12.5px;margin-top:10px"></div>`}
 async function bindPush(){const msg=$('#pu-msg'),on=$('#pu-on'),test=$('#pu-test');if(!msg||!on)return;
   if(!pushOK()||(isIOS()&&!isStandalone())){msg.textContent=isIOS()?'En iPhone primero abre esta página en Safari, toca Compartir → “Añadir a pantalla de inicio”, y abre la app desde ese icono. Luego vuelve aquí a activar los avisos.':'Este navegador no permite avisos. Prueba con Chrome, Edge, Firefox o Safari actualizado.';return}
   if(Notification.permission==='denied'){msg.textContent='Los avisos están bloqueados en este navegador. Actívalos en la configuración del sitio y vuelve a intentar.';return}
@@ -2032,7 +2093,13 @@ async function bindPush(){const msg=$('#pu-msg'),on=$('#pu-on'),test=$('#pu-test
       const {key}=await window.__web.api('push/key');const reg=await pushReg();sub=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)});
       await window.__web.api('push/sub',{sub:sub.toJSON()});toast('Avisos activados en este aparato')}
     paint()}catch(e){toast('No se pudo cambiar los avisos')}finally{on.disabled=false}};
+  pushStatus();if(sub)window.__web.api('push/sub',{sub:sub.toJSON()}).catch(()=>{});
   test.onclick=async()=>{test.disabled=true;try{const r=await window.__web.api('push/test',{});toast(r.sent?'Te mandé un aviso de prueba':'No hay aparatos con avisos activos')}catch(e){toast('No se pudo mandar la prueba')}finally{test.disabled=false}}}
+const RZ={no_toca:'no tocaba aviso a esa hora',sin_aparatos:'no había aparatos con avisos activos',todo_en_orden:'todo en orden, no había nada que avisar',enviado:'enviado',fallo:'no se pudo entregar'};
+async function pushStatus(){const el=$('#pu-st');if(!el)return;try{const r=await window.__web.api('push/status',{});const f=t=>t?new Date(t).toLocaleString('es-MX',{timeZone:'America/Chihuahua',weekday:'short',hour:'numeric',minute:'2-digit'}):'—';
+  const run=r.run;const ua=u=>/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Aparato';
+  el.innerHTML=`<b>Estado de los avisos</b><br>Última revisión automática: ${run?`${f(run.at)} — ${RZ[run.reason]||run.reason}${run.sent!=null?` (${run.sent} enviados${run.failed?', '+run.failed+' fallaron':''})`:''}`:'aún no ha corrido'}<br>Aparatos registrados: ${r.subs.length}${r.subs.map(x=>`<br>• ${ua(x.ua||'')}${x.ok?' · último aviso entregado '+f(x.ok):' · aún sin avisos'}${x.err?' · error '+x.err.code:''}`).join('')}`}catch(e){el.textContent=''}}
+async function pushResync(){try{if(!pushOK()||Notification.permission!=='granted'||(isIOS()&&!isStandalone()))return;const reg=await pushReg();let sub=await reg.pushManager.getSubscription();if(!sub){const {key}=await window.__web.api('push/key');sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)})}await window.__web.api('push/sub',{sub:sub.toJSON()})}catch(e){}}
 function avPedSheet(){const c=pedCfg();pane(`<div class="grab"></div><div class="sheet-head"><h2>Avisos de pedidos</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <p class="muted" style="font-size:13px;margin:0 0 8px">Elige cuándo quieres que te llegue el aviso de los pedidos por entregar, en la computadora y en el celular.</p>
   <p class="muted" style="font-size:13px;margin:8px 0 6px">¿Qué días te aviso?</p><div class="dpick" id="ap-d">${AV_DIAS.map((d,i)=>`<label><input type="checkbox" value="${i}"${c.dias.includes(i)?' checked':''}><span>${d}</span></label>`).join('')}</div>
@@ -2170,7 +2237,7 @@ function renderSitio(m){const s=draftSite();const sub=S.sitSub||'ident';
   m.querySelectorAll('[data-sc]').forEach(el=>el.addEventListener('change',()=>setSite(el.dataset.sc,el.checked,true)))}
 async function sitLogo(){if(!S.assets){toast('Para subir el logo necesitas permiso de edición.');return}
   pickFile('image/png,image/jpeg,image/webp,image/svg+xml',async file=>{toast('Subiendo logo…');try{const r=await S.assets.upload(file);setSite('logo',r.id,true);setSite('sinLogo',false,true);toast('Logo listo. Publica para que lo vean los clientes.')}catch(e){toast('No se pudo subir el logo')}})}
-function sitPreview(){S.prevFrom=S.ntab;go('home');toast('Vista previa: así se ve con tus cambios. Regresa con “Soy del negocio”.')}
+function sitPreview(){S.prevFrom=S.ntab;go('home');const pv=$('#priv');if(pv)pv.hidden=false;toast('Vista previa: así se ve con tus cambios. Regresa con “Soy del negocio”.')}
 
 /* ---------- Finanzas / CxP ---------- */
 function facStatus(f){if(f.estado==='pagada')return 'pagada';const d=daysTo(f.vence);if(d==null)return 'ok';if(d<0)return 'vencida';if(d<=7)return 'pronto';return 'ok'}
@@ -2290,7 +2357,7 @@ function settings(){
   <div class="sep"></div><span class="label">Contraseña</span>
   <form id="sp" class="fgrid"><label class="field full"><span>Contraseña actual</span><input id="sp-0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input id="sp-1" type="password" autocomplete="new-password"></label><label class="field"><span>Repite la nueva</span><input id="sp-2" type="password" autocomplete="new-password"></label><button class="btn primary full" type="submit">Cambiar contraseña</button></form>
   <p class="muted" style="font-size:13px">${WEB?'Para entrar se piden el PIN y la contraseña. El servidor revisa los dos y bloquea varios minutos después de 5 intentos fallidos. Al cambiar el PIN o la contraseña se cierran las sesiones abiertas en otros aparatos.':'Para entrar se piden el PIN y la contraseña. Además, los datos del negocio solo los puede leer tu cuenta (y quien invites como editor), aunque alguien adivine el PIN.'}</p>
-  ${tabsSettingsHTML()}${finSettingsHTML()}${S.finOk?`<button class="btn block" style="margin-top:8px" data-act="finlock">🔒 Bloquear solo finanzas</button>`:''}
+  ${tabsSettingsHTML()}${finSettingsHTML()}${WEB?cpBoxHTML():''}${S.finOk?`<button class="btn block" style="margin-top:8px" data-act="finlock">🔒 Bloquear solo finanzas</button>`:''}
   <button class="btn block" style="margin-top:12px" data-act="lock">Bloquear panel</button>
   ${WEB?`<div class="sep"></div>${avisosHTML().replace('Avisos al celular','Avisos generales')}<div class="sep"></div>${pushHTML()}<div class="sep"></div><span class="label">Importar datos</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Carga el archivo <b>pasteli-datos.json</b> con tu inventario y proveedores de la app anterior.</p><button class="btn block" id="st-imp">⬆︎ Importar archivo de datos</button>`:`<div class="sep"></div>${avisosHTML()}`}
   <div class="sep"></div><span class="label">Descargas</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Un ZIP con inventario, movimientos, ventas, CxP, CxC, pedidos y facturas en archivos que abren en Excel.</p>
@@ -2329,7 +2396,17 @@ async function uploadWeb(file,ext,t){if(!S.assets){toast('Entra al panel para su
   toast('Subiendo '+file.name+'…');
   try{const blob=body===file?file:new File([body],file.name.replace(/\.[^.]+$/,'')+'.jpg',{type});const r=await S.assets.upload(blob,{type});toast('Archivo guardado');return {id:r.id,nombre:blob.name,tipo:type,peso:blob.size}}
   catch(e){toast(e?.code==='too_large'?'El archivo pesa más de 5 MB.':'No se pudo subir '+file.name);return null}}
-function webSettings(){
+function cpBoxHTML(){return `<div class="sep"></div><span class="label">Panel CP</span><p class="muted" style="font-size:13px;margin:4px 0 8px">Un panel aparte con su propio PIN que solo muestra las pestañas que elijas aquí. Entra desde el inicio: jala la pantalla hacia abajo y toca “CP”.</p><div id="cp-box" class="muted">Cargando…</div>`}
+async function bindCp(){const box=$('#cp-box');if(!box)return;let info;try{info=await window.__web.api('cp/get',{})}catch(e){box.textContent='No se pudo cargar';return}
+  const names={ven:'Ventas',fin:'Finanzas',cxp:'CxP',cxc:'CxC'};const on=info.tabs.length?info.tabs:Object.keys(names);
+  box.innerHTML=`<div style="display:grid;gap:6px" id="cp-t">${Object.keys(names).map(k=>`<label class="chkl"><input type="checkbox" data-cp="${k}"${on.includes(k)?' checked':''}><span>${names[k]}</span></label>`).join('')}</div>
+  <form id="cp-f" class="fgrid" style="margin-top:8px"><label class="field full"><span>${info.has?'Nuevo PIN de CP (vacío = no cambiarlo)':'PIN de CP (4 dígitos)'}</span><input id="cp-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="••••" autocomplete="off"></label><button class="btn primary full" type="submit">${info.has?'Guardar CP':'Activar CP'}</button></form>
+  ${info.has?'<button class="btn block ghost" id="cp-off" style="margin-top:6px">Desactivar CP</button>':''}<p class="muted" style="font-size:13px">Al guardar se cierran las sesiones de CP abiertas.</p>`;
+  $('#cp-f').onsubmit=async e=>{e.preventDefault();const tabs=[...document.querySelectorAll('#cp-t input:checked')].map(x=>x.dataset.cp);if(!tabs.length){toast('Elige al menos una pestaña');return}
+    const pin=$('#cp-pin').value;if(pin&&!/^\d{4}$/.test(pin)){toast('El PIN debe tener 4 números');return}if(!info.has&&!pin){toast('Escribe un PIN de 4 números');return}
+    try{await window.__web.api('cp/set',{tabs,pin});toast('Panel CP guardado');bindCp()}catch(err){toast('No se pudo guardar')}};
+  let armed=false;$('#cp-off')?.addEventListener('click',async ev=>{if(!armed){armed=true;ev.target.textContent='Toca otra vez para desactivar CP';return}try{await window.__web.api('cp/off',{});toast('CP desactivado');bindCp()}catch(err){toast('No se pudo desactivar')}})}
+function webSettings(){bindCp();
   $('#st').addEventListener('submit',async e=>{e.preventDefault();const v=$('#st-pin').value;if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 números');return}
     try{const r=await window.__web.api('auth/pin',{pin:v});window.__web.tok.set(r.token);closeSheet();toast('PIN actualizado')}catch(err){toast('No se pudo cambiar el PIN')}});
   $('#sp').addEventListener('submit',async e=>{e.preventDefault();const cur=$('#sp-0').value,n1=$('#sp-1').value,n2=$('#sp-2').value;
@@ -2359,7 +2436,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
   if(a==='go')go(v);else if(a==='close'){closeSheet();S.openDetail=null;if(S.view==='negocio')renderNegocio()}
   else if(a==='cat'){S.cat=v;renderCliente()}else if(a==='item')openItem(id);else if(a==='cart')openCart();
   else if(a==='pin'){if(v==='⌫')S.pin=S.pin.slice(0,-1);else if(S.pin.length<4)S.pin+=v;renderNegocio()}
-  else if(a==='ntab'){S.ntab=v;if(t.dataset.sub)S.isub=t.dataset.sub;closeSheet();S.openDetail=null;renderNegocio()}
+  else if(a==='ntab'){S.ntab=v;if(t.dataset.sub)S.isub=t.dataset.sub;closeSheet();S.openDetail=null;renderNegocio();window.scrollTo(0,0)}
   else if(a==='isub'){S.isub=v;renderNegocio()}else if(a==='semf'){S.semF=S.semF===v?null:v;S.isub='prod';renderNegocio()}
   else if(a==='inc'||a==='dec'){e.stopPropagation();moveStock(id,a==='inc'?1:-1)}
   else if(a==='detail'){if(e.target.closest('.qbtns'))return;openDetail(id)}
@@ -2378,7 +2455,12 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
   else if(a==='editcxc')editCxc(id);else if(a==='abono')abono(id);
   else if(a==='cobrada'){const c=S.cxc.find(x=>x.id===id);write('cxc/'+id,{estado:'cobrada',cobradaEl:todayISO()}).then(ok=>ok&&toast('Marcada como cobrada'))}
   else if(a==='netzip')netlifyZip();else if(a==='sitsub'){S.sitSub=v;renderNegocio()}else if(a==='sitlogo')sitLogo();else if(a==='sitlogodef')setSite('logo',null,true);else if(a==='sitpal')setSite('colores',clone(PALETAS[+v][1]),true);else if(a==='sitpreview')sitPreview();else if(a==='sitreset'){ensureDraft();S.draft.site={};S.dirty=true;try{sessionStorage.setItem('pasteli-draft',JSON.stringify(S.draft))}catch(_){}applySite(siteOf(S.draft));renderNegocio();toast('Restablecido. Publica para aplicarlo.')}else if(a==='factura')openFactura();else if(a==='facedit')editFacCli(id);else if(a==='facup')facUpload(id);else if(a==='facsend')facSend(id,v);else if(a==='faczip')facZipMenu();else if(a==='stats')finAsk(exportStats);
-  else if(a==='fpin'){S.fpin=S.fpin||'';if(v==='⌫')S.fpin=S.fpin.slice(0,-1);else if(S.fpin.length<4)S.fpin+=v;renderNegocio()}else if(a==='finlock'){S.finOk=false;S.fpin='';S.fpin1=null;closeSheet();if(FIN_TABS.includes(S.ntab)){renderNegocio()}else{renderNegocio()}toast('Finanzas bloqueadas')}else if(a==='hist')histOpen(t.dataset.c||undefined);else if(a==='histd'){S.hist.sel=v;histPaint()}else if(a==='histm'){const [y,mo]=S.hist.ym.split('-').map(Number);const d=new Date(y,mo-1+(+v),1);S.hist.ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;S.hist.sel=S.hist.ym===todayISO().slice(0,7)?todayISO():S.hist.ym+'-01';histPaint()}else if(a==='avped')avPedSheet();else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.finOk=false;S.fpin='';S.fpin1=null;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();renderNegocio()}
+  else if(a==='fpin'){S.fpin=S.fpin||'';if(v==='⌫')S.fpin=S.fpin.slice(0,-1);else if(S.fpin.length<4)S.fpin+=v;renderNegocio()}else if(a==='finlock'){S.finOk=false;S.fpin='';S.fpin1=null;closeSheet();if(FIN_TABS.includes(S.ntab)){renderNegocio()}else{renderNegocio()}toast('Finanzas bloqueadas')}else if(a==='hist')histOpen(t.dataset.c||undefined);else if(a==='histd'){S.hist.sel=v;histPaint()}else if(a==='histm'){const [y,mo]=S.hist.ym.split('-').map(Number);const d=new Date(y,mo-1+(+v),1);S.hist.ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;S.hist.sel=S.hist.ym===todayISO().slice(0,7)?todayISO():S.hist.ym+'-01';histPaint()}else if(a==='bkscope'){S.bulk={scope:v};renderNegocio()}
+  else if(a==='bkask'){const i=+v,p=$('#bk-'+i).value;const sc=(S.bulk&&S.bulk.scope)||'cat';if(p===''||!(num(p)>=0)){toast('Escribe el precio nuevo');return}const n=bulkItems(i,sc).length;if(!n){toast('Ningún producto tiene ese tamaño');return}S.bulk={scope:sc,ask:{i,p:num(p),n}};renderNegocio()}
+  else if(a==='bkno'){S.bulk={scope:(S.bulk&&S.bulk.scope)||'cat'};renderNegocio()}
+  else if(a==='bkgo'){const b=S.bulk;if(!b||!b.ask)return;bulkItems(b.ask.i,b.scope).forEach(it=>{const rows=stdRows(it);rows[b.ask.i].p=b.ask.p;saveSizes(it.id,rows)});toast(`Listo: ${b.ask.n} precios cambiados. Falta publicar.`);S.bulk={scope:b.scope};renderNegocio()}
+  else if(a==='gonegocio'||a==='gocp'){const cp=a==='gocp';if(WEB&&S.unlocked&&isCP()!==cp){window.__web.tok.set('');window.__web.stop();S.assets=null;S.unlocked=false;S.finOk=false;S.gate='pin';S.pin='';ss.set('pasteli-unlock','0')}S.cpMode=cp;go('negocio')}
+  else if(a==='avped')avPedSheet();else if(a==='settings')settings();else if(a==='lock'){if(WEB){window.__web.tok.set('');window.__web.stop();S.assets=null}S.unlocked=false;S.finOk=false;S.fpin='';S.fpin1=null;S.gate='pin';ss.set('pasteli-unlock','0');closeSheet();if(S.cpMode){S.cpMode=false;go('home')}else renderNegocio()}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.irow')){e.preventDefault();openDetail(e.target.dataset.id)}});
 

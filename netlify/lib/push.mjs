@@ -27,17 +27,27 @@ export async function countSubs() { return (await subs().list()).blobs.length; }
 /** Envía a todos los aparatos. Devuelve { sent, failed, removed }. */
 export async function sendAll(payload) {
   const k = await vapid();
-  const opts = { vapidDetails: { subject: 'https://pasteli-app.netlify.app', publicKey: k.publicKey, privateKey: k.privateKey }, TTL: 6 * 3600, urgency: 'normal' };
+  const opts = { vapidDetails: { subject: 'https://pasteli-app.netlify.app', publicKey: k.publicKey, privateKey: k.privateKey }, TTL: 24 * 3600, urgency: 'high' };
   const { blobs } = await subs().list();
   let sent = 0, failed = 0, removed = 0;
   await Promise.all(blobs.map(async b => {
     const rec = await subs().get(b.key, { type: 'json' });
     if (!rec) return;
-    try { await webpush.sendNotification(rec.sub, JSON.stringify(payload), opts); sent++; }
+    try { await webpush.sendNotification(rec.sub, JSON.stringify(payload), opts); sent++; await subs().setJSON(b.key, { ...rec, ok: new Date().toISOString(), err: null }); }
     catch (e) {
       if (e && (e.statusCode === 404 || e.statusCode === 410)) { await subs().delete(b.key); removed++; }
-      else { failed++; console.warn('push', e && e.statusCode, e && e.body); }
+      else { failed++; console.warn('push', e && e.statusCode, e && e.body); await subs().setJSON(b.key, { ...rec, err: { at: new Date().toISOString(), code: (e && e.statusCode) || 0 } }); }
     }
   }));
   return { sent, failed, removed };
 }
+
+/** Estado de los aparatos registrados (para la pantalla de ajustes). */
+export async function listSubs() {
+  const { blobs } = await subs().list();
+  const out = [];
+  for (const b of blobs) { const r = await subs().get(b.key, { type: 'json' }); if (r) out.push({ ua: r.ua, nombre: r.nombre, alta: r.alta, ok: r.ok || null, err: r.err || null }); }
+  return out;
+}
+export async function logRun(entry) { await sys().setJSON('lastRun', { at: new Date().toISOString(), ...entry }); }
+export async function lastRun() { return sys().get('lastRun', { type: 'json' }); }

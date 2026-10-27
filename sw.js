@@ -12,6 +12,8 @@ self.addEventListener('push', e => {
     badge: '/icons/icon-192.png',
     tag: d.tag || 'pasteli-avisos',
     renotify: true,
+    requireInteraction: true,
+    vibrate: [200, 100, 200],
     data: { url: d.url || '/#negocio' },
   }));
 });
