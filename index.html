@@ -54,7 +54,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;margin:0
 .panel-card p{margin:4px 0 0;color:var(--muted);font-size:16px}
 .panel-card .arr{font-size:22px;color:var(--ink-2)}
 .panel-card .badge{display:inline-flex;margin-top:8px;font-size:12px;font-weight:700;background:var(--bad-bg);color:var(--bad);border-radius:99px;padding:3px 9px}
-.panels>#priv:not([hidden]){display:contents}#priv:not([hidden])>.panel-card{animation:privIn .35s ease both}@keyframes privIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}body.is-home{overscroll-behavior-y:contain}
+.panels>#priv:not([hidden]){display:contents}#priv:not([hidden])>.panel-card{animation:privIn .35s ease both}@keyframes privIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}html.is-home,body.is-home{overscroll-behavior-y:contain}
 .home-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin:34px auto 30px;color:var(--muted);font-size:13.5px;text-align:center}
 .route{max-width:760px;margin:6px auto 0;height:46px}
 @media (max-width:520px){.panel-card{grid-template-columns:auto 1fr auto;gap:14px;padding:18px}.panel-card .idx{display:none}.panel-card .ico{width:60px;height:60px}.panel-card .ico svg{width:46px;height:46px}.panel-card h2{font-size:20px}.panel-card p{font-size:14.5px}}
@@ -1167,13 +1167,16 @@ const S={view:'home',cat:'all',cart:ls.get('pasteli-cart',[]),order:ls.get('past
 /* =========================================================
    Navegación
    ========================================================= */
-function go(v){if(APP==='negocio')v='negocio';if(v!=='negocio'&&typeof SITE==='object')document.title=SITE.nombre||'Pasteli';if(v==='negocio'&&LOCAL_MEDIA&&!WEB){window.open(URL_MENU+'#negocio','_blank','noopener');return}S.view=v;document.body.classList.toggle('is-home',v==='home');if(v==='home'){const pv=$('#priv');if(pv)pv.hidden=true}['home','cliente','negocio'].forEach(x=>$('#v-'+x).hidden=x!==v);
+function go(v){if(APP==='negocio')v='negocio';if(v!=='negocio'&&typeof SITE==='object')document.title=SITE.nombre||'Pasteli';if(v==='negocio'&&LOCAL_MEDIA&&!WEB){window.open(URL_MENU+'#negocio','_blank','noopener');return}S.view=v;document.body.classList.toggle('is-home',v==='home');document.documentElement.classList.toggle('is-home',v==='home');if(v==='home'){const pv=$('#priv');if(pv)pv.hidden=true}['home','cliente','negocio'].forEach(x=>$('#v-'+x).hidden=x!==v);
   try{history.replaceState(null,'',v==='home'?location.pathname:'#'+v)}catch(e){}
   if(v==='cliente')renderCliente(); if(v==='negocio')renderNegocio(); applyMedia(); window.scrollTo(0,0)}
-(function(){let y0=null,wd=0;const show=()=>{const p=$('#priv');if(p&&p.hidden)p.hidden=false};
-  document.addEventListener('touchstart',e=>{y0=(S.view==='home'&&window.scrollY<=0&&e.touches.length===1)?e.touches[0].clientY:null},{passive:true});
-  document.addEventListener('touchmove',e=>{if(y0!=null&&e.touches[0].clientY-y0>60){show();y0=null}},{passive:true});
-  document.addEventListener('wheel',e=>{if(S.view!=='home'||window.scrollY>0)return;if(e.deltaY<0){wd+=-e.deltaY;if(wd>100){show();wd=0}}else wd=0},{passive:true})})();
+(function(){let y0=null,wd=0,wt=0,taps=[];const top=()=>(window.pageYOffset||document.documentElement.scrollTop||0)<=2;
+  const show=()=>{const p=$('#priv');if(p&&p.hidden)p.hidden=false};
+  document.addEventListener('touchstart',e=>{y0=(S.view==='home'&&top()&&e.touches.length===1)?e.touches[0].clientY:null},{passive:true});
+  document.addEventListener('touchmove',e=>{if(y0!=null&&e.touches[0].clientY-y0>40){show();y0=null}},{passive:true});
+  document.addEventListener('wheel',e=>{if(S.view!=='home'||!top())return;const n=Date.now();if(n-wt>800)wd=0;wt=n;if(e.deltaY<0){wd+=-e.deltaY;if(wd>30){show();wd=0}}else wd=0},{passive:true});
+  document.addEventListener('keydown',e=>{if(S.view==='home'&&top()&&(e.key==='ArrowUp'||e.key==='PageUp'||e.key==='Home')&&!/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))show()});
+  document.addEventListener('click',e=>{if(S.view!=='home'||!e.target.closest('.head-logo'))return;const n=Date.now();taps=taps.filter(t=>n-t<1500);taps.push(n);if(taps.length>=3){taps=[];show()}})})();
 function paintHomeIcons(){$('#ico-cliente').innerHTML=photo(MBY['g-arlequin'],'ico-img');$('#ico-negocio').innerHTML=ill('ledger')}
 
 /* =========================================================
