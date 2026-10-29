@@ -2026,9 +2026,10 @@ function invCero(){const ps=allProds();const con=ps.filter(p=>(Number(p.stock)||
   <p>Se pondrá en <b>0 la existencia de ${con} ${con===1?'producto':'productos'}</b> para que captures tu inventario real con 🎤 Hay… o con una foto.</p>
   <p class="muted" style="font-size:14px">No se borran productos, proveedores, mínimos, máximos, pedidos en camino ni facturas. En el historial de cada producto queda anotado “Inventario en cero”, con la cantidad que tenía.</p>
   <p class="muted" style="font-size:14px">Ojo: mientras no captures el conteo, los productos con mínimo saldrán en rojo y en los avisos.</p>
-  <label class="field full" style="margin-top:10px"><span>Para confirmar escribe CERO</span><input id="ic-c" autocomplete="off" autocapitalize="characters"></label>
-  <button class="btn primary block" id="ic-go" style="margin-top:12px">Poner todo en 0</button>`);
-  const P=$('#sheet .pane');P.querySelector('#ic-go').addEventListener('click',async()=>{if(P.querySelector('#ic-c').value.trim().toUpperCase()!=='CERO'){toast('Escribe CERO para confirmar');return}
+  ${S.config&&S.config.finHash?`<label class="field full" style="margin-top:10px"><span>PIN de finanzas</span><input id="ic-c" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"></label>
+  <button class="btn primary block" id="ic-go" style="margin-top:12px">Poner todo en 0</button>`:`<div class="empty"><p>Para vaciar el inventario primero crea tu PIN de finanzas: abre Ventas, Finanzas, CxP o CxC, o créalo en Ajustes → PIN de finanzas.</p></div><span id="ic-go" hidden></span>`}`);
+  const P=$('#sheet .pane');P.querySelector('#ic-go').addEventListener('click',async()=>{if(!(S.config&&S.config.finHash))return;if(Date.now()<finUntil){toast('Demasiados intentos. Espera un momento.');return}
+    const hh=await passHash(P.querySelector('#ic-c').value,S.config.finSalt||'');if(hh!==S.config.finHash){finFails++;if(finFails>=5){finUntil=Date.now()+60000;finFails=0;toast('Demasiados intentos. Espera 1 minuto.')}else toast('PIN incorrecto');return}finFails=0;
     const b=P.querySelector('#ic-go');b.disabled=true;b.textContent='Poniendo en 0…';const now=new Date().toISOString();
     const ids=allProds().filter(p=>(Number(p.stock)||0)!==0).map(p=>p.id);let n=0;
     try{for(let i=0;i<ids.length;i+=100){const {docs}=await window.__web.api('db/get',{col:'productos',ids:ids.slice(i,i+100)});const out={};
