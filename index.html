@@ -185,7 +185,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .qb{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--bg);font-size:19px;font-weight:600;display:grid;place-items:center}
 .qb.add{background:var(--ink-2);border-color:var(--ink-2);color:var(--surface)}
 @media (max-width:520px){.irow{grid-template-columns:46px 1fr auto;gap:10px}.thumb{width:46px;height:46px}.thumb svg{width:38px;height:38px}.irow .qbtns{grid-column:2/-1;justify-content:flex-end}}
-.ordchip{margin-left:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:3px 10px;font:600 12px var(--sans,inherit);cursor:pointer}.pedir.enroute{background:var(--soft,#f6e6d8);color:var(--ink)}.ordcard{margin:0 0 14px}.ordlist{display:grid;gap:6px}.ordrow{display:grid;grid-template-columns:auto 1fr 86px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface)}.ordrow.dis{opacity:.55}.ordrow .on small{display:block;color:var(--muted);font-size:12.5px}.ordrow .oq{width:86px;min-height:40px}.ordrow>.on:first-child{grid-column:1/3}.pedir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px;display:inline-block;margin-top:3px}
+.voicebar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.voicebar .btn{flex:1 1 90px}.micbtn{min-height:56px;font-size:17px}.ordrow select{width:100%;min-height:40px}.vz-n,.vz-r{grid-template-columns:auto 1fr auto}.vz-mm{display:flex;gap:6px}.vz-mm .oq{width:64px}details.recv summary{cursor:pointer;font-weight:700;padding:6px 0}.ordchip{margin-left:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:3px 10px;font:600 12px var(--sans,inherit);cursor:pointer}.pedir.enroute{background:var(--soft,#f6e6d8);color:var(--ink)}.ordcard{margin:0 0 14px}.ordlist{display:grid;gap:6px}.ordrow{display:grid;grid-template-columns:auto 1fr 86px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface)}.ordrow.dis{opacity:.55}.ordrow .on small{display:block;color:var(--muted);font-size:12.5px}.ordrow .oq{width:86px;min-height:40px}.ordrow>.on:first-child{grid-column:1/3}.pedir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px;display:inline-block;margin-top:3px}
 .pedir.rojo{background:var(--bad-bg);color:var(--bad)}
 .pedir.amarillo{background:var(--warn-bg);color:var(--warn)}
 .gauge{position:relative;height:12px;border-radius:99px;background:linear-gradient(90deg,var(--bad-bg),var(--warn-bg) 40%,var(--ok-bg));margin:18px 0 22px}
@@ -1136,7 +1136,7 @@ function renderVentas(m){
    Inventario: registro de movimientos y métricas
    ========================================================= */
 const movQ=[];let movT=null;
-function logMov(id,d,nota){const p=prod(id);movQ.push({t:new Date().toISOString(),f:todayISO(),id,d:Math.round(d*100)/100,c:p&&typeof p.costo==='number'?p.costo:null,n:nota||''});clearTimeout(movT);movT=setTimeout(flushMov,1500)}
+function logMov(id,d,nota,when){const p=prod(id);movQ.push({t:when||new Date().toISOString(),f:when?when.slice(0,10):todayISO(),id,d:Math.round(d*100)/100,c:p&&typeof p.costo==='number'?p.costo:null,n:nota||''});clearTimeout(movT);movT=setTimeout(flushMov,1500)}
 async function flushMov(){if(!S.db||!movQ.length)return;const batch=movQ.splice(0);const byDay=new Map();batch.forEach(x=>{const k=x.f||todayISO();if(!byDay.has(k))byDay.set(k,[]);byDay.get(k).push(x)});
   for(const [k,list] of byDay){try{const ref=S.db.doc('movs/'+k);const cur=await ref.get();const items=[...(cur.exists?cur.data().items||[]:[]),...list].slice(-2500);await ref.set({items})}catch(e){}}}
 function renderInvMetrics(box){
@@ -1382,11 +1382,11 @@ function onData(){setTimeout(maybeAvisos,0);
   else if(S.view==='negocio'&&S.openDetail){const pn=$('#sheet .pane'),ae=document.activeElement;if(!(pn.contains(ae)&&ae.matches('input,select,textarea')))S.openDetail()}
 }
 async function write(path,data,mode='update'){try{const r=S.db.doc(path);mode==='set'?await r.set(data):await r.update(data);return true}catch(e){toast(e?.code==='invalid_argument'?'No tienes permiso para guardar cambios aquí.':e?.code==='quota_exceeded'?'Se llenó el espacio de la base de datos.':'No se pudo guardar. Intenta de nuevo.');return false}}
-function moveStock(id,delta,nota){const p=prod(id);if(!p)return;const s=Math.max(0,Math.round(((Number(p.stock)||0)+delta)*100)/100);const real=s-(Number(p.stock)||0);if(!real)return;
-  const hist=[{t:new Date().toISOString(),d:Math.round(real*100)/100,s,nota:nota||(real>0?'Llegó':'Salió')},...(p.hist||[])].slice(0,30);
+function moveStock(id,delta,nota,when){const p=prod(id);if(!p)return;const s=Math.max(0,Math.round(((Number(p.stock)||0)+delta)*100)/100);const real=s-(Number(p.stock)||0);if(!real)return;
+  const hist=[{t:when||new Date().toISOString(),d:Math.round(real*100)/100,s,nota:nota||(real>0?'Llegó':'Salió')},...(p.hist||[])].slice(0,30);
   // agrupa toques rápidos en un solo movimiento
   const last=(p.hist||[])[0];if(!nota&&last&&!last.nota?.startsWith('Inventario')&&Date.now()-new Date(last.t)<8000&&Math.sign(last.d)===Math.sign(real)&&['Llegó','Salió'].includes(last.nota)){hist.splice(0,2,{...last,t:new Date().toISOString(),d:Math.round((last.d+real)*100)/100,s})}
-  S.pend.set(id,{stock:s,hist});logMov(id,real,nota||(real>0?'Llegó':'Salió'));
+  S.pend.set(id,{stock:s,hist});logMov(id,real,nota||(real>0?'Llegó':'Salió'),when);
   clearTimeout(S.timers.get(id));S.timers.set(id,setTimeout(async()=>{const pd=S.pend.get(id);await write('productos/'+id,{stock:pd.stock,hist:pd.hist});S.pend.delete(id)},700));
   if(S.openDetail)S.openDetail();else renderNegocio();
 }
@@ -1542,7 +1542,7 @@ function renderInv(m){
   const sub=S.isub;
   m.innerHTML=`
   ${cnt.rojo+cnt.amarillo&&sub!=='pedir'?`<div class="alertbar"><span class="light l-rojo"></span><b>${cnt.rojo?cnt.rojo+' en mínimo':''}${cnt.rojo&&cnt.amarillo?' · ':''}${cnt.amarillo?cnt.amarillo+' por llegar al mínimo':''}</b><button class="btn sm dark" data-act="isub" data-v="pedir">Ver qué pedir</button></div>`:''}
-  ${ordCard()}
+  ${vozBar()}${ordCard()}${recCard()}
   ${`<div class="upcard"><div><b>Actualizar inventario con foto o documento</b><span>Sube la foto de tu hoja de conteo, un PDF o un CSV con existencias, mínimos y máximos. La app lo lee y actualiza cada producto sola.</span></div><button class="btn primary" data-act="upinv">${ICON.cam.replace('<svg','<svg width="18" height="18"')} Leer con IA</button></div>`}
   <div class="sem-row">${['rojo','amarillo','verde','gris'].map(k=>`<button class="sem" data-act="semf" data-v="${k}" aria-pressed="${S.semF===k}"><span class="n num">${cnt[k]}</span><span class="l"><span class="light l-${k}"></span>${SEM_TXT[k]}</span></button>`).join('')}</div>
   <div class="seg">${[['prod','Productos'],['pedir','Qué pedir'],['prov','Proveedores'],['met','Métricas']].map(([k,l])=>`<button class="chip" data-act="isub" data-v="${k}" aria-pressed="${sub===k}">${l}</button>`).join('')}<span style="flex:1"></span><button class="btn sm primary" data-act="newprod">+ Producto</button></div>
@@ -1805,9 +1805,10 @@ function ordenSheet(pid,focus){const pv=S.provs.get(pid);if(!pv){toast('Elige un
     const id='o-'+Date.now().toString(36);const rec={prov:pid,fecha:todayISO(),creado:new Date().toISOString(),estado:'pedido',items,nota:P.querySelector('#ord-n').value.trim()};
     if(await write('ordenes/'+id,rec,'set')){S.ordenes=[...(S.ordenes||[]),{id,...rec}];closeSheet();toast(`Pedido a ${pv.nombre} registrado: ${items.length} ${items.length===1?'producto':'productos'}`);
       bitTasks().filter(t=>t.pv===pid&&!t.done&&!t.no).forEach(t=>setMark(t.id,t.t,'done',true))}})}
-async function ordApply(o,recv){/* recv: {indice: cantidad que llegó ahora} */
-  const items=(o.items||[]).map((it,i)=>{const add=Math.max(0,Math.min(ordPend(it),Number(recv[i])||0));if(add>0)moveStock(it.id,add,'Llegó pedido '+fdate(o.fecha));return {...it,r:Math.round(((it.r||0)+add)*100)/100}});
-  const all=items.every(i=>(i.r||0)>=i.q);const patch={items,estado:all?'llego':'parcial',...(all?{llegadaEl:todayISO()}:{})};
+async function ordApply(o,recv,fecha){/* recv: {indice: cantidad que llegó ahora}; fecha: día de llegada AAAA-MM-DD (por omisión hoy) */
+  const dia=ISO_RE.test(fecha||'')?fecha:todayISO();const when=dia===todayISO()?undefined:dia+'T12:00:00';
+  const items=(o.items||[]).map((it,i)=>{const add=Math.max(0,Math.min(ordPend(it),Number(recv[i])||0));if(add>0)moveStock(it.id,add,'Llegó pedido '+fdate(o.fecha),when);return {...it,r:Math.round(((it.r||0)+add)*100)/100,...(add>0?{ll:[...(it.ll||[]),{f:dia,q:add}]}:{})}});
+  const all=items.every(i=>(i.r||0)>=i.q);const patch={items,estado:all?'llego':'parcial',...(all?{llegadaEl:dia}:{})};
   S.ordenes=S.ordenes.map(x=>x.id===o.id?{...x,...patch}:x);
   const ok=await write('ordenes/'+o.id,patch);if(!ok)return false;return all}
 function ordFacPrompt(o){const monto=(o.items||[]).reduce((a,i)=>a+(i.c!=null?i.c*i.q:0),0);
@@ -1821,9 +1822,10 @@ function llegaSheet(oid){const o=(S.ordenes||[]).find(x=>x.id===oid);if(!o){toas
   pane(`<div class="grab"></div><div class="sheet-head"><h2>Pedido a ${esc(provName(o.prov))}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <p class="muted" style="margin:0 0 10px">Pedido el ${fdate(o.fecha)}.${o.nota?' '+esc(o.nota):''} Ajusta lo que llegó si fue distinto.</p>
   <div class="ordlist">${(o.items||[]).map((it,i)=>{const done=(it.r||0)>=it.q;return `<div class="ordrow${done?' dis':''}"><span class="on"><b>${esc(it.n)}</b><small>Pedido ${qty(it.q)}${it.r?' · ya llegó '+qty(it.r):''}${done?' · completo':''}</small></span>${done?'<span class="muted">✓</span>':`<input class="oq" type="number" min="0" step="0.5" inputmode="decimal" data-lr="${i}" value="${ordPend(it)}" aria-label="Llegó de ${esc(it.n)}">`}</div>`}).join('')}</div>
+  <label class="field full" style="margin-top:10px"><span>Día que llegó</span><input id="lg-d" type="date" max="${todayISO()}" value="${todayISO()}"></label>
   <div style="display:grid;gap:8px;margin-top:12px"><button class="btn primary block" id="lg-all">Llegó completo</button><button class="btn block" id="lg-part">Guardar solo lo que llegó</button><button class="btn sm ghost" id="lg-x" style="color:var(--bad)">Cancelar pedido</button></div>`);
   const P=$('#sheet .pane');
-  const run=async(all)=>{const recv={};P.querySelectorAll('[data-lr]').forEach(i=>{recv[i.dataset.lr]=all?ordPend(o.items[+i.dataset.lr]):num(i.value)||0});const r=await ordApply(o,recv);if(r===false)return;if(r){ordFacPrompt({...o,estado:'llego'})}else{closeSheet();toast('Lo que llegó ya sumó al inventario. El resto sigue en camino.');renderNegocio()}};
+  const run=async(all)=>{const recv={};P.querySelectorAll('[data-lr]').forEach(i=>{recv[i.dataset.lr]=all?ordPend(o.items[+i.dataset.lr]):num(i.value)||0});const r=await ordApply(o,recv,P.querySelector('#lg-d').value);if(r===false)return;if(r){ordFacPrompt({...o,estado:'llego'})}else{closeSheet();toast('Lo que llegó ya sumó al inventario. El resto sigue en camino.');renderNegocio()}};
   P.querySelector('#lg-all').addEventListener('click',()=>run(true));P.querySelector('#lg-part').addEventListener('click',()=>run(false));
   let arm=false;P.querySelector('#lg-x').addEventListener('click',async e=>{if(!arm){arm=true;e.target.textContent='Toca otra vez para cancelar el pedido';return}if(await write('ordenes/'+o.id,{estado:'cancelado'})){S.ordenes=S.ordenes.map(x=>x.id===o.id?{...x,estado:'cancelado'}:x);closeSheet();toast('Pedido cancelado');renderNegocio()}})}
 /* ---------- lectura con IA de una factura de proveedor ---------- */
@@ -1841,6 +1843,150 @@ async function leerFacturaIA(file,P){const inp=await aiInputs(file);if(inp.err){
   const pid=provOfText(r.proveedor);if(pid)set('#ff-p',pid);set('#ff-f',String(r.folio||'').slice(0,40));if(num(r.monto)>0)set('#ff-m',num(r.monto));
   if(/^\d{4}-\d{2}-\d{2}$/.test(r.fecha||''))set('#ff-d',r.fecha);if(/^\d{4}-\d{2}-\d{2}$/.test(r.vence||''))set('#ff-v',r.vence);
   toast(pid?'Listo, revisa los datos y guarda.':'Llené lo que pude. Elige el proveedor y revisa.')}
+/* ---------- carga automática con IA: facturas de proveedor → CxP, notas/tickets → CxC ---------- */
+const ISO_RE=/^\d{4}-\d{2}-\d{2}$/;
+const slugP=n=>String(n||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50)||('prov-'+Date.now());
+async function aiLote(files,leer,guardar,titulo){files=[...files].slice(0,8);if(!files.length)return;
+  const sample=await window.claude?.use?.('sample');if(!sample){toast(NOAI);return}
+  const rows=[];
+  for(let i=0;i<files.length;i++){const f=files[i];
+    pane(`<div class="sheet-head"><h2>${titulo}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div><div class="reading"><span class="spin"></span><div><b>Leyendo ${i+1} de ${files.length}…</b><span class="muted">${esc(f.name)}</span></div></div>`);
+    try{const inp=await aiInputs(f);if(inp.err){rows.push({f,err:inp.err});continue}
+      const r=await inp.sample.json(leer(inp),{images:inp.imgs.length?inp.imgs:undefined,modelTier:'default',cache:false});
+      rows.push({f,...(await guardar(f,r))})}
+    catch(e){rows.push({f,err:e&&e.code==='daily_limit'?'Llegaste al tope de lecturas de hoy.':'No se pudo leer este archivo.'});if(e&&e.code==='daily_limit')break}}
+  return rows}
+async function cxpAuto(files){
+  const provsTxt=[...S.provs.values()].map(v=>v.nombre).join(', ');
+  const rows=await aiLote(files,inp=>`Lee esta factura o nota de un proveedor de una pastelería en México y responde SOLO JSON: {"proveedor":"nombre tal como aparece","folio":"","fecha":"AAAA-MM-DD","vence":"AAAA-MM-DD o vacío si no dice","monto":0}. "monto" es el total a pagar con impuestos, número sin símbolos. Proveedores que ya conozco: ${provsTxt||'(ninguno)'}. Si corresponde a uno de esos, usa exactamente ese nombre.${inp.text?'\n\nDOCUMENTO:\n'+inp.text:''}`,
+   async(f,r)=>{const monto=num(r.monto);if(!(monto>0))return {err:'No encontré el monto de la factura. Regístrala a mano.'};
+     let pid=provOfText(r.proveedor),nuevo=false;if(!pid){const nm=String(r.proveedor||'').trim()||'Proveedor sin nombre';pid=slugP(nm);if(!S.provs.get(pid)){if(!await write('proveedores/'+pid,{id:pid,nombre:nm,dias:null,tel:'',notas:'Creado al leer una factura'},'set'))return {err:'No se pudo guardar el proveedor.'};nuevo=true}}
+     const folio=String(r.folio||'').slice(0,40);
+     if(folio&&S.facturas.some(x=>x.prov===pid&&x.folio===folio&&Math.abs((x.monto||0)-monto)<0.01))return {dup:1,pid,folio,monto};
+     const archivo=await uploadFile(f);if(!archivo)return {err:'No se pudo guardar el archivo.'};
+     const id='f-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+     const data={prov:pid,folio,monto,fecha:ISO_RE.test(r.fecha||'')?r.fecha:todayISO(),vence:ISO_RE.test(r.vence||'')?r.vence:'',notas:'Leída con IA. Revísala.',archivo,archivos:[],estado:'pendiente',pagadaEl:null,comprobantes:[],origen:'ia'};
+     if(!await write('facturas/'+id,data,'set'))return {err:'No se pudo guardar.'};
+     return {ok:1,id,pid,folio,monto,vence:data.vence,nuevo,enCamino:ordOpen().some(o=>o.prov===pid)}},'Facturas de proveedores');
+  if(!rows)return;
+  pane(`<div class="grab"></div><div class="sheet-head"><h2>Facturas leídas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p class="muted" style="margin:0 0 10px">Ya quedaron en Cuentas por pagar. Revisa que los datos estén bien.</p><div class="list">${rows.map(r=>r.ok?`<div class="doc"><div><b>${esc(provName(r.pid))}${r.nuevo?' <span class="status pronto">proveedor nuevo</span>':''}</b><div class="meta">${r.folio?'Folio '+esc(r.folio)+' · ':''}${r.vence?'Vence '+fdate(r.vence):'Sin vencimiento'}</div></div><div class="amt num">${money(r.monto)}</div><div class="acts"><button class="btn sm" data-act="editfac" data-id="${r.id}">Revisar</button>${r.enCamino?`<button class="btn sm primary" data-act="ordprov" data-id="${r.pid}">¿Llegó su pedido?</button>`:''}</div></div>`:r.dup?`<div class="doc"><div><b>${esc(provName(r.pid))} · folio ${esc(r.folio)}</b><div class="meta">Ya estaba registrada, no se duplicó.</div></div><div class="amt num">${money(r.monto)}</div></div>`:`<div class="doc"><div><b>${esc(r.f.name)}</b><div class="meta" style="color:var(--bad)">${esc(r.err)}</div></div></div>`).join('')}</div>
+  <button class="btn primary block" style="margin-top:12px" data-act="close">Listo</button>`)}
+async function cxcAuto(files){
+  const rows=await aiLote(files,inp=>`Lee esta nota, ticket, cotización o comprobante de una pastelería en México y responde SOLO JSON: {"cliente":"","tel":"","concepto":"resumen corto de lo vendido","monto":0,"anticipo":0,"vence":"AAAA-MM-DD o vacío"}. "monto" es el total de la venta; "anticipo" lo que ya pagó (0 si no dice). Números sin símbolos.${inp.text?'\n\nDOCUMENTO:\n'+inp.text:''}`,
+   async(f,r)=>{const monto=num(r.monto);if(!(monto>0))return {err:'No encontré el monto. Regístrala a mano.'};
+     const archivo=await uploadFile(f);if(!archivo)return {err:'No se pudo guardar el archivo.'};
+     const id='c-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);const ant=num(r.anticipo)>0&&num(r.anticipo)<=monto?num(r.anticipo):0;
+     const data={cliente:String(r.cliente||'').trim()||'Sin nombre',tel:String(r.tel||'').replace(/[^\d+ ]/g,'').slice(0,20),concepto:String(r.concepto||'').slice(0,120),monto,vence:ISO_RE.test(r.vence||'')?r.vence:'',abonos:ant?[{monto:ant,fecha:todayISO()}]:[],archivos:[archivo],estado:'pendiente',cobradaEl:null,origen:'ia'};
+     if(!await write('cxc/'+id,data,'set'))return {err:'No se pudo guardar.'};return {ok:1,id,data}},'Notas y tickets');
+  if(!rows)return;
+  pane(`<div class="grab"></div><div class="sheet-head"><h2>Cuentas leídas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p class="muted" style="margin:0 0 10px">Ya quedaron en Cuentas por cobrar. Revisa que los datos estén bien.</p><div class="list">${rows.map(r=>r.ok?`<div class="doc"><div><b>${esc(r.data.cliente)}</b><div class="meta">${esc(r.data.concepto||'')}${r.data.vence?' · cobro '+fdate(r.data.vence):''}</div></div><div class="amt num">${money(r.data.monto)}</div><div class="acts"><button class="btn sm" data-act="editcxc" data-id="${r.id}">Revisar</button></div></div>`:`<div class="doc"><div><b>${esc(r.f.name)}</b><div class="meta" style="color:var(--bad)">${esc(r.err)}</div></div></div>`).join('')}</div>
+  <button class="btn primary block" style="margin-top:12px" data-act="close">Listo</button>`)}
+async function leerCxcIA(file,P,arch){const inp=await aiInputs(file);if(inp.err){toast(inp.err);return}
+  const btn=P.querySelector('#c-ai');if(btn){btn.disabled=true;btn.textContent='Leyendo…'}
+  const prompt=`Lee esta nota, ticket, cotización o comprobante de una pastelería en México y responde SOLO JSON: {"cliente":"","tel":"","concepto":"resumen corto de lo vendido","monto":0,"anticipo":0,"vence":"AAAA-MM-DD o vacío"}. "monto" es el total de la venta; "anticipo" lo que ya pagó (0 si no dice). Números sin símbolos.${inp.text?'\n\nDOCUMENTO:\n'+inp.text:''}`;
+  let r;try{r=await inp.sample.json(prompt,{images:inp.imgs.length?inp.imgs:undefined,modelTier:'default',cache:false})}catch(e){toast(e&&e.code==='daily_limit'?'Llegaste al tope de lecturas de hoy.':'No se pudo leer. Captúrala a mano.');if(btn){btn.disabled=false;btn.textContent='Leer nota o ticket con IA'}return}
+  if(btn){btn.disabled=false;btn.textContent='Leer nota o ticket con IA'}
+  const set=(id,v)=>{const el=P.querySelector(id);if(el&&v!=null&&v!=='')el.value=v};
+  set('#c-n',String(r.cliente||'').trim());set('#c-t',String(r.tel||'').replace(/[^\d+ ]/g,''));set('#c-c',String(r.concepto||'').slice(0,120));if(num(r.monto)>0)set('#c-m',num(r.monto));if(ISO_RE.test(r.vence||''))set('#c-v',r.vence);if(num(r.anticipo)>0)set('#c-a',num(r.anticipo));
+  const a=await uploadFile(file);if(a){arch.push(a);filesEd('c-x',arch)}
+  toast('Listo, revisa los datos y guarda.')}
+/* ---------- voz: actualizar inventario, registrar llegadas, productos y proveedores nuevos ---------- */
+const NUMW={cero:0,un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,trece:13,catorce:14,quince:15,dieciseis:16,diecisiete:17,dieciocho:18,diecinueve:19,veinte:20,veinticinco:25,treinta:30,cuarenta:40,cincuenta:50,medio:0.5,media:0.5};
+const DIASN=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+const isoD=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function fechaDicha(text){const n=String(text||'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase();const hoy=new Date(todayISO()+'T12:00:00');
+  if(/\banteayer\b/.test(n)){hoy.setDate(hoy.getDate()-2);return isoD(hoy)}if(/\bayer\b/.test(n)){hoy.setDate(hoy.getDate()-1);return isoD(hoy)}if(/\bhoy\b/.test(n))return isoD(hoy);
+  const m=/\b(\d{1,2}) de (enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\b/.exec(n);
+  if(m){const mi=MESES_L.indexOf(m[2]);let d=new Date(hoy.getFullYear(),mi,+m[1],12);if(d>hoy)d=new Date(hoy.getFullYear()-1,mi,+m[1],12);return isoD(d)}
+  for(let i=0;i<7;i++){if(new RegExp('\\b'+DIASN[i]+'\\b').test(n)){const back=(hoy.getDay()-i+7)%7;hoy.setDate(hoy.getDate()-back);return isoD(hoy)}}
+  return ''}
+const STOPW=['de','del','la','el','en','los','las','un','una','para','con','kilos','kilo','litros','litro','latas','lata','piezas','pieza','cajas','caja','bolsas','bolsa','paquetes','paquete'];
+const stem=w=>w.replace(/(es|s)$/,'');
+function matchProd(name){const q=normN(name).split(' ').filter(w=>w.length>1&&!STOPW.includes(w)).map(stem);if(!q.length)return null;let best=null,bs=0;
+  for(const p of allProds()){const pt=normN(p.nombre).split(' ').filter(Boolean).map(stem);const hit=q.filter(w=>pt.includes(w)||pt.some(x=>w.length>=4&&(x.startsWith(w)||w.startsWith(x)))).length;if(!hit)continue;
+    const sc=(hit/q.length)*0.7+(hit/Math.max(pt.length,1))*0.3;if(sc>bs){bs=sc;best=p}}
+  return bs>=0.55?best:null}
+function localParse(mode,text){const fecha=fechaDicha(text);let t=String(text||'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\b([a-z]+)\b/g,w=>(w in NUMW)?String(NUMW[w]):w);
+  if(mode==='nuevo'){const parts=t.split(/\bproducto(?: nuevo)?\b/).map(x=>x.trim()).filter(Boolean);const items=[];
+    for(const part of (parts.length?parts:[t])){const prov=/\bproveedor ([a-z0-9&. ]+?)(?= minimo| maximo| min | max |,|$)/.exec(part);const mn=/\bmin(?:imo)? (\d+(?:\.\d+)?)/.exec(part),mx=/\bmax(?:imo)? (\d+(?:\.\d+)?)/.exec(part);
+      const nom=part.split(/\bproveedor\b|\bminimo\b|\bmaximo\b|,/)[0].trim();if(!nom)continue;const ex=matchProd(nom);items.push({id:ex?ex.id:null,nombre:ex?ex.nombre:nom,proveedor:prov?prov[1].trim():'',min:mn?+mn[1]:null,max:mx?+mx[1]:null,stock:null})}
+    return {items}}
+  t=t.replace(/\b(hay|llegaron|llego|tengo|tenemos|quedan|quedaron|recibi|recibimos)\b/g,' ');
+  const items=[];for(const seg of t.split(/,|;|\by\b(?=\s*\d)|\./).map(x=>x.trim()).filter(Boolean)){
+    let m=/^(\d+(?:\.\d+)?)\s+(?:de\s+)?(.+)$/.exec(seg);let cant,dicho;if(m){cant=+m[1];dicho=m[2]}else{m=/^(.+?)\s+(\d+(?:\.\d+)?)$/.exec(seg);if(m){dicho=m[1];cant=+m[2]}}
+    if(cant==null||!dicho)continue;dicho=dicho.replace(/\b(el|la|los|las)\s+(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\b.*$/,'').replace(/\b(hoy|ayer|anteayer)\b.*$/,'').trim();const p=matchProd(dicho);items.push({id:p?p.id:null,dicho,cantidad:cant})}
+  return {items,fecha}}
+async function vozEntender(mode,text){const sample=await window.claude?.use?.('sample');let res=null,ia=false;
+  if(sample){const prods=allProds().slice(0,500).map(p=>`${p.id}|${p.nombre}|${provName(p.prov)}`).join('\n');
+    const base=`Dictado por voz del dueño de una pastelería: "${text}"\nHoy es ${todayISO()} (${DIAS[dowToday()]}).\nProductos que ya existen (id|nombre|proveedor):\n${prods||'(ninguno)'}\n`;
+    const prompt=mode==='nuevo'?base+`El dueño dicta productos NUEVOS y/o sus mínimos y máximos, y a veces su proveedor. Responde SOLO JSON: {"items":[{"id":"id si el producto ya existe, o null","nombre":"","proveedor":"nombre del proveedor o vacío","min":null,"max":null,"stock":null}]}. Usa números, no texto.`
+      :base+`El dueño dicta ${mode==='hay'?'cuánto HAY (existencias actuales) de cada producto':'qué LLEGÓ de un pedido y qué día'}. Responde SOLO JSON: {"items":[{"id":"id del producto que mejor coincide, o null si no hay","dicho":"cómo lo dijo","cantidad":0}],"fecha":"AAAA-MM-DD del día que llegó si lo dijo, o vacío"}. Cantidad es un número (usa decimales si dice medio, 2.5, etc.).`;
+    try{res=await sample.json(prompt,{modelTier:'default',cache:false});ia=true}catch(e){if(e&&e.code==='daily_limit')toast('Llegaste al tope de lecturas de hoy. Uso el modo básico.')}}
+  if(!res||!Array.isArray(res.items))res=localParse(mode,text);
+  return {...res,ia}}
+function vozSheet(mode){S.openDetail=null;
+  const T={hay:['Actualizar inventario','Di cuánto hay de cada producto. Ej.: “hay 3 piñas en almíbar, 2 leches condensadas y 5 de crema”.'],llego:['Llegó un pedido','Di qué llegó y qué día. Ej.: “llegaron 12 de leche y 4 de crema el miércoles”. Si no dices el día, uso hoy.'],nuevo:['Producto o proveedor nuevo','Ej.: “producto nuevo piña en almíbar, proveedor Alsuper, mínimo 2, máximo 8”. También sirve para ponerles mínimo y máximo a productos que no lo tienen.']}[mode];
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  pane(`<div class="grab"></div><div class="sheet-head"><h2>${T[0]}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p class="muted" style="margin:0 0 10px">${T[1]}</p>
+  ${SR?`<button class="btn primary block micbtn" id="vz-mic" type="button">🎤 Tocar y hablar</button>`:`<p class="muted" style="font-size:13px">Este navegador no dicta aquí. Usa el micrófono del teclado de tu celular, o escribe.</p>`}
+  <label class="field full" style="margin-top:10px"><span>Lo que dijiste (puedes corregirlo)</span><textarea id="vz-t" rows="4" placeholder="Aquí aparece lo que dictes"></textarea></label>
+  <button class="btn block" id="vz-go" style="margin-top:10px">Entender</button>`);
+  const P=$('#sheet .pane');const ta=P.querySelector('#vz-t');let rec=null,base='';
+  const stop=()=>{try{rec&&rec.stop()}catch(e){}rec=null;const b=P.querySelector('#vz-mic');if(b){b.textContent='🎤 Tocar y hablar';b.classList.add('primary')}};
+  P.querySelector('#vz-mic')?.addEventListener('click',()=>{if(rec){stop();return}
+    rec=new SR();rec.lang='es-MX';rec.continuous=true;rec.interimResults=true;base=ta.value?ta.value.trim()+' ':'';
+    rec.onresult=ev=>{let f='',i='';for(let k=0;k<ev.results.length;k++){const r=ev.results[k];(r.isFinal?(f+=r[0].transcript+' '):(i+=r[0].transcript))}ta.value=(base+f+i).trim()};
+    rec.onerror=ev=>{toast(ev.error==='not-allowed'?'Permite el micrófono en el navegador para dictar.':'No pude escuchar. Intenta de nuevo.');stop()};rec.onend=()=>{if(rec)stop()};
+    try{rec.start();const b=P.querySelector('#vz-mic');b.textContent='⏹ Escuchando… toca para terminar';b.classList.remove('primary')}catch(e){stop()}});
+  P.querySelector('#vz-go').addEventListener('click',async()=>{stop();const text=ta.value.trim();if(!text){toast('Dicta o escribe algo primero');return}
+    const b=P.querySelector('#vz-go');b.disabled=true;b.textContent='Entendiendo…';
+    const res=await vozEntender(mode,text);b.disabled=false;b.textContent='Entender';
+    if(!res.items.length){toast('No entendí productos. Intenta decirlo con el nombre y el número.');return}
+    vozRevisar(mode,res,text)})}
+function vozProdOpts(sel){return `<option value="">Elige producto</option>`+allProds().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(p=>`<option value="${p.id}"${p.id===sel?' selected':''}>${esc(p.nombre)}</option>`).join('')}
+function vozRevisar(mode,res,text){
+  const head=t=>`<div class="grab"></div><div class="sheet-head"><h2>${t}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>`;
+  if(mode==='nuevo'){const rows=res.items.map((it,i)=>{const ex=it.id?prod(it.id):null;const pvId=provOfText(it.proveedor);const completo=ex&&ex.min!=null&&ex.max!=null;
+      const info=ex?(completo?`Ya tiene mínimo ${qty(ex.min)} y máximo ${qty(ex.max)}: no se cambia.`:'Ya existe. Solo se le ponen los límites que faltan.'):`Producto nuevo${it.proveedor?(pvId?' · proveedor '+esc(provName(pvId)):' · proveedor nuevo: '+esc(it.proveedor)):' · sin proveedor'}.`;
+      return `<div class="ordrow vz-n${completo?' dis':''}"><input type="checkbox" data-i="${i}"${completo?' disabled':' checked'}><span class="on"><b>${esc(ex?ex.nombre:it.nombre)}</b><small>${info}</small></span><span class="vz-mm"><input class="oq" type="number" step="0.5" min="0" data-mn="${i}" value="${it.min??ex?.min??''}" placeholder="Mín" ${completo?'disabled':''}><input class="oq" type="number" step="0.5" min="0" data-mx="${i}" value="${it.max??ex?.max??''}" placeholder="Máx" ${completo?'disabled':''}></span></div>`}).join('');
+    pane(head('Esto entendí')+`<p class="muted" style="margin:0 0 8px">“${esc(text)}”${res.ia?'':' · modo básico'}</p><div class="ordlist">${rows}</div><button class="btn primary block" id="vz-ok" style="margin-top:12px">Aplicar</button>`);
+    const P=$('#sheet .pane');
+    P.querySelector('#vz-ok').addEventListener('click',async()=>{let n=0,np=0,nv=0;
+      for(const c of P.querySelectorAll('[data-i]:checked')){const i=+c.dataset.i,it=res.items[i];const mn=num(P.querySelector(`[data-mn="${i}"]`).value),mx=num(P.querySelector(`[data-mx="${i}"]`).value);
+        if(mn!=null&&mx!=null&&mn>mx){toast(`En “${it.nombre}” el mínimo no puede ser mayor que el máximo`);return}
+        const ex=it.id?prod(it.id):null;
+        if(ex){const patch={};if(ex.min==null&&mn!=null)patch.min=mn;if(ex.max==null&&mx!=null)patch.max=mx;if(Object.keys(patch).length&&await write('productos/'+ex.id,patch)){n++}continue}
+        let pid=provOfText(it.proveedor)||'';if(!pid&&it.proveedor){pid=slugP(it.proveedor);if(!S.provs.get(pid)){if(!await write('proveedores/'+pid,{id:pid,nombre:it.proveedor.replace(/\b\w/g,m=>m.toUpperCase()),dias:null,tel:'',notas:'Creado por voz'},'set')){toast('No se pudo crear el proveedor');return}nv++}}
+        const id='p-'+Date.now().toString(36)+i;const s=num(it.stock)||0;const ord=Math.max(0,...allProds().map(p=>p.orden||0))+1;
+        if(await write('productos/'+id,{nombre:it.nombre.replace(/^./,m=>m.toUpperCase()),prov:pid,stock:s,min:mn,max:mx,costo:null,pres:'',ubic:'',dibujo:'box',color:'cara',foto:null,orden:ord,hist:[{t:new Date().toISOString(),d:s,s,nota:'Alta por voz'}]},'set'))np++}
+      closeSheet();toast(`Listo: ${np} ${np===1?'producto nuevo':'productos nuevos'}${nv?`, ${nv} ${nv===1?'proveedor nuevo':'proveedores nuevos'}`:''}${n?`, ${n} con límites actualizados`:''}.`);renderNegocio()});return}
+  const llego=mode==='llego';const hoy=todayISO();
+  const rows=res.items.map((it,i)=>{const p=it.id?prod(it.id):matchProd(it.dicho||'');const ex=p?ordOfProd(p.id):null;
+    return `<div class="ordrow vz-r"><input type="checkbox" data-i="${i}"${p?' checked':''}><span class="on"><select data-sel="${i}" aria-label="Producto">${vozProdOpts(p?p.id:'')}</select><small data-info="${i}">${vozInfo(mode,p,it.cantidad)}</small></span><input class="oq" type="number" step="0.5" min="0" data-q="${i}" value="${it.cantidad}" aria-label="Cantidad"></div>`}).join('');
+  pane(head(llego?'Llegada de pedido':'Esto entendí')+`<p class="muted" style="margin:0 0 8px">“${esc(text)}”${res.ia?'':' · modo básico'}</p>
+  ${llego?`<label class="field full" style="margin-bottom:8px"><span>Día que llegó</span><input id="vz-d" type="date" max="${hoy}" value="${ISO_RE.test(res.fecha||'')?res.fecha:hoy}"></label>`:''}
+  <div class="ordlist">${rows}</div><button class="btn primary block" id="vz-ok" style="margin-top:12px">${llego?'Registrar llegada':'Actualizar inventario'}</button>`);
+  const P=$('#sheet .pane');
+  const refresh=i=>{const sel=P.querySelector(`[data-sel="${i}"]`).value;const q=num(P.querySelector(`[data-q="${i}"]`).value);P.querySelector(`[data-info="${i}"]`).innerHTML=vozInfo(mode,sel?prod(sel):null,q);P.querySelector(`[data-i="${i}"]`).checked=!!sel&&q!=null};
+  P.querySelectorAll('[data-sel],[data-q]').forEach(el=>el.addEventListener('change',()=>refresh(el.dataset.sel??el.dataset.q)));
+  P.querySelector('#vz-ok').addEventListener('click',async()=>{const sel=[];P.querySelectorAll('[data-i]:checked').forEach(c=>{const i=c.dataset.i;const id=P.querySelector(`[data-sel="${i}"]`).value;const q=num(P.querySelector(`[data-q="${i}"]`).value);if(id&&q!=null&&q>=0)sel.push({id,q})});
+    if(!sel.length){toast('Elige al menos un producto');return}
+    if(!llego){sel.forEach(x=>{const p=prod(x.id);moveStock(x.id,x.q-(Number(p.stock)||0),'Conteo por voz')});
+      closeSheet();S.isub='pedir';renderNegocio();const f=alerts().length;toast(`Inventario actualizado (${sel.length}). ${f?`Faltan ${f} por pedir: revisa “Qué pedir” y manda el WhatsApp.`:'Todo en orden.'}`);return}
+    const dia=P.querySelector('#vz-d').value||hoy;const when=dia===hoy?undefined:dia+'T12:00:00';const touched=new Map();let sinPedido=0;
+    for(const x of sel){let resto=x.q;const ex=ordOfProd(x.id);if(ex){const idx=ex.o.items.indexOf(ex.it);const take=Math.min(resto,ordPend(ex.it));if(take>0){const m=touched.get(ex.o.id)||{};m[idx]=(m[idx]||0)+take;touched.set(ex.o.id,m);resto-=take}}
+      if(resto>0){moveStock(x.id,resto,'Llegó (sin pedido registrado)',when);sinPedido++}}
+    let completo=null;for(const [oid,recv] of touched){const o=S.ordenes.find(z=>z.id===oid);const r=await ordApply(o,recv,dia);if(r&&!completo)completo={...o,estado:'llego'}}
+    if(completo){ordFacPrompt(completo)}else{closeSheet();toast(`Llegada registrada (${dia===hoy?'hoy':fdate(dia)}).${touched.size?' Lo que falta sigue en camino.':''}${sinPedido?' Algunos productos no tenían pedido; también se sumaron.':''}`);renderNegocio()}})}
+function vozInfo(mode,p,q){if(!p)return '<span style="color:var(--bad)">Elige el producto</span>';
+  if(mode==='hay')return `Ahora ${qty(p.stock)} → quedaría en ${q==null?'—':qty(q)}`;
+  const ex=ordOfProd(p.id);return ex?`Pedido pendiente: ${qty(ordPend(ex.it))} (${fdate(ex.o.fecha)})`:'Sin pedido registrado: solo se suma al inventario'}
+function recCard(){const l=(S.ordenes||[]).filter(o=>o.estado==='llego').sort((a,b)=>(b.llegadaEl||'').localeCompare(a.llegadaEl||'')).slice(0,15);if(!l.length)return '';
+  return `<details class="ordcard recv"><summary>✅ Pedidos recibidos (${l.length})</summary><div class="list">${l.map(o=>`<div class="doc"><div><b>${esc(provName(o.prov))}</b><div class="meta">Pedido ${fdate(o.fecha)} · Llegó ${fdate(o.llegadaEl)}</div><div class="meta">${(o.items||[]).map(i=>`${qty(i.q)} × ${esc(i.n)}${(i.ll||[]).length>1?' ('+i.ll.map(x=>qty(x.q)+' el '+fdate(x.f)).join(', ')+')':''}`).join(' · ')}</div></div></div>`).join('')}</div></details>`}
+const vozBar=()=>`<div class="voicebar"><button class="btn" data-act="voz" data-v="hay">🎤 Hay…</button><button class="btn" data-act="voz" data-v="llego">🎤 Llegó…</button><button class="btn" data-act="voz" data-v="nuevo">🎤 Nuevo…</button></div>`;
 function autoTasks(){const out=[];const w=dowToday();
   for(const pv of S.provs.values()){const items=allProds().filter(p=>p.prov===pv.id&&['rojo','amarillo'].includes(sem(p))&&!ordOfProd(p.id));const red=items.some(p=>sem(p)==='rojo');
     if((pv.diasPedido||[]).includes(w)||red)if(items.length||(pv.diasPedido||[]).includes(w))out.push({id:'auto-ped-'+pv.id,t:`Hacer pedido a ${pv.nombre}${items.length?` (${items.length} ${items.length===1?'producto':'productos'})`:''}`,auto:1,urg:red,pid:pv.id})}
@@ -2340,7 +2486,7 @@ function renderFin(m){
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Por pagar</div><div class="v num">${money(sum(pend))}</div><div class="muted" style="font-size:12.5px">${pend.length} facturas</div></div>
    <div class="kpi"><div class="k">Vencido</div><div class="v num" style="color:${venc.length?'var(--bad)':'inherit'}">${money(sum(venc))}</div><div class="muted" style="font-size:12.5px">${venc.length} facturas</div></div>
    <div class="kpi"><div class="k">Pagado este mes</div><div class="v num">${money(sum(pagMes))}</div><div class="muted" style="font-size:12.5px">${pagMes.length} pagos</div></div></div>
-  <div class="toolbar"><select id="fprov" aria-label="Filtrar por proveedor" style="flex:1"><option value="">Todos los proveedores</option>${provs.map(v=>`<option value="${v.id}" ${S.finProv===v.id?'selected':''}>${esc(v.nombre)}</option>`).join('')}</select><button class="btn primary" data-act="editfac" data-id="">+ Subir factura</button></div>
+  <div class="toolbar"><select id="fprov" aria-label="Filtrar por proveedor" style="flex:1"><option value="">Todos los proveedores</option>${provs.map(v=>`<option value="${v.id}" ${S.finProv===v.id?'selected':''}>${esc(v.nombre)}</option>`).join('')}</select>${WEB?'<button class="btn" data-act="cxpai">Subir con IA</button>':''}<button class="btn primary" data-act="editfac" data-id="">+ Subir factura</button></div>
   ${list.length?groupBy(list,f=>f.prov).map(([pid,items])=>`<div class="group-h"><h3>${esc(provName(pid))}</h3><span class="muted">${items.length} documentos · por pagar ${money(sum(items.filter(f=>f.estado!=='pagada')))}</span></div><div class="list">${items.map(f=>docRow(f,false)).join('')}</div>`).join('')
    :`<div class="empty">${ill('ledger')}<h3>Sin facturas todavía</h3><p>Sube la factura de un proveedor con su fecha de vencimiento; después adjunta el comprobante cuando la pagues.</p></div>`}<div class="sec-gap"></div>`;
   m.querySelector('#fprov').addEventListener('change',e=>{S.finProv=e.target.value;renderNegocio()});
@@ -2351,9 +2497,9 @@ function renderCxp(m){
   const sum=a=>a.reduce((x,f)=>x+(Number(f.monto)||0),0);
   const sem7=pend.filter(f=>{const d=daysTo(f.vence);return d!=null&&d>=0&&d<=7});
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Total por pagar</div><div class="v num">${money(sum(pend))}</div></div><div class="kpi"><div class="k">Vence en 7 días</div><div class="v num">${money(sum(sem7))}</div></div><div class="kpi"><div class="k">Vencido</div><div class="v num" style="color:var(--bad)">${money(sum(pend.filter(f=>facStatus(f)==='vencida')))}</div></div></div>
-  <div style="display:flex;justify-content:flex-end"><button class="btn primary" data-act="editfac" data-id="">+ Nueva cuenta por pagar</button></div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">${WEB?'<button class="btn" data-act="cxpai">Subir facturas con IA</button>':''}<button class="btn primary" data-act="editfac" data-id="">+ Nueva cuenta por pagar</button></div>
   ${pend.length?`<div class="group-h"><h3>Próximos pagos</h3><span class="muted">ordenados por vencimiento</span></div><div class="list">${pend.map(f=>docRow(f)).join('')}</div>`
-  :`<div class="empty">${ill('ledger')}<h3>No hay cuentas por pagar</h3><p>Cuando subas una factura sin pagar en Finanzas, aparecerá aquí con su fecha de vencimiento.</p></div>`}<div class="sec-gap"></div>`;
+  :`<div class="empty">${ill('ledger')}<h3>No hay cuentas por pagar</h3><p>Toda factura sin pagar que subas en Finanzas aparece aquí sola, con su fecha de vencimiento.</p></div>`}<div class="sec-gap"></div>`;
 }
 function editFac(id){const pre=S.facPre;S.facPre=null;const f=id?S.facturas.find(x=>x.id===id):{prov:(pre&&pre.prov)||S.finProv||'',folio:'',monto:(pre&&pre.monto)||'',fecha:todayISO(),vence:'',notas:(pre&&pre.notas)||'',estado:'pendiente'};let file=null,confirmDel=false;const arch=[...(f.archivos||[])];
   const paint=()=>{pane(`<div class="grab"></div><div class="sheet-head"><h2>${id?'Editar factura':'Subir factura'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
@@ -2403,19 +2549,20 @@ function renderCxc(m){
     <div class="amt num">${money(c.estado==='cobrada'?c.monto:sal)}<div class="muted" style="font-size:12px;font-family:var(--f-body);font-weight:500">${c.estado==='cobrada'?'total':'de '+money(c.monto)}</div></div>
     <div class="acts">${(c.archivos||[]).map(a=>fileChip(a)).join('')}${(c.abonos||[]).filter(a=>a.archivo).map(a=>fileChip(a.archivo,'Comprobante '+fdate(a.fecha))).join('')}${c.estado!=='cobrada'?`<button class="btn sm primary" data-act="abono" data-id="${c.id}">Registrar abono</button><button class="btn sm" data-act="cobrada" data-id="${c.id}">Marcar cobrada</button>`:''}<button class="btn sm ghost" data-act="editcxc" data-id="${c.id}">Editar</button></div></div>`};
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Por cobrar</div><div class="v num">${money(tot)}</div><div class="muted" style="font-size:12.5px">${pend.length} cuentas</div></div><div class="kpi"><div class="k">Vencido</div><div class="v num" style="color:${venc.length?'var(--bad)':'inherit'}">${money(venc.reduce((a,c)=>a+cxcSaldo(c),0))}</div></div><div class="kpi"><div class="k">Cobradas</div><div class="v num">${S.cxc.filter(c=>c.estado==='cobrada').length}</div></div></div>
-  <div style="display:flex;justify-content:flex-end"><button class="btn primary" data-act="editcxc" data-id="">+ Nueva cuenta por cobrar</button></div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">${WEB?'<button class="btn" data-act="cxcai">Subir notas con IA</button>':''}<button class="btn primary" data-act="editcxc" data-id="">+ Nueva cuenta por cobrar</button></div>
   ${pend.length?`<div class="group-h"><h3>Pendientes</h3></div><div class="list">${pend.map(row).join('')}</div>`:`<div class="empty">${ill('cake','cream','straw')}<h3>Nadie te debe por ahora</h3><p>Registra aquí pedidos con anticipo, eventos o clientes a crédito para dar seguimiento al cobro.</p></div>`}
   ${done.length?`<div class="group-h"><h3>Cobradas recientes</h3></div><div class="list">${done.map(row).join('')}</div>`:''}<div class="sec-gap"></div>`;
 }
 function editCxc(id){const c=id?S.cxc.find(x=>x.id===id):{cliente:'',tel:'',concepto:'',monto:'',vence:'',abonos:[],estado:'pendiente'};const arch=[...(c.archivos||[])];
   pane(`<div class="grab"></div><div class="sheet-head"><h2>${id?'Editar cuenta':'Nueva cuenta por cobrar'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
-  <form id="cf" class="fgrid"><label class="field"><span>Cliente</span><input id="c-n" required value="${esc(c.cliente)}"></label><label class="field"><span>Teléfono</span><input id="c-t" inputmode="tel" value="${esc(c.tel||'')}"></label>
+  <form id="cf" class="fgrid">${WEB?'<button type="button" class="btn full" id="c-ai">Leer nota o ticket con IA</button>':''}<label class="field"><span>Cliente</span><input id="c-n" required value="${esc(c.cliente)}"></label><label class="field"><span>Teléfono</span><input id="c-t" inputmode="tel" value="${esc(c.tel||'')}"></label>
   <label class="field full"><span>Concepto</span><input id="c-c" value="${esc(c.concepto||'')}" placeholder="Ej. Pastel Jumbo boda 15 nov"></label>
   <label class="field"><span>Monto total</span><input id="c-m" type="number" step="0.01" min="0" required value="${c.monto??''}"></label><label class="field"><span>Fecha de cobro</span><input id="c-v" type="date" value="${esc(c.vence||'')}"></label>
   ${!id?`<label class="field full"><span>Anticipo recibido (opcional)</span><input id="c-a" type="number" step="0.01" min="0"></label>`:''}
   ${filesEdHTML('c-x','Archivos (nota, contrato, cotización, comprobantes…)')}
   <button class="btn primary full" type="submit">Guardar</button></form>${id?`<div style="text-align:center;margin-top:14px"><button class="btn sm ghost" style="color:var(--bad)" id="c-del">Eliminar</button></div>`:''}`);
   filesEd('c-x',arch);
+  $('#c-ai')?.addEventListener('click',()=>pickFile('',fl=>leerCxcIA(fl,$('#sheet .pane'),arch)));
   $('#cf').addEventListener('submit',async e=>{e.preventDefault();const monto=num($('#c-m').value);if(!$('#c-n').value.trim()||monto==null){toast('Escribe cliente y monto');return}
     const ab=[...(c.abonos||[])];const ant=!id?num($('#c-a').value):null;if(ant)ab.push({monto:ant,fecha:todayISO()});
     const data={cliente:$('#c-n').value.trim(),tel:$('#c-t').value.trim(),concepto:$('#c-c').value.trim(),monto,vence:$('#c-v').value,abonos:ab,archivos:arch,estado:c.estado||'pendiente',cobradaEl:c.cobradaEl||null};
@@ -2512,8 +2659,12 @@ async function webBoot(){
    Eventos
    ========================================================= */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,v=t.dataset.v,id=t.dataset.id;
+  if(a==='voz'){vozSheet(v);return}
   if(a==='ordnew'){e.preventDefault();e.stopPropagation();ordenSheet(id,t.dataset.p);return}
   if(a==='ordgo'){llegaSheet(id);return}
+  if(a==='ordprov'){const o=ordOpen().find(x=>x.prov===id);if(o)llegaSheet(o.id);return}
+  if(a==='cxpai'){pickFile('',fs=>cxpAuto(fs),true);return}
+  if(a==='cxcai'){pickFile('',fs=>cxcAuto(fs),true);return}
   if(a==='ordall'){const o=(S.ordenes||[]).find(x=>x.id===id);if(!o)return;if(t.dataset.armed!=='1'){t.dataset.armed='1';t.textContent='Toca otra vez para confirmar';setTimeout(()=>{if(t.isConnected){t.dataset.armed='';t.textContent='Llegó completo'}},4000);return}
     const recv={};(o.items||[]).forEach((it,i)=>{recv[i]=ordPend(it)});ordApply(o,recv).then(r=>{if(r)ordFacPrompt({...o,estado:'llego'});else if(r===false)toast('No se pudo guardar')});return}
   if(a==='upvenai'){pickVentas();return}
