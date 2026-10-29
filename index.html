@@ -1714,7 +1714,8 @@ async function importInventario(files){
   const prompt=`Eres el asistente de inventario de la pastelería Pasteli. Te paso ${imgs.length?imgs.length+' imagen(es) de un inventario (hoja de conteo, foto o PDF)':''}${imgs.length&&texto?' y ':''}${texto?'el texto de un archivo de inventario':''}.
 Lee cada renglón y relaciónalo con un producto del catálogo de abajo (aunque el nombre esté abreviado, con faltas o escrito a mano). Extrae, si aparecen en el documento: la existencia o cantidad contada (stock), el mínimo (min) y el máximo (max). No inventes valores: si un dato no aparece, usa null. Las cantidades pueden ser decimales (½ = 0.5).
 Responde SOLO con JSON con esta forma exacta:
-{"items":[{"id":"id-del-catalogo","stock":numero|null,"min":numero|null,"max":numero|null,"leido":"texto tal como aparece"}],"no_encontrados":["renglones que no pudiste relacionar"]}
+{"items":[{"id":"id-del-catalogo","stock":numero|null,"min":numero|null,"max":numero|null,"leido":"texto tal como aparece"}],"nuevos":[{"nombre":"producto que NO está en el catálogo","proveedor":"proveedor si aparece, o vacío","stock":numero|null,"min":numero|null,"max":numero|null}],"no_encontrados":["renglones ilegibles que no pudiste interpretar"]}
+Si un renglón es un producto claro que no existe en el catálogo, ponlo en "nuevos" (no en no_encontrados).
 
 CATÁLOGO (id | nombre | proveedor | datos actuales):
 ${lista}
@@ -1729,9 +1730,10 @@ ${texto?'\nTEXTO DEL ARCHIVO:\n'+texto:''}`;
     if(upd.min!=null&&upd.max!=null&&upd.max<upd.min)continue;
     if(Object.keys(upd).length){if(await write('productos/'+p.id,upd))changes.push({p,upd})}}
   try{await S.db.collection('cargas').add({fecha:now,archivos,nombre:fname,cambios:changes.length,no_encontrados:(res?.no_encontrados||[]).slice(0,50)})}catch(e){}
-  const nf=(res?.no_encontrados||[]).filter(Boolean);
+  const nf=(res?.no_encontrados||[]).filter(Boolean);S.invNuevos=(Array.isArray(res?.nuevos)?res.nuevos:[]).filter(x=>x&&x.nombre&&!matchProd(x.nombre));
   invStatus(`<div class="advice verde"><b>${changes.length?`Listo: se actualizaron ${changes.length} ${changes.length===1?'producto':'productos'}`:'No hubo cambios'}</b><span>${changes.length?'El semáforo y los avisos ya usan los nuevos datos.':'Los datos del archivo coinciden con lo que ya tenías, o no pude relacionarlos con el catálogo.'}${skipped?` Solo se leyeron las primeras ${imgs.length} páginas o fotos.`:''}</span></div>
     ${changes.length?`<div class="list">${changes.map(({p,upd})=>`<div class="doc"><div><b>${esc(p.nombre)}</b><div class="meta">${upd.stock!=null?`Existencia ${qty(p.stock)} → <b>${qty(upd.stock)}</b>`:''}${upd.min!=null?` · Mín ${qty(upd.min)}`:''}${upd.max!=null?` · Máx ${qty(upd.max)}`:''}</div></div></div>`).join('')}</div>`:''}
+    ${S.invNuevos.length?`<span class="label">Productos nuevos que vi en el archivo (${S.invNuevos.length})</span><div class="hist">${S.invNuevos.map(x=>`<div><span>${esc(x.nombre)}${x.proveedor?' · '+esc(x.proveedor):''}</span><span>${x.stock!=null?'hay '+qty(x.stock):''}${x.min!=null?' · mín '+qty(x.min):''}${x.max!=null?' · máx '+qty(x.max):''}</span></div>`).join('')}</div><button class="btn primary block" data-act="invnuevos" style="margin-top:8px">Crear ${S.invNuevos.length} ${S.invNuevos.length===1?'producto':'productos'} nuevos</button>`:''}
     ${nf.length?`<span class="label">No los encontré en el catálogo (${nf.length})</span><div class="hist">${nf.slice(0,40).map(t=>`<div><span>${esc(t)}</span></div>`).join('')}</div><p class="muted" style="font-size:13px">Agrégalos con “+ Producto” si son nuevos.</p>`:''}
     <p style="margin-top:14px"><button class="btn primary block" data-act="close">Ver inventario</button></p>`);
 }
@@ -1909,8 +1911,8 @@ function matchProd(name){const q=normN(name).split(' ').filter(w=>w.length>1&&!S
     const sc=(hit/q.length)*0.7+(hit/Math.max(pt.length,1))*0.3;if(sc>bs){bs=sc;best=p}}
   return bs>=0.55?best:null}
 function localParse(mode,text){const fecha=fechaDicha(text);let t=String(text||'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\b([a-z]+)\b/g,w=>(w in NUMW)?String(NUMW[w]):w);
-  if(mode==='limites'){const items=[];for(const part of t.split(/(?<=\d)\s*(?:,|\by\b)\s*(?!minimo|maximo|min\b|max\b)(?=[a-z])/).map(x=>x.trim()).filter(Boolean)){
-      const mn=/\bmin(?:imo)? (?:de )?(\d+(?:\.\d+)?)/.exec(part),mx=/\bmax(?:imo)? (?:de )?(\d+(?:\.\d+)?)/.exec(part);const nom=part.split(/\bminimo\b|\bmaximo\b|\bmin\b|\bmax\b/)[0].replace(/\b(el|la|de|del|para|a)\s*$/,'').trim();if(!nom||(!mn&&!mx))continue;
+  if(mode==='limites'){const items=[];for(const part of t.replace(/,\s*(?=min|max)/g,' ').split(/(?<=\d)(?:\s*(?:,|\by\b)\s*|\s+)(?!minimo|maximo|min\b|max\b|y\b)(?=[a-z])/).map(x=>x.trim()).filter(Boolean)){
+      const mn=/\bmin(?:imo)? (?:de )?(\d+(?:\.\d+)?)/.exec(part),mx=/\bmax(?:imo)? (?:de )?(\d+(?:\.\d+)?)/.exec(part);const nom=part.split(/\bminimo\b|\bmaximo\b|\bmin\b|\bmax\b/)[0].replace(/^(y|e)\s+/,'').replace(/\b(el|la|de|del|para|a)\s*$/,'').trim();if(!nom||(!mn&&!mx))continue;
       const ex=matchProd(nom);items.push({id:ex?ex.id:null,nombre:nom,min:mn?+mn[1]:null,max:mx?+mx[1]:null})}
     return {items}}
   if(mode==='nuevo'){const parts=t.split(/\bproducto(?: nuevo)?\b/).map(x=>x.trim()).filter(Boolean);const items=[];
@@ -1918,7 +1920,7 @@ function localParse(mode,text){const fecha=fechaDicha(text);let t=String(text||'
       const nom=part.split(/\bproveedor\b|\bminimo\b|\bmaximo\b|,/)[0].trim();if(!nom)continue;const ex=matchProd(nom);items.push({id:ex?ex.id:null,nombre:ex?ex.nombre:nom,proveedor:prov?prov[1].trim():'',min:mn?+mn[1]:null,max:mx?+mx[1]:null,stock:null})}
     return {items}}
   t=t.replace(/\b(hay|llegaron|llego|tengo|tenemos|quedan|quedaron|recibi|recibimos)\b/g,' ');
-  const items=[];for(const seg of t.split(/,|;|\by\b(?=\s*\d)|\./).map(x=>x.trim()).filter(Boolean)){
+  const items=[];for(const seg0 of t.split(/,|;|\by\b(?=\s*\d)|\./).map(x=>x.trim()).filter(Boolean))for(const seg of (/^\d/.test(seg0)?seg0.split(/(?<=[a-z])\s+(?=\d)/):seg0.split(/(?<=\d)\s+(?=[a-z])/)).map(x=>x.trim()).filter(Boolean)){
     let m=/^(\d+(?:\.\d+)?)\s+(?:de\s+)?(.+)$/.exec(seg);let cant,dicho;if(m){cant=+m[1];dicho=m[2]}else{m=/^(.+?)\s+(\d+(?:\.\d+)?)$/.exec(seg);if(m){dicho=m[1];cant=+m[2]}}
     if(cant==null||!dicho)continue;dicho=dicho.replace(/\b(el|la|los|las)\s+(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\b.*$/,'').replace(/\b(hoy|ayer|anteayer)\b.*$/,'').trim();const p=matchProd(dicho);items.push({id:p?p.id:null,dicho,cantidad:cant})}
   return {items,fecha}}
@@ -1937,7 +1939,8 @@ function vozSheet(mode){S.openDetail=null;
   <p class="muted" style="margin:0 0 10px">${T[1]}</p>
   ${SR?`<button class="btn primary block micbtn" id="vz-mic" type="button">🎤 Tocar y hablar</button>`:`<p class="muted" style="font-size:13px">Este navegador no dicta aquí. Usa el micrófono del teclado de tu celular, o escribe.</p>`}
   <label class="field full" style="margin-top:10px"><span>Lo que dijiste (puedes corregirlo)</span><textarea id="vz-t" rows="4" placeholder="Aquí aparece lo que dictes"></textarea></label>
-  <button class="btn block" id="vz-go" style="margin-top:10px">Entender</button>`);
+  <button class="btn block" id="vz-go" style="margin-top:10px">Entender</button>
+  ${mode!=='llego'?`<button class="btn block" id="vz-file" type="button" style="margin-top:8px">📷 Mejor subo una foto, PDF o Excel (IA)</button>`:''}`);
   const P=$('#sheet .pane');const ta=P.querySelector('#vz-t');let rec=null,base='';
   const stop=()=>{try{rec&&rec.stop()}catch(e){}rec=null;const b=P.querySelector('#vz-mic');if(b){b.textContent='🎤 Tocar y hablar';b.classList.add('primary')}};
   P.querySelector('#vz-mic')?.addEventListener('click',()=>{if(rec){stop();return}
@@ -1945,6 +1948,7 @@ function vozSheet(mode){S.openDetail=null;
     rec.onresult=ev=>{let f='',i='';for(let k=0;k<ev.results.length;k++){const r=ev.results[k];(r.isFinal?(f+=r[0].transcript+' '):(i+=r[0].transcript))}ta.value=(base+f+i).trim()};
     rec.onerror=ev=>{toast(ev.error==='not-allowed'?'Permite el micrófono en el navegador para dictar.':'No pude escuchar. Intenta de nuevo.');stop()};rec.onend=()=>{if(rec)stop()};
     try{rec.start();const b=P.querySelector('#vz-mic');b.textContent='⏹ Escuchando… toca para terminar';b.classList.remove('primary')}catch(e){stop()}});
+  P.querySelector('#vz-file')?.addEventListener('click',()=>{stop();closeSheet();pickInventario()});
   P.querySelector('#vz-go').addEventListener('click',async()=>{stop();const text=ta.value.trim();if(!text){toast('Dicta o escribe algo primero');return}
     const b=P.querySelector('#vz-go');b.disabled=true;b.textContent='Entendiendo…';
     const res=await vozEntender(mode,text);b.disabled=false;b.textContent='Entender';
@@ -1996,6 +2000,13 @@ function vozRevisar(mode,res,text){
       if(resto>0){moveStock(x.id,resto,'Llegó (sin pedido registrado)',when);sinPedido++}}
     let completo=null;for(const [oid,recv] of touched){const o=S.ordenes.find(z=>z.id===oid);const r=await ordApply(o,recv,dia);if(r&&!completo)completo={...o,estado:'llego'}}
     if(completo){ordFacPrompt(completo)}else{closeSheet();toast(`Llegada registrada (${dia===hoy?'hoy':fdate(dia)}).${touched.size?' Lo que falta sigue en camino.':''}${sinPedido?' Algunos productos no tenían pedido; también se sumaron.':''}`);renderNegocio()}})}
+async function vozCrear(list){let np=0,nv=0;const ok=v=>typeof v==='number'&&isFinite(v)&&v>=0;
+  for(const [i,it] of list.entries()){const nombre=String(it.nombre||'').trim();if(!nombre)continue;
+    let pid=provOfText(it.proveedor)||'';if(!pid&&it.proveedor){pid=slugP(it.proveedor);if(!S.provs.get(pid)){if(await write('proveedores/'+pid,{id:pid,nombre:String(it.proveedor).replace(/\b\w/g,m=>m.toUpperCase()),dias:null,tel:'',notas:'Creado desde archivo'},'set'))nv++;else continue}}
+    let mn=ok(it.min)?it.min:null,mx=ok(it.max)?it.max:null;if(mn!=null&&mx!=null&&mn>mx){mn=null;mx=null}const st=ok(it.stock)?it.stock:0;
+    const id='p-'+Date.now().toString(36)+i;const ord=Math.max(0,...allProds().map(p=>p.orden||0))+1;
+    if(await write('productos/'+id,{nombre:nombre.replace(/^./,m=>m.toUpperCase()),prov:pid,stock:st,min:mn,max:mx,costo:null,pres:'',ubic:'',dibujo:'box',color:'cara',foto:null,orden:ord,hist:[{t:new Date().toISOString(),d:st,s:st,nota:'Alta desde archivo'}]},'set'))np++}
+  return {np,nv}}
 function vozInfo(mode,p,q){if(!p)return '<span style="color:var(--bad)">Elige el producto</span>';
   if(mode==='hay')return `Ahora ${qty(p.stock)} → quedaría en ${q==null?'—':qty(q)}`;
   const ex=ordOfProd(p.id);return ex?`Pedido pendiente: ${qty(ordPend(ex.it))} (${fdate(ex.o.fecha)})`:'Sin pedido registrado: solo se suma al inventario'}
@@ -2675,6 +2686,7 @@ async function webBoot(){
    ========================================================= */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,v=t.dataset.v,id=t.dataset.id;
   if(a==='voz'){vozSheet(v);return}
+  if(a==='invnuevos'){const l=S.invNuevos||[];S.invNuevos=[];vozCrear(l).then(r=>{closeSheet();toast(`Listo: ${r.np} ${r.np===1?'producto nuevo':'productos nuevos'}${r.nv?` y ${r.nv} ${r.nv===1?'proveedor':'proveedores'}`:''}.`);renderNegocio()});return}
   if(a==='ordnew'){e.preventDefault();e.stopPropagation();ordenSheet(id,t.dataset.p);return}
   if(a==='ordgo'){llegaSheet(id);return}
   if(a==='ordprov'){const o=ordOpen().find(x=>x.prov===id);if(o)llegaSheet(o.id);return}
