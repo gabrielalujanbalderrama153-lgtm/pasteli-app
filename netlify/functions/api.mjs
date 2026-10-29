@@ -10,7 +10,7 @@ export const config = { path: ['/api/*', '/_blob/*'] };
 const DEFAULT_PIN = '2003';
 const TOKEN_HOURS = 12;
 const MAX_UPLOAD = 5.5 * 1024 * 1024;
-const COLS = ['productos', 'proveedores', 'facturas', 'facturas_cli', 'cxc', 'ventas', 'movs', 'pedidos', 'bitacora', 'config', 'cargas'];
+const COLS = ['productos', 'proveedores', 'facturas', 'facturas_cli', 'cxc', 'ventas', 'movs', 'pedidos', 'bitacora', 'config', 'cargas', 'ordenes'];
 const SAFE_SEG = /^[A-Za-z0-9_\-.~:@+]{1,200}$/;
 const PRIVATE_CFG = ['pin', 'passHash', 'passSalt'];
 
@@ -233,6 +233,39 @@ export default async (req) => {
     if (isCp && !['db/sync', 'db/get', 'db/write', 'asset'].includes(route)) return err('forbidden', 403);
     const cpAllowed = isCp ? cpCols(who.cpRec) : null;
     const cpCfgOk = id => id === 'app' || id === 'archivos';
+
+    // Lectura con IA (PDF, Excel, fotos). Necesita ANTHROPIC_API_KEY en Netlify; tope diario para controlar el gasto.
+    if (route === 'ai/status') {
+      const lim = Number(process.env.AI_DAILY_LIMIT) || 40; const day = new Date().toISOString().slice(0, 10);
+      const u = (await st('sys').get('aiuse', { type: 'json' })) || {};
+      return json({ enabled: !!process.env.ANTHROPIC_API_KEY, left: Math.max(0, lim - (u.d === day ? u.n : 0)), limit: lim });
+    }
+    if (route === 'ai/start' && req.method === 'POST') {
+      if (!process.env.ANTHROPIC_API_KEY) return err('no_key', 503);
+      const lim = Number(process.env.AI_DAILY_LIMIT) || 40; const day = new Date().toISOString().slice(0, 10);
+      const u = (await st('sys').get('aiuse', { type: 'json' })) || {};
+      const n = u.d === day ? u.n : 0;
+      if (n >= lim) return err('daily_limit', 429, { limit: lim });
+      const prompt = String(body.prompt || '').slice(0, 250000);
+      const images = (Array.isArray(body.images) ? body.images : []).slice(0, 8).filter(im => im && /^image\/(jpeg|png|webp|gif)$/.test(im.media_type) && typeof im.data === 'string' && im.data.length < 3_500_000);
+      if (!prompt) return err('bad_request');
+      await st('sys').setJSON('aiuse', { d: day, n: n + 1 });
+      const id = crypto.randomBytes(16).toString('hex'), nonce = crypto.randomBytes(16).toString('hex');
+      await st('ai').setJSON('job/' + id, { status: 'pending', nonce, prompt, images, at: Date.now() });
+      const origin = new URL(req.url).origin;
+      const r = await fetch(origin + '/.netlify/functions/ai-background', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id, nonce }) }).catch(() => null);
+      if (!r || (r.status !== 202 && !r.ok)) return err('start_failed', 502);
+      return json({ id });
+    }
+    if (route === 'ai/result') {
+      const id = url.searchParams.get('id') || '';
+      if (!/^[a-f0-9]{32}$/.test(id)) return err('bad_request');
+      const job = await st('ai').get('job/' + id, { type: 'json' });
+      if (!job) return err('not_found', 404);
+      if (job.status === 'done' || job.status === 'error') { await st('ai').delete('job/' + id); return json({ status: job.status, result: job.result || null, text: job.text || null, error: job.error || null }); }
+      if (Date.now() - job.at > 10 * 60_000) { await st('ai').delete('job/' + id); return json({ status: 'error', error: 'timeout' }); }
+      return json({ status: job.status });
+    }
 
     if (route === 'cp/get') { const cp = await getCp(); return json({ has: !!(cp && cp.hash), tabs: (cp && cp.tabs) || [] }); }
     if (route === 'cp/set' && req.method === 'POST') {

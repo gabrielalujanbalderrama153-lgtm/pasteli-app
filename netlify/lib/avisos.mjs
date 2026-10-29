@@ -73,6 +73,7 @@ export async function compose(cfg, now, want) {
   const prods = needProds ? await readCol('productos') : [];
   const provs = (want.general && cfg.tipos.prov) ? await readCol('proveedores') : [];
   const provName = id => (provs.find(p => p.id === id) || {}).nombre || id || 'Sin proveedor';
+  if (needProds) { const ords = (await readCol('ordenes')).filter(o => o.estado === 'pedido' || o.estado === 'parcial'); const inWay = new Set(ords.flatMap(o => (o.items || []).filter(i => !(i.r >= i.q)).map(i => i.id))); for (let i = prods.length - 1; i >= 0; i--) if (inWay.has(prods[i].id)) prods.splice(i, 1); }
 
   if (want.general && cfg.tipos.min) prods.filter(p => sem(p) === 'rojo').forEach(p => lines.push({ k: 'min', t: `⚠️ ${p.nombre}: pide ${qty(pedirQ(p))}` }));
   if (want.general && cfg.tipos.mitad) prods.filter(p => sem(p) === 'amarillo').forEach(p => lines.push({ k: 'mitad', t: `${p.nombre}: va a la mitad` }));
