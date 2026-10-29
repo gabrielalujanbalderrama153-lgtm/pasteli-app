@@ -1906,10 +1906,14 @@ function fechaDicha(text){const n=String(text||'').normalize('NFKD').replace(/[�
   return ''}
 const STOPW=['de','del','la','el','en','los','las','un','una','para','con','kilos','kilo','litros','litro','latas','lata','piezas','pieza','cajas','caja','bolsas','bolsa','paquetes','paquete'];
 const stem=w=>w.replace(/(es|s)$/,'');
-function matchProd(name){const q=normN(name).split(' ').filter(w=>w.length>1&&!STOPW.includes(w)).map(stem);if(!q.length)return null;let best=null,bs=0;
-  for(const p of allProds()){const pt=normN(p.nombre).split(' ').filter(Boolean).map(stem);const hit=q.filter(w=>pt.includes(w)||pt.some(x=>w.length>=4&&(x.startsWith(w)||w.startsWith(x)))).length;if(!hit)continue;
-    const sc=(hit/q.length)*0.7+(hit/Math.max(pt.length,1))*0.3;if(sc>bs){bs=sc;best=p}}
-  return bs>=0.55?best:null}
+function matchProd(name){const keep=w=>(w.length>=3||/^\d+$/.test(w))&&!STOPW.includes(w);const q=normN(name).split(' ').filter(keep).map(stem);if(!q.length)return null;
+  const eq=(a,b)=>a===b||(a.length>=4&&b.length>=4&&(a.startsWith(b)||b.startsWith(a)));const cand=[];
+  for(const p of allProds()){const pt=normN(p.nombre).split(' ').filter(keep).map(stem);if(!pt.length)continue;const hit=q.filter(w=>pt.some(x=>eq(w,x))).length;if(!hit)continue;
+    const lq=q.length-hit,lp=pt.filter(x=>!q.some(w=>eq(w,x))).length;if(lq>0&&lp>0)continue;
+    cand.push({p,sc:(hit/q.length)*0.6+(hit/pt.length)*0.4,hit})}
+  if(!cand.length)return null;cand.sort((x,y)=>y.sc-x.sc);
+  if(cand[1]&&cand[0].sc-cand[1].sc<0.05)return null;
+  return cand[0].sc>=0.5?cand[0].p:null}
 function localParse(mode,text){const fecha=fechaDicha(text);let t=String(text||'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\b([a-z]+)\b/g,w=>(w in NUMW)?String(NUMW[w]):w);
   if(mode==='limites'){const items=[];for(const part of t.replace(/,\s*(?=min|max)/g,' ').split(/(?<=\d)(?:\s*(?:,|\by\b)\s*|\s+)(?!minimo|maximo|min\b|max\b|y\b)(?=[a-z])/).map(x=>x.trim()).filter(Boolean)){
       const mn=/\bmin(?:imo)? (?:de )?(\d+(?:\.\d+)?)/.exec(part),mx=/\bmax(?:imo)? (?:de )?(\d+(?:\.\d+)?)/.exec(part);const nom=part.split(/\bminimo\b|\bmaximo\b|\bmin\b|\bmax\b/)[0].replace(/^(y|e)\s+/,'').replace(/\b(el|la|de|del|para|a)\s*$/,'').trim();if(!nom||(!mn&&!mx))continue;
