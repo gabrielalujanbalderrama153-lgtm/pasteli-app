@@ -1906,6 +1906,8 @@ function fechaDicha(text){const n=String(text||'').normalize('NFKD').replace(/[�
   return ''}
 const STOPW=['de','del','la','el','en','los','las','un','una','para','con','kilos','kilo','litros','litro','latas','lata','piezas','pieza','cajas','caja','bolsas','bolsa','paquetes','paquete'];
 const stem=w=>w.replace(/(es|s)$/,'');
+function matchCands(name){const q=normN(name).split(' ').filter(w=>w.length>=3&&!STOPW.includes(w)).map(stem);if(!q.length)return [];const eq=(a,b)=>a===b||(a.length>=4&&b.length>=4&&(a.startsWith(b)||b.startsWith(a)));
+  return allProds().map(p=>{const pt=normN(p.nombre).split(' ').filter(w=>w.length>=3&&!STOPW.includes(w)).map(stem);const hit=q.filter(w=>pt.some(x=>eq(w,x))).length;return {p,hit,sc:pt.length?hit/q.length+hit/pt.length*0.3:0}}).filter(x=>x.hit).sort((a,b)=>b.sc-a.sc||a.p.nombre.localeCompare(b.p.nombre,'es')).slice(0,12).map(x=>x.p)}
 function matchProd(name){const keep=w=>(w.length>=3||/^\d+$/.test(w))&&!STOPW.includes(w);const q=normN(name).split(' ').filter(keep).map(stem);if(!q.length)return null;
   const eq=(a,b)=>a===b||(a.length>=4&&b.length>=4&&(a.startsWith(b)||b.startsWith(a)));const cand=[];
   for(const p of allProds()){const pt=normN(p.nombre).split(' ').filter(keep).map(stem);if(!pt.length)continue;const hit=q.filter(w=>pt.some(x=>eq(w,x))).length;if(!hit)continue;
@@ -1958,11 +1960,12 @@ function vozSheet(mode){S.openDetail=null;
     const res=await vozEntender(mode,text);b.disabled=false;b.textContent='Entender';
     if(!res.items.length){toast('No entendí productos. Intenta decirlo con el nombre y el número.');return}
     vozRevisar(mode,res,text)})}
-function vozProdOpts(sel){return `<option value="">Elige producto</option>`+allProds().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(p=>`<option value="${p.id}"${p.id===sel?' selected':''}>${esc(p.nombre)}</option>`).join('')}
+function vozProdOpts(sel,dicho){const c=sel?[]:matchCands(dicho||'');const o=p=>`<option value="${p.id}"${p.id===sel?' selected':''}>${esc(p.nombre)}</option>`;
+  return `<option value="">${c.length?`¿Cuál? (${c.length} parecidos)`:'Elige producto'}</option>`+(c.length?`<optgroup label="Parecidos a “${esc(dicho)}”">${c.map(o).join('')}</optgroup><optgroup label="Todos">`:'')+allProds().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(o).join('')+(c.length?'</optgroup>':'')}
 function vozRevisar(mode,res,text){
   const head=t=>`<div class="grab"></div><div class="sheet-head"><h2>${t}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>`;
   if(mode==='limites'){const rows=res.items.map((it,i)=>{const ex=it.id?prod(it.id):matchProd(it.nombre||'');
-      return `<div class="ordrow vz-n"><input type="checkbox" data-i="${i}"${ex?' checked':''}><span class="on"><select data-sel="${i}" aria-label="Producto">${vozProdOpts(ex?ex.id:'')}</select><small data-info="${i}">${ex?`Ahora: mín ${ex.min==null?'—':qty(ex.min)} · máx ${ex.max==null?'—':qty(ex.max)}`:'<span style="color:var(--bad)">Elige el producto</span>'}</small></span><span class="vz-mm"><input class="oq" type="number" step="0.5" min="0" data-mn="${i}" value="${it.min??''}" placeholder="Mín"><input class="oq" type="number" step="0.5" min="0" data-mx="${i}" value="${it.max??''}" placeholder="Máx"></span></div>`}).join('');
+      return `<div class="ordrow vz-n"><input type="checkbox" data-i="${i}"${ex?' checked':''}><span class="on"><select data-sel="${i}" aria-label="Producto">${vozProdOpts(ex?ex.id:'',it.nombre)}</select><small data-info="${i}">${ex?`Ahora: mín ${ex.min==null?'—':qty(ex.min)} · máx ${ex.max==null?'—':qty(ex.max)}`:`<span style="color:var(--bad)">${matchCands(it.nombre||'').length>1?'Hay varios parecidos: toca y elige cuál':'Elige el producto'}</span>`}</small></span><span class="vz-mm"><input class="oq" type="number" step="0.5" min="0" data-mn="${i}" value="${it.min??''}" placeholder="Mín"><input class="oq" type="number" step="0.5" min="0" data-mx="${i}" value="${it.max??''}" placeholder="Máx"></span></div>`}).join('');
     pane(head('Esto entendí')+`<p class="muted" style="margin:0 0 8px">“${esc(text)}”${res.ia?'':' · modo básico'}</p><div class="ordlist">${rows}</div><button class="btn primary block" id="vz-ok" style="margin-top:12px">Cambiar límites</button>`);
     const P=$('#sheet .pane');
     P.querySelectorAll('[data-sel]').forEach(el=>el.addEventListener('change',()=>{const i=el.dataset.sel,ex=el.value?prod(el.value):null;P.querySelector(`[data-info="${i}"]`).textContent=ex?`Ahora: mín ${ex.min==null?'—':qty(ex.min)} · máx ${ex.max==null?'—':qty(ex.max)}`:'Elige el producto';P.querySelector(`[data-i="${i}"]`).checked=!!ex}));
@@ -1994,7 +1997,7 @@ function vozRevisar(mode,res,text){
       closeSheet();toast(`Listo: ${np} ${np===1?'producto nuevo':'productos nuevos'}${nv?`, ${nv} ${nv===1?'proveedor nuevo':'proveedores nuevos'}`:''}${n?`, ${n} con límites actualizados`:''}.`);renderNegocio()});return}
   const llego=mode==='llego';const hoy=todayISO();
   const rows=res.items.map((it,i)=>{const p=it.id?prod(it.id):matchProd(it.dicho||'');const ex=p?ordOfProd(p.id):null;
-    return `<div class="ordrow vz-r"><input type="checkbox" data-i="${i}"${p?' checked':''}><span class="on"><select data-sel="${i}" aria-label="Producto">${vozProdOpts(p?p.id:'')}</select><small data-info="${i}">${vozInfo(mode,p,it.cantidad)}</small></span><input class="oq" type="number" step="0.5" min="0" data-q="${i}" value="${it.cantidad}" aria-label="Cantidad"></div>`}).join('');
+    return `<div class="ordrow vz-r"><input type="checkbox" data-i="${i}"${p?' checked':''}><span class="on"><select data-sel="${i}" aria-label="Producto">${vozProdOpts(p?p.id:'',it.dicho)}</select><small data-info="${i}">${p?vozInfo(mode,p,it.cantidad):`<span style="color:var(--bad)">${matchCands(it.dicho||'').length>1?'Hay varios parecidos: toca y elige cuál':'Elige el producto'}</span>`}</small></span><input class="oq" type="number" step="0.5" min="0" data-q="${i}" value="${it.cantidad}" aria-label="Cantidad"></div>`}).join('');
   pane(head(llego?'Llegada de pedido':'Esto entendí')+`<p class="muted" style="margin:0 0 8px">“${esc(text)}”${res.ia?'':' · modo básico'}</p>
   ${llego?`<label class="field full" style="margin-bottom:8px"><span>Día que llegó</span><input id="vz-d" type="date" max="${hoy}" value="${ISO_RE.test(res.fecha||'')?res.fecha:hoy}"></label>`:''}
   <div class="ordlist">${rows}</div><button class="btn primary block" id="vz-ok" style="margin-top:12px">${llego?'Registrar llegada':'Actualizar inventario'}</button>`);
