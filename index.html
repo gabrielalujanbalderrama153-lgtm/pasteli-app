@@ -1962,12 +1962,18 @@ function vozRevisar(mode,res,text){
     pane(head('Esto entendí')+`<p class="muted" style="margin:0 0 8px">“${esc(text)}”${res.ia?'':' · modo básico'}</p><div class="ordlist">${rows}</div><button class="btn primary block" id="vz-ok" style="margin-top:12px">Cambiar límites</button>`);
     const P=$('#sheet .pane');
     P.querySelectorAll('[data-sel]').forEach(el=>el.addEventListener('change',()=>{const i=el.dataset.sel,ex=el.value?prod(el.value):null;P.querySelector(`[data-info="${i}"]`).textContent=ex?`Ahora: mín ${ex.min==null?'—':qty(ex.min)} · máx ${ex.max==null?'—':qty(ex.max)}`:'Elige el producto';P.querySelector(`[data-i="${i}"]`).checked=!!ex}));
-    P.querySelector('#vz-ok').addEventListener('click',async()=>{let n=0;
-      for(const c of P.querySelectorAll('[data-i]:checked')){const i=c.dataset.i,id=P.querySelector(`[data-sel="${i}"]`).value;if(!id)continue;const ex=prod(id);
-        const mn=num(P.querySelector(`[data-mn="${i}"]`).value),mx=num(P.querySelector(`[data-mx="${i}"]`).value);const fm=mn??ex.min,fx=mx??ex.max;
-        if(fm!=null&&fx!=null&&fm>fx){toast(`En “${ex.nombre}” el mínimo no puede ser mayor que el máximo`);return}
-        const patch={};if(mn!=null)patch.min=mn;if(mx!=null)patch.max=mx;if(Object.keys(patch).length&&await write('productos/'+id,patch))n++}
-      if(!n){toast('No hay nada que cambiar');return}closeSheet();toast(`Límites actualizados en ${n} ${n===1?'producto':'productos'}.`);renderNegocio()});return}
+    P.querySelector('#vz-ok').addEventListener('click',async()=>{const okL=[],noL=[];
+      for(let i=0;i<res.items.length;i++){const c=P.querySelector(`[data-i="${i}"]`);const id=P.querySelector(`[data-sel="${i}"]`).value;const dicho=res.items[i].nombre||'producto';
+        if(!c.checked){noL.push([dicho,id?'desmarcado':'no encontré el producto']);continue}if(!id){noL.push([dicho,'no encontré el producto']);continue}const ex=prod(id);
+        const mn=num(P.querySelector(`[data-mn="${i}"]`).value),mx=num(P.querySelector(`[data-mx="${i}"]`).value);
+        if(mn==null&&mx==null){noL.push([ex.nombre,'no oí mínimo ni máximo']);continue}
+        const fm=mn??ex.min,fx=mx??ex.max;if(fm!=null&&fx!=null&&fm>fx){noL.push([ex.nombre,`el mínimo ${qty(fm)} quedaría mayor que el máximo ${qty(fx)}`]);continue}
+        const patch={};if(mn!=null)patch.min=mn;if(mx!=null)patch.max=mx;
+        if(await write('productos/'+id,patch))okL.push([ex.nombre,(mn!=null?'mín '+qty(mn):'')+(mn!=null&&mx!=null?' · ':'')+(mx!=null?'máx '+qty(mx):'')]);else noL.push([ex.nombre,'no se pudo guardar'])}
+      pane(`<div class="sheet-head"><h2>${okL.length?`Se cambiaron ${okL.length} ${okL.length===1?'producto':'productos'}`:'No se cambió nada'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+        ${okL.length?`<div class="list">${okL.map(([n,t])=>`<div class="doc"><div><b>${esc(n)}</b><div class="meta">${esc(t)}</div></div></div>`).join('')}</div>`:''}
+        ${noL.length?`<span class="label">Sin cambiar (${noL.length})</span><div class="hist">${noL.map(([n,t])=>`<div><span>${esc(n)}</span><span>${esc(t)}</span></div>`).join('')}</div><p class="muted" style="font-size:13px">Dilo de nuevo con 🎤 Límites… o corrígelo a mano.</p>`:''}
+        <p style="margin-top:14px"><button class="btn primary block" data-act="close">Listo</button></p>`);renderNegocio()});return}
   if(mode==='nuevo'){const rows=res.items.map((it,i)=>{const ex=it.id?prod(it.id):null;const pvId=provOfText(it.proveedor);const completo=ex&&ex.min!=null&&ex.max!=null;
       const info=ex?(completo?`Ya tiene mínimo ${qty(ex.min)} y máximo ${qty(ex.max)}: no se cambia.`:'Ya existe. Solo se le ponen los límites que faltan.'):`Producto nuevo${it.proveedor?(pvId?' · proveedor '+esc(provName(pvId)):' · proveedor nuevo: '+esc(it.proveedor)):' · sin proveedor'}.`;
       return `<div class="ordrow vz-n${completo?' dis':''}"><input type="checkbox" data-i="${i}"${completo?' disabled':' checked'}><span class="on"><b>${esc(ex?ex.nombre:it.nombre)}</b><small>${info}</small></span><span class="vz-mm"><input class="oq" type="number" step="0.5" min="0" data-mn="${i}" value="${it.min??ex?.min??''}" placeholder="Mín" ${completo?'disabled':''}><input class="oq" type="number" step="0.5" min="0" data-mx="${i}" value="${it.max??ex?.max??''}" placeholder="Máx" ${completo?'disabled':''}></span></div>`}).join('');
@@ -1975,7 +1981,7 @@ function vozRevisar(mode,res,text){
     const P=$('#sheet .pane');
     P.querySelector('#vz-ok').addEventListener('click',async()=>{let n=0,np=0,nv=0;
       for(const c of P.querySelectorAll('[data-i]:checked')){const i=+c.dataset.i,it=res.items[i];const mn=num(P.querySelector(`[data-mn="${i}"]`).value),mx=num(P.querySelector(`[data-mx="${i}"]`).value);
-        if(mn!=null&&mx!=null&&mn>mx){toast(`En “${it.nombre}” el mínimo no puede ser mayor que el máximo`);return}
+        if(mn!=null&&mx!=null&&mn>mx){toast(`En “${it.nombre}” el mínimo no puede ser mayor que el máximo; lo salté`);continue}
         const ex=it.id?prod(it.id):null;
         if(ex){const patch={};if(ex.min==null&&mn!=null)patch.min=mn;if(ex.max==null&&mx!=null)patch.max=mx;if(Object.keys(patch).length&&await write('productos/'+ex.id,patch)){n++}continue}
         let pid=provOfText(it.proveedor)||'';if(!pid&&it.proveedor){pid=slugP(it.proveedor);if(!S.provs.get(pid)){if(!await write('proveedores/'+pid,{id:pid,nombre:it.proveedor.replace(/\b\w/g,m=>m.toUpperCase()),dias:null,tel:'',notas:'Creado por voz'},'set')){toast('No se pudo crear el proveedor');return}nv++}}
