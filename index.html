@@ -1561,6 +1561,7 @@ function renderProdList(box,ps){
     ${S.semF?`<p class="muted" style="margin:10px 0 0">Mostrando: <b>${SEM_TXT[S.semF]}</b> · <button class="btn sm ghost" data-act="semf" data-v="${S.semF}">Quitar filtro</button></p>`:''}
     ${list.length?groupBy(list,p=>p.prov).map(([pid,items])=>{const pv=S.provs.get(pid);return `<div class="group-h"><h3>${esc(provName(pid))}</h3><span class="muted">${items.length} ${items.length===1?'producto':'productos'} · ${pv?.dias!=null?'entrega en '+pv.dias+' '+(pv.dias==1?'día':'días'):'tiempo de entrega sin definir'}</span><span class="gh-act">${orderDayChip(pid)}${provWaBtn(pid)}</span></div>
       <div class="list">${items.map(rowHTML).join('')}</div>`}).join(''):`<div class="empty"><h3>Sin resultados</h3><p>Prueba con otra palabra o quita los filtros.</p></div>`}
+    ${!isCP()&&WEB&&!S.q&&!S.semF?`<p style="margin:22px 0 0"><button class="btn ghost block" data-act="invcero">Empezar inventario desde cero (todo en 0)</button></p>`:''}
     <div class="sec-gap"></div>`;
   const qi=box.querySelector('#q');qi.addEventListener('input',e=>{S.q=e.target.value;S.focusQ=true;renderNegocio()});
   box.querySelector('#provf').addEventListener('change',e=>{S.provF=e.target.value;renderNegocio()});
@@ -2020,6 +2021,21 @@ async function vozCrear(list){let np=0,nv=0;const ok=v=>typeof v==='number'&&isF
     const id='p-'+Date.now().toString(36)+i;const ord=Math.max(0,...allProds().map(p=>p.orden||0))+1;
     if(await write('productos/'+id,{nombre:nombre.replace(/^./,m=>m.toUpperCase()),prov:pid,stock:st,min:mn,max:mx,costo:null,pres:'',ubic:'',dibujo:'box',color:'cara',foto:null,orden:ord,hist:[{t:new Date().toISOString(),d:st,s:st,nota:'Alta desde archivo'}]},'set'))np++}
   return {np,nv}}
+function invCero(){const ps=allProds();const con=ps.filter(p=>(Number(p.stock)||0)!==0).length;
+  pane(`<div class="grab"></div><div class="sheet-head"><h2>Empezar desde cero</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p>Se pondrá en <b>0 la existencia de ${con} ${con===1?'producto':'productos'}</b> para que captures tu inventario real con 🎤 Hay… o con una foto.</p>
+  <p class="muted" style="font-size:14px">No se borran productos, proveedores, mínimos, máximos, pedidos en camino ni facturas. En el historial de cada producto queda anotado “Inventario en cero”, con la cantidad que tenía.</p>
+  <p class="muted" style="font-size:14px">Ojo: mientras no captures el conteo, los productos con mínimo saldrán en rojo y en los avisos.</p>
+  <label class="field full" style="margin-top:10px"><span>Para confirmar escribe CERO</span><input id="ic-c" autocomplete="off" autocapitalize="characters"></label>
+  <button class="btn primary block" id="ic-go" style="margin-top:12px">Poner todo en 0</button>`);
+  const P=$('#sheet .pane');P.querySelector('#ic-go').addEventListener('click',async()=>{if(P.querySelector('#ic-c').value.trim().toUpperCase()!=='CERO'){toast('Escribe CERO para confirmar');return}
+    const b=P.querySelector('#ic-go');b.disabled=true;b.textContent='Poniendo en 0…';const now=new Date().toISOString();
+    const ids=allProds().filter(p=>(Number(p.stock)||0)!==0).map(p=>p.id);let n=0;
+    try{for(let i=0;i<ids.length;i+=100){const {docs}=await window.__web.api('db/get',{col:'productos',ids:ids.slice(i,i+100)});const out={};
+        for(const [id,v] of Object.entries(docs||{})){const d=v&&v.data;if(!d)continue;const st=Number(d.stock)||0;if(!st)continue;out['productos/'+id]={...d,stock:0,hist:[{t:now,d:-st,s:0,nota:'Inventario en cero (antes '+qty(st)+')'},...(d.hist||[])].slice(0,30)}}
+        const ent=Object.entries(out);for(let k=0;k<ent.length;k+=60){const r=await window.__web.api('db/import',{docs:Object.fromEntries(ent.slice(k,k+60))});n+=r.n||0}}
+      await window.__web.refresh();closeSheet();toast(`Listo: ${n} productos en 0. Ahora captura tu conteo con 🎤 Hay…`);renderNegocio()}
+    catch(e){b.disabled=false;b.textContent='Poner todo en 0';toast(`Se pusieron ${n} en 0. Toca otra vez para terminar.`)}})}
 function vozInfo(mode,p,q){if(!p)return '<span style="color:var(--bad)">Elige el producto</span>';
   if(mode==='hay')return `Ahora ${qty(p.stock)} → quedaría en ${q==null?'—':qty(q)}`;
   const ex=ordOfProd(p.id);return ex?`Pedido pendiente: ${qty(ordPend(ex.it))} (${fdate(ex.o.fecha)})`:'Sin pedido registrado: solo se suma al inventario'}
@@ -2699,6 +2715,7 @@ async function webBoot(){
    ========================================================= */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,v=t.dataset.v,id=t.dataset.id;
   if(a==='voz'){vozSheet(v);return}
+  if(a==='invcero'){invCero();return}
   if(a==='invnuevos'){const l=S.invNuevos||[];S.invNuevos=[];vozCrear(l).then(r=>{closeSheet();toast(`Listo: ${r.np} ${r.np===1?'producto nuevo':'productos nuevos'}${r.nv?` y ${r.nv} ${r.nv===1?'proveedor':'proveedores'}`:''}.`);renderNegocio()});return}
   if(a==='ordnew'){e.preventDefault();e.stopPropagation();ordenSheet(id,t.dataset.p);return}
   if(a==='ordgo'){llegaSheet(id);return}
