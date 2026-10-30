@@ -2323,25 +2323,33 @@ async function fetchAsset(a){const r=await fetch(blob(a.id));if(!r.ok)throw new 
 async function saveFile(filename,data){const dl=await window.claude?.use?.('downloads');if(!dl){toast('Las descargas no están disponibles en esta vista.');return false}
   try{await dl.save({filename,data});return true}catch(e){if(e?.code!=='declined')toast(e?.code==='rate_limited'?'Espera un momento y vuelve a intentar.':'No se pudo descargar.');return false}}
 function facLink(a){return a&&a.id?location.origin+'/_blob/'+a.id:''}
-function facAskTel(f,cb){pane(`<div class="sheet-head"><h2>¿A qué WhatsApp?</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
-  <p class="muted">Esta solicitud no trae número de WhatsApp. Escríbelo para abrir el chat de ${esc(f.nombre||'tu cliente')}.</p>
-  <label class="field full"><span>WhatsApp del cliente (10 dígitos)</span><input id="ft-t" inputmode="tel" autocomplete="off" placeholder="614 000 0000"></label>
-  <button class="btn primary block" id="ft-go" style="margin-top:12px">Abrir WhatsApp</button>`);
-  const P=$('#sheet .pane');P.querySelector('#ft-go').addEventListener('click',async()=>{const t=P.querySelector('#ft-t').value;if(waNum(t).length<12){toast('Escribe 10 dígitos');return}await write('facturas_cli/'+f.id,{tel:t});closeSheet();cb(t)})}
-async function facSend(id,via,tel0){const f=S.facCli.find(x=>x.id===id);if(!f||!f.pdf)return;
-  if(via==='wa'&&!waNum(tel0||f.tel)){facAskTel(f,t=>facSend(id,via,t));return}
+function facSend(id,via){const f=S.facCli.find(x=>x.id===id);if(!f||!f.pdf)return;
   const base=`Factura_Pasteli_${safeName(f.rfc)}_${(f.fechaCompra||'').replace(/-/g,'')}`;
   const msg=`Hola ${f.nombre}, te enviamos tu factura de Pasteli por tu compra del ${f.fechaCompra?fechaLarga(f.fechaCompra):''} (${money(f.total)}). ¡Gracias por tu preferencia! 🧁`;
-  const done_=async()=>{await write('facturas_cli/'+id,{estado:'enviada',enviadaEl:todayISO(),via:via==='wa'?'WhatsApp':'correo'})};
-  /* teléfono con hoja para compartir: se adjuntan los archivos de verdad */
-  if(navigator.canShare&&(/Android|iPhone|iPad/i.test(navigator.userAgent))){
-    toast('Preparando archivos…');let files=[];try{files.push(new File([await fetchAsset(f.pdf)],base+'.pdf',{type:'application/pdf'}));if(f.xml)files.push(new File([await fetchAsset(f.xml)],base+'.xml',{type:'application/xml'}))}catch(e){toast('No pude leer los archivos de la factura');return}
-    if(navigator.canShare({files})){try{await navigator.share({files,title:'Factura Pasteli',text:msg+'\nAdjuntamos el PDF y el XML.'});await done_();return}catch(e){if(e?.name==='AbortError')return}}}
-  /* computadora: el mensaje lleva los enlaces de descarga del PDF y del XML */
   const pl=facLink(f.pdf),xl=facLink(f.xml);if(!pl){toast('No encuentro el archivo de la factura');return}
   const links=`\n\n📄 Factura (PDF): ${pl}${xl?`\n🧾 XML: ${xl}`:''}`;
-  const url=via==='wa'?`https://wa.me/${waNum(tel0||f.tel)}?text=${encodeURIComponent(msg+links)}`:`mailto:${encodeURIComponent(f.correo||'')}?subject=${encodeURIComponent('Tu factura de Pasteli')}&body=${encodeURIComponent(msg+links+'\n\nPasteli · Blvd. Ortiz Mena 3311-3, Chihuahua')}`;
-  window.open(url,'_blank','noopener');toast(via==='wa'?'Se abrió el chat con los enlaces de tu factura. Solo presiona enviar.':'Se abrió el correo con los enlaces de la factura. Solo presiona enviar.');await done_()}
+  const full=msg+links;const mobile=!!(navigator.canShare&&/Android|iPhone|iPad/i.test(navigator.userAgent));let files=null;
+  const waHref=t=>`https://wa.me/${waNum(t)}?text=${encodeURIComponent(full)}`;
+  const mailHref=`mailto:${encodeURIComponent(f.correo||'')}?subject=${encodeURIComponent('Tu factura de Pasteli')}&body=${encodeURIComponent(full+'\n\nPasteli · Blvd. Ortiz Mena 3311-3, Chihuahua')}`;
+  const hasTel=!!waNum(f.tel);
+  pane(`<div class="sheet-head"><h2>Enviar factura</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p class="muted" style="margin:0 0 10px">${esc(f.nombre||'')} · ${money(f.total)}${f.correo?' · '+esc(f.correo):''}</p>
+  ${mobile?`<button class="btn primary block" id="fs-share" type="button" disabled>📎 Compartir PDF y XML (adjuntos)…</button><p class="muted" style="font-size:12.5px;margin:4px 0 12px" id="fs-sh">Preparando archivos…</p>`:''}
+  <label class="field full"><span>WhatsApp del cliente${hasTel?'':' (falta, escríbelo)'}</span><input id="fs-t" inputmode="tel" autocomplete="off" value="${esc(f.tel||'')}" placeholder="614 000 0000"></label>
+  <a class="btn wa block" id="fs-wa" target="_blank" rel="noopener" href="${hasTel?waHref(f.tel):'#'}" style="margin-top:10px"${hasTel?'':' aria-disabled="true"'}>${ICON.wa.replace('<svg','<svg width="16" height="16"')} Abrir WhatsApp con los enlaces</a>
+  <a class="btn block" id="fs-mail" target="_blank" rel="noopener" href="${mailHref}" style="margin-top:8px">✉️ Abrir correo con los enlaces</a>
+  <button class="btn ghost block" id="fs-copy" type="button" style="margin-top:8px">Copiar mensaje con enlaces</button>
+  <p class="muted" style="font-size:12.5px;margin:10px 0 0">Los enlaces descargan el PDF y el XML directo; el cliente no necesita nada más.</p>`);
+  const P=$('#sheet .pane');const mark=async v=>{await write('facturas_cli/'+id,{estado:'enviada',enviadaEl:todayISO(),via:v})};
+  const wa=P.querySelector('#fs-wa'),tin=P.querySelector('#fs-t');
+  tin.addEventListener('input',()=>{const ok=waNum(tin.value).length>=12;wa.href=ok?waHref(tin.value):'#';if(ok)wa.removeAttribute('aria-disabled');else wa.setAttribute('aria-disabled','true')});
+  wa.addEventListener('click',e=>{if(waNum(tin.value).length<12){e.preventDefault();toast('Escribe el WhatsApp de 10 dígitos');return}if(waNum(tin.value)!==waNum(f.tel))write('facturas_cli/'+id,{tel:tin.value});mark('WhatsApp')});
+  P.querySelector('#fs-mail').addEventListener('click',()=>{mark('correo')});
+  P.querySelector('#fs-copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(full);toast('Mensaje copiado. Pégalo donde quieras.')}catch(_){toast('No pude copiar. Usa los otros botones.')}});
+  if(mobile){(async()=>{try{files=[new File([await fetchAsset(f.pdf)],base+'.pdf',{type:'application/pdf'})];if(f.xml)files.push(new File([await fetchAsset(f.xml)],base+'.xml',{type:'application/xml'}));
+      const b=P.querySelector('#fs-share');if(!b)return;if(navigator.canShare({files})){b.disabled=false;P.querySelector('#fs-sh').textContent='Se abre el menú de tu teléfono y los archivos van adjuntos de verdad.'}else{b.hidden=true;P.querySelector('#fs-sh').textContent='Tu navegador no adjunta archivos: usa los enlaces de abajo.'}}
+    catch(e){const h=P.querySelector('#fs-sh');if(h)h.textContent='No pude preparar los archivos. Usa los enlaces de abajo.'}})();
+    P.querySelector('#fs-share').addEventListener('click',async()=>{try{await navigator.share({files,title:'Factura Pasteli',text:msg+'\nAdjuntamos el PDF y el XML.'});await mark('compartida');closeSheet();toast('Factura enviada')}catch(e){if(e?.name!=='AbortError')toast('No se pudo compartir. Usa los enlaces de abajo.')}})}}
 function facZipMenu(){const meses=[...new Set(S.facCli.map(f=>(f.fechaCompra||f.creado||'').slice(0,7)).filter(Boolean))].sort().reverse();
   pane(`<div class="sheet-head"><h2>Descargar facturas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <p class="muted">Un ZIP con carpetas por mes, el PDF y XML de cada cliente y un resumen en Excel (CSV), listo para guardar en la carpeta de la empresa.</p>
