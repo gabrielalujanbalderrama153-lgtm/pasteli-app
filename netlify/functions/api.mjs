@@ -210,7 +210,10 @@ export default async (req) => {
       const t = await file(body.ticketUrl, 'ticket'), c = await file(body.csfUrl, 'constancia');
       const rec = { ...d, estado: 'pendiente', creado: new Date().toISOString(), origen: 'web', ...(t ? { ticketImg: t } : {}), ...(c ? { constancia: c } : {}) };
       const r = await st('db').setJSON(dkey('facturas_cli', id), rec, { onlyIfNew: true });
-      if (r.modified) { rl.n++; await st('sys').setJSON('pubfac', rl); }
+      if (r.modified) {
+        rl.n++; await st('sys').setJSON('pubfac', rl);
+        try { await sendAll({ title: 'Pasteli · Nueva solicitud de factura', body: `${d.nombre} · $${Math.round(d.total)}`, tag: 'pasteli-factura-' + id, url: '/#negocio' }); } catch (e) { console.warn('push factura', e && e.message); }
+      }
       return json({ ok: true, id });
     }
 

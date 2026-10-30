@@ -185,7 +185,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .qb{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--bg);font-size:19px;font-weight:600;display:grid;place-items:center}
 .qb.add{background:var(--ink-2);border-color:var(--ink-2);color:var(--surface)}
 @media (max-width:520px){.irow{grid-template-columns:46px 1fr auto;gap:10px}.thumb{width:46px;height:46px}.thumb svg{width:38px;height:38px}.irow .qbtns{grid-column:2/-1;justify-content:flex-end}}
-.voicebar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.voicebar .btn{flex:1 1 90px}.micbtn{min-height:56px;font-size:17px}.ordrow select{width:100%;min-height:40px}.vz-n{grid-template-columns:auto minmax(0,1fr)}.vz-r{grid-template-columns:auto minmax(0,1fr) auto}.vz-n .on,.vz-r .on{min-width:0}.vz-n .vz-mm{grid-column:2}.vz-mm{display:flex;gap:8px}.vz-mm .oq{width:80px}.ordrow select{max-width:100%}details.recv summary{cursor:pointer;font-weight:700;padding:6px 0}.ordchip{margin-left:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:3px 10px;font:600 12px var(--sans,inherit);cursor:pointer}.pedir.enroute{background:var(--soft,#f6e6d8);color:var(--ink)}.ordcard{margin:0 0 14px}.ordlist{display:grid;gap:6px}.ordrow{display:grid;grid-template-columns:auto 1fr 86px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface)}.ordrow.dis{opacity:.55}.ordrow .on small{display:block;color:var(--muted);font-size:12.5px}.ordrow .oq{width:86px;min-height:40px}.ordrow>.on:first-child{grid-column:1/3}.pedir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px;display:inline-block;margin-top:3px}
+.facgrp{border:1.5px solid var(--line,#e8d9cc);border-left:5px solid var(--accent,#c4561a);border-radius:14px;padding:6px 8px 4px;margin:8px 0;background:rgba(196,86,26,.04)}.facgrp .fg-h{display:flex;flex-direction:column;gap:2px;padding:6px 6px 4px}.facgrp .doc{margin:6px 0}.voicebar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.voicebar .btn{flex:1 1 90px}.micbtn{min-height:56px;font-size:17px}.ordrow select{width:100%;min-height:40px}.vz-n{grid-template-columns:auto minmax(0,1fr)}.vz-r{grid-template-columns:auto minmax(0,1fr) auto}.vz-n .on,.vz-r .on{min-width:0}.vz-n .vz-mm{grid-column:2}.vz-mm{display:flex;gap:8px}.vz-mm .oq{width:80px}.ordrow select{max-width:100%}details.recv summary{cursor:pointer;font-weight:700;padding:6px 0}.ordchip{margin-left:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:3px 10px;font:600 12px var(--sans,inherit);cursor:pointer}.pedir.enroute{background:var(--soft,#f6e6d8);color:var(--ink)}.ordcard{margin:0 0 14px}.ordlist{display:grid;gap:6px}.ordrow{display:grid;grid-template-columns:auto 1fr 86px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface)}.ordrow.dis{opacity:.55}.ordrow .on small{display:block;color:var(--muted);font-size:12.5px}.ordrow .oq{width:86px;min-height:40px}.ordrow>.on:first-child{grid-column:1/3}.pedir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px;display:inline-block;margin-top:3px}
 .pedir.rojo{background:var(--bad-bg);color:var(--bad)}
 .pedir.amarillo{background:var(--warn-bg);color:var(--warn)}
 .gauge{position:relative;height:12px;border-radius:99px;background:linear-gradient(90deg,var(--bad-bg),var(--warn-bg) 40%,var(--ok-bg));margin:18px 0 22px}
@@ -2205,7 +2205,7 @@ async function facShareFiles(){const ff=S.facFiles||{};if(!ff.ticket){toast('Agr
 function openFactura(){S.fac=S.fac||facDraft();const f=S.fac;
   const opt=(list,cur,ph)=>`<option value="">${ph}</option>`+list.map(([k,l])=>`<option value="${k}"${cur===k?' selected':''}>${k} · ${esc(l)}</option>`).join('');
   pane(`<div class="sheet-head"><h2>Solicitar factura</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
-  <p class="muted" style="margin:0 0 12px">Llena tus datos tal como aparecen en tu Constancia de Situación Fiscal. Se envían por WhatsApp a ${esc(SITE.nombre)} (y quedan registrados en su sistema) y te mandamos tu factura (PDF y XML) por correo o WhatsApp.</p>
+  <p class="muted" style="margin:0 0 12px">Llena tus datos tal como aparecen en tu Constancia de Situación Fiscal. ${WEB?`Se envían directo a ${esc(SITE.nombre)} y te mandamos tu factura (PDF y XML) por correo o WhatsApp. Si quieres, también puedes mandar los datos por WhatsApp al terminar.`:`Se envían por WhatsApp a ${esc(SITE.nombre)} (y quedan registrados en su sistema) y te mandamos tu factura (PDF y XML) por correo o WhatsApp.`}</p>
   <form id="fc" class="fgrid" novalidate>
     <label class="field full"><span>Nombre o razón social</span><input id="fc-nombre" autocomplete="organization" value="${esc(f.nombre)}" placeholder="Sin “S.A. de C.V.” si así viene en tu constancia"></label>
     <label class="field"><span>RFC</span><input id="fc-rfc" autocapitalize="characters" maxlength="13" value="${esc(f.rfc)}" placeholder="XAXX010101000"></label>
@@ -2224,19 +2224,27 @@ function openFactura(){S.fac=S.fac||facDraft();const f=S.fac;
   </form>
   <div id="fc-priv" hidden class="privbox">${avisoPrivTxt()}</div>
   <div class="bp-note" style="margin-top:14px">${ICON.clock}<span>Solicítala dentro del mismo mes de tu compra y ten a la mano tu ticket.</span></div>
-  <a class="btn wa block" id="fc-send" target="_blank" rel="noopener" href="#">${WEB?'Enviar solicitud por WhatsApp':'1 · Enviar mis datos por WhatsApp'}</a>
+  ${WEB?`<button class="btn primary block" id="fc-send" type="button">Enviar solicitud</button>`:`<a class="btn wa block" id="fc-send" target="_blank" rel="noopener" href="#">1 · Enviar mis datos por WhatsApp</a>`}
   ${WEB?'':`<button class="btn block" id="fc-files" type="button" style="margin-top:10px"${f.paso?'':' disabled'}>2 · Enviar foto del ticket${S.facFiles?.csf?' y constancia':''}</button>`}
   <p id="fc-hint" class="muted" style="font-size:13px;text-align:center;margin:8px 0 0"></p>`);
   const p=$('#sheet .pane');
   const upd=()=>{const e=facErrors(f);const a=p.querySelector('#fc-send');a.href=`https://wa.me/${WA}?text=${encodeURIComponent(facText(f))}`;
     if(e.length){a.setAttribute('aria-disabled','true')}else a.removeAttribute('aria-disabled');
-    p.querySelector('#fc-hint').textContent=e.length?'Falta: '+e.join(', ')+'.':WEB?`Se abre el chat de ${SITE.nombre} con tus datos y los enlaces de tus fotos ya escritos; solo presiona enviar.`:f.paso?'Ahora toca el paso 2 para mandar tus fotos al mismo chat.':`Se abre el chat de ${SITE.nombre} con tus datos escritos; solo presiona enviar.`;
+    p.querySelector('#fc-hint').textContent=e.length?'Falta: '+e.join(', ')+'.':WEB?`Tu solicitud le llega directo a ${SITE.nombre}. No necesitas WhatsApp.`:f.paso?'Ahora toca el paso 2 para mandar tus fotos al mismo chat.':`Se abre el chat de ${SITE.nombre} con tus datos escritos; solo presiona enviar.`;
     if(f.recordar){const {nombre,rfc,regimen,cp,uso,correo,tel}=f;ls.set('pasteli-fiscal',{nombre,rfc,regimen,cp,uso,correo,tel})}else{try{localStorage.removeItem('pasteli-fiscal')}catch(_){}}};
   FAC_FIELDS.forEach(([k])=>{const el=p.querySelector('#fc-'+k);if(!el)return;el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{let v=el.value;if(k==='rfc'){v=v.toUpperCase().replace(/[^A-ZÑ&0-9]/g,'');el.value=v}if(k==='cp'){v=v.replace(/\D/g,'');el.value=v}f[k]=v;upd()})});
   p.querySelector('#fc-recordar').addEventListener('change',e=>{f.recordar=e.target.checked;upd()});
   p.querySelector('#fc-acepto').addEventListener('change',e=>{f.acepto=e.target.checked;upd()});
   p.querySelector('#fc-aviso').addEventListener('click',e=>{e.preventDefault();const b=p.querySelector('#fc-priv');b.hidden=!b.hidden});
-  p.querySelector('#fc-send').addEventListener('click',e=>{if(facErrors(f).length){e.preventDefault();toast('Completa los datos que faltan');return}f.paso=1;if(WEB){const up=S.facUp||{};f.rid=f.rid||'fc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);window.__web.pubFactura({...f,id:f.rid,ticketUrl:up.ticket&&up.ticket.url,csfUrl:up.csf&&up.csf.url}).catch(()=>{});setTimeout(()=>{S.fac=null;S.facFiles=null;S.facUp=null;closeSheet();toast('¡Listo! Se abrió WhatsApp con tu solicitud y tus archivos. Solo presiona enviar.')},900);return}setTimeout(()=>{const b=p.querySelector('#fc-files');if(b){b.disabled=false;b.classList.add('primary')}upd()},300)});
+  p.querySelector('#fc-send').addEventListener('click',async e=>{if(facErrors(f).length){e.preventDefault();toast('Completa los datos que faltan');return}f.paso=1;
+    if(WEB){e.preventDefault();const b=e.currentTarget;if(b.disabled)return;b.disabled=true;b.textContent='Enviando…';const up=S.facUp||{};f.rid=f.rid||'fc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      let ok=true;try{await window.__web.pubFactura({...f,id:f.rid,ticketUrl:up.ticket&&up.ticket.url,csfUrl:up.csf&&up.csf.url})}catch(_){ok=false}
+      const wa=`https://wa.me/${WA}?text=${encodeURIComponent(facText(f))}`;S.fac=null;S.facFiles=null;S.facUp=null;
+      pane(`<div class="sheet-head"><h2>${ok?'¡Solicitud enviada!':'No se pudo enviar'}</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+        <div class="empty" style="padding-top:6px"><h3>${ok?'Recibimos tu solicitud':'Intenta mandarla por WhatsApp'}</h3><p>${ok?`Te enviaremos tu factura (PDF y XML) a ${esc(f.correo.trim())} o por WhatsApp.`:'Hubo un problema de conexión. Puedes enviar tus datos por WhatsApp para no perder tu solicitud.'}</p></div>
+        <p><a class="btn wa block" href="${wa}" target="_blank" rel="noopener">${ok?'También enviar por WhatsApp (opcional)':'Enviar por WhatsApp'}</a></p>
+        <p><button class="btn block" data-act="close" type="button">${ok?'Listo, eso es todo':'Cerrar'}</button></p>`);return}
+    setTimeout(()=>{const b=p.querySelector('#fc-files');if(b){b.disabled=false;b.classList.add('primary')}upd()},300)});
   p.querySelector('#fc-files')?.addEventListener('click',()=>facShareFiles());
   p.querySelectorAll('[data-slot]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.slot,m=b.dataset.m;pickFile(m==='pdf'?'application/pdf,.pdf':'image/*',file=>facSet(k,file),false,m==='cam'?'environment':'')}));
   p.querySelectorAll('[data-unslot]').forEach(b=>b.addEventListener('click',()=>{delete S.facFiles[b.dataset.unslot];if(S.facUp)delete S.facUp[b.dataset.unslot];openFactura()}));
@@ -2249,19 +2257,22 @@ function renderFacturas(m){
   const all=[...S.facCli].sort((a,b)=>(b.creado||'').localeCompare(a.creado||''));
   const pend=all.filter(f=>f.estado!=='enviada'),env=all.filter(f=>f.estado==='enviada');
   const mes=todayISO().slice(0,7);
+  const gkey=f=>(f.rfc||'').trim().toUpperCase()||normN(f.nombre||f.id);
+  const grp=list=>{const mp=new Map();for(const f of list){const k=gkey(f);(mp.get(k)||mp.set(k,[]).get(k)).push(f)}return [...mp.values()]};
+  const showG=list=>grp(list).map(g=>g.length<2?row(g[0]):`<div class="facgrp"><div class="fg-h"><b>${esc(g[0].nombre||'Sin nombre')}</b><span class="muted num">${esc(g[0].rfc||'')} · ${g.length} solicitudes · ${money(g.reduce((a,f)=>a+(Number(f.total)||0),0))}</span></div>${g.map(row).join('')}</div>`).join('');
   const row=f=>{const st=facSt(f);return `<div class="doc ${st[0]}"><div><b>${esc(f.nombre||'Sin nombre')}</b> <span class="muted num" style="font-size:12.5px;user-select:all">${esc(f.rfc||'')}</span>
     <div class="meta"><span class="status ${st[0]}">${st[1]}</span> Compra ${fdate(f.fechaCompra)}${f.ticket?' · ticket '+esc(f.ticket):''}${f.estado==='enviada'?` · por ${esc(f.via||'')} el ${fdate(f.enviadaEl)}`:''}</div>
     <div class="meta">${esc(lbl(USOS,f.uso))} · ${esc(lbl(PAGOS,f.pago))} · CP ${esc(f.cp||'')}</div>
     <div class="meta">${f.ticketImg?fileChip(f.ticketImg,'Ticket'):''} ${f.constancia?fileChip(f.constancia,'Constancia'):''} ${f.pdf?fileChip(f.pdf,'PDF'):''} ${f.xml?fileChip(f.xml,'XML'):''}</div></div>
     <div class="amt num">${money(f.total)}</div>
     <div class="acts"><button class="btn sm${f.pdf?' ghost':' primary'}" data-act="facup" data-id="${f.id}">${f.pdf?'Cambiar archivos':'Subir PDF y XML'}</button>
-    ${f.pdf?`<button class="btn sm wa" data-act="facsend" data-id="${f.id}" data-v="wa"${waNum(f.tel)?'':' title="Sin WhatsApp: se abrirá para elegir contacto"'}>${ICON.wa.replace('<svg','<svg width="16" height="16"')} WhatsApp</button><button class="btn sm" data-act="facsend" data-id="${f.id}" data-v="mail">✉️ Correo</button>`:''}
+    ${f.pdf?`<button class="btn sm wa" data-act="facsend" data-id="${f.id}" data-v="wa"${waNum(f.tel)?'':' title="Sin WhatsApp: te pedirá el número"'}>${ICON.wa.replace('<svg','<svg width="16" height="16"')} WhatsApp</button><button class="btn sm" data-act="facsend" data-id="${f.id}" data-v="mail">✉️ Correo</button>`:''}
     <button class="btn sm ghost" data-act="facedit" data-id="${f.id}">Datos</button></div></div>`};
   m.innerHTML=`<div class="kpis"><div class="kpi"><div class="k">Por facturar</div><div class="v num" style="color:${pend.filter(f=>!f.pdf).length?'var(--accent)':'inherit'}">${pend.filter(f=>!f.pdf).length}</div></div><div class="kpi"><div class="k">Listas por enviar</div><div class="v num">${pend.filter(f=>f.pdf).length}</div></div><div class="kpi"><div class="k">Enviadas este mes</div><div class="v num">${env.filter(f=>(f.enviadaEl||'').startsWith(mes)).length}</div></div></div>
   <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><button class="btn" data-act="faczip">⬇︎ Descargar todas (ZIP)</button><button class="btn primary" data-act="facedit" data-id="">+ Nueva solicitud</button></div>
-  <p class="muted" style="font-size:13px;margin:10px 0 0">Los clientes llenan sus datos en el menú (botón “Factura”) y te llegan por WhatsApp; además aparecen aquí solos. Pega ese mensaje en “Nueva solicitud” y se llena solo. Timbras en tu sistema de facturación, subes el PDF y XML aquí y los envías con un toque.</p>
-  ${pend.length?`<div class="group-h"><h3>Pendientes</h3></div><div class="list">${pend.map(row).join('')}</div>`:`<div class="empty">${ill('ledger')}<h3>No hay facturas pendientes</h3><p>Cuando un cliente te mande su solicitud, regístrala aquí.</p></div>`}
-  ${env.length?`<div class="group-h"><h3>Enviadas</h3></div><div class="list">${env.slice(0,40).map(row).join('')}</div>`:''}<div class="sec-gap"></div>`}
+  <p class="muted" style="font-size:13px;margin:10px 0 0">Los clientes llenan sus datos en el menú (botón “Factura”): aparecen aquí solos y te llega un aviso al celular. Si el cliente quiere, también los manda por WhatsApp. Si un cliente pide varias facturas, se agrupan por RFC. Pega ese mensaje en “Nueva solicitud” y se llena solo. Timbras en tu sistema de facturación, subes el PDF y XML aquí y los envías con un toque.</p>
+  ${pend.length?`<div class="group-h"><h3>Pendientes</h3></div><div class="list">${showG(pend)}</div>`:`<div class="empty">${ill('ledger')}<h3>No hay facturas pendientes</h3><p>Cuando un cliente te mande su solicitud, regístrala aquí.</p></div>`}
+  ${env.length?`<div class="group-h"><h3>Enviadas</h3></div><div class="list">${showG(env.slice(0,40))}</div>`:''}<div class="sec-gap"></div>`}
 
 function parseFacMsg(t){const out={};const map={'nombre o razón social':'nombre','nombre o razon social':'nombre','razón social':'nombre','razon social':'nombre','nombre':'nombre','rfc':'rfc','régimen fiscal':'regimen','regimen fiscal':'regimen','régimen':'regimen','código postal fiscal':'cp','codigo postal fiscal':'cp','código postal':'cp','codigo postal':'cp','cp':'cp','uso de cfdi':'uso','uso cfdi':'uso','correo':'correo','email':'correo','whatsapp':'tel','teléfono':'tel','telefono':'tel','fecha de compra':'fechaCompra','total':'total','ticket o folio':'ticket','ticket':'ticket','folio':'ticket','forma de pago':'pago','notas':'notas'};
   String(t||'').split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*[*_•-]*\s*([^:]{2,40}):\s*(.+)$/);if(!m)return;const k=map[m[1].toLowerCase().replace(/[*_]/g,'').trim()];if(!k)return;let v=m[2].replace(/[*_]/g,'').trim();
@@ -2296,7 +2307,7 @@ function editFacCli(id){const f=id?{...S.facCli.find(x=>x.id===id)}:{nombre:'',r
       if(await write('facturas_cli/'+(id||'fc-'+Date.now().toString(36)),data,'set')){closeSheet();toast('Solicitud guardada')}})};paint()}
 
 async function upAsset(file,asText){if(!S.assets){toast('Para subir archivos necesitas permiso de edición en la app.');return null}
-  try{const body=asText?new Blob([await file.text()],{type:'text/plain'}):file;const r=await S.assets.upload(body);return {id:r.id,nombre:file.name,tipo:asText?'xml':file.type}}catch(e){toast(e?.code==='too_large'?'Archivo demasiado grande.':'No se pudo subir '+file.name);return null}}
+  try{const body=asText?new File([await file.text()],file.name||'factura.xml',{type:'text/plain'}):file;const r=await S.assets.upload(body);return {id:r.id,nombre:file.name,tipo:asText?'xml':file.type}}catch(e){toast(e?.code==='too_large'?'Archivo demasiado grande.':'No se pudo subir '+file.name);return null}}
 function facUpload(id){pickFile('application/pdf,.pdf,.xml,text/xml,application/xml',async files=>{const f=S.facCli.find(x=>x.id===id);if(!f)return;
   const pdf=files.find(x=>/\.pdf$/i.test(x.name)||x.type==='application/pdf'),xml=files.find(x=>/\.xml$/i.test(x.name)||/xml/.test(x.type));
   if(!pdf&&!xml){toast('Elige el PDF y el XML de la factura');return}
@@ -2311,17 +2322,26 @@ async function fetchAsset(a){const r=await fetch(blob(a.id));if(!r.ok)throw new 
   return a.tipo==='xml'?new Blob([await r.text()],{type:'application/xml'}):await r.blob()}
 async function saveFile(filename,data){const dl=await window.claude?.use?.('downloads');if(!dl){toast('Las descargas no están disponibles en esta vista.');return false}
   try{await dl.save({filename,data});return true}catch(e){if(e?.code!=='declined')toast(e?.code==='rate_limited'?'Espera un momento y vuelve a intentar.':'No se pudo descargar.');return false}}
-async function facSend(id,via){const f=S.facCli.find(x=>x.id===id);if(!f||!f.pdf)return;
+function facLink(a){return a&&a.id?location.origin+'/_blob/'+a.id:''}
+function facAskTel(f,cb){pane(`<div class="sheet-head"><h2>¿A qué WhatsApp?</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
+  <p class="muted">Esta solicitud no trae número de WhatsApp. Escríbelo para abrir el chat de ${esc(f.nombre||'tu cliente')}.</p>
+  <label class="field full"><span>WhatsApp del cliente (10 dígitos)</span><input id="ft-t" inputmode="tel" autocomplete="off" placeholder="614 000 0000"></label>
+  <button class="btn primary block" id="ft-go" style="margin-top:12px">Abrir WhatsApp</button>`);
+  const P=$('#sheet .pane');P.querySelector('#ft-go').addEventListener('click',async()=>{const t=P.querySelector('#ft-t').value;if(waNum(t).length<12){toast('Escribe 10 dígitos');return}await write('facturas_cli/'+f.id,{tel:t});closeSheet();cb(t)})}
+async function facSend(id,via,tel0){const f=S.facCli.find(x=>x.id===id);if(!f||!f.pdf)return;
+  if(via==='wa'&&!waNum(tel0||f.tel)){facAskTel(f,t=>facSend(id,via,t));return}
   const base=`Factura_Pasteli_${safeName(f.rfc)}_${(f.fechaCompra||'').replace(/-/g,'')}`;
-  const msg=`Hola ${f.nombre}, te enviamos tu factura de Pasteli por tu compra del ${f.fechaCompra?fechaLarga(f.fechaCompra):''} (${money(f.total)}). Adjuntamos el PDF y el XML. ¡Gracias por tu preferencia! 🧁`;
-  toast('Preparando archivos…');let files=[];try{files.push(new File([await fetchAsset(f.pdf)],base+'.pdf',{type:'application/pdf'}));if(f.xml)files.push(new File([await fetchAsset(f.xml)],base+'.xml',{type:'application/xml'}))}catch(e){toast('No pude leer los archivos de la factura');return}
-  let done=false;
-  if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,title:'Factura Pasteli',text:msg});done=true}catch(e){if(e?.name==='AbortError')return}}
-  if(!done){let ok;if(files.length>1){const JSZip=await loadZip();const z=new JSZip();files.forEach(x=>z.file(x.name,x));ok=await saveFile(base+'.zip',await z.generateAsync({type:'blob'}))}else ok=await saveFile(base+'.pdf',files[0]);
-    if(!ok)return;
-    const url=via==='wa'?`https://wa.me/${waNum(f.tel)||''}?text=${encodeURIComponent(msg+'\n\n(Te adjunto el archivo en el siguiente mensaje.)')}`:`mailto:${encodeURIComponent(f.correo||'')}?subject=${encodeURIComponent('Tu factura de Pasteli')}&body=${encodeURIComponent(msg+'\n\nPasteli · Blvd. Ortiz Mena 3311-3, Chihuahua')}`;
-    window.open(url,'_blank','noopener');toast(via==='wa'?'Archivo descargado: adjúntalo en el chat de WhatsApp':'Archivo descargado: adjúntalo en el correo')}
-  await write('facturas_cli/'+id,{estado:'enviada',enviadaEl:todayISO(),via:via==='wa'?'WhatsApp':'correo'})}
+  const msg=`Hola ${f.nombre}, te enviamos tu factura de Pasteli por tu compra del ${f.fechaCompra?fechaLarga(f.fechaCompra):''} (${money(f.total)}). ¡Gracias por tu preferencia! 🧁`;
+  const done_=async()=>{await write('facturas_cli/'+id,{estado:'enviada',enviadaEl:todayISO(),via:via==='wa'?'WhatsApp':'correo'})};
+  /* teléfono con hoja para compartir: se adjuntan los archivos de verdad */
+  if(navigator.canShare&&(/Android|iPhone|iPad/i.test(navigator.userAgent))){
+    toast('Preparando archivos…');let files=[];try{files.push(new File([await fetchAsset(f.pdf)],base+'.pdf',{type:'application/pdf'}));if(f.xml)files.push(new File([await fetchAsset(f.xml)],base+'.xml',{type:'application/xml'}))}catch(e){toast('No pude leer los archivos de la factura');return}
+    if(navigator.canShare({files})){try{await navigator.share({files,title:'Factura Pasteli',text:msg+'\nAdjuntamos el PDF y el XML.'});await done_();return}catch(e){if(e?.name==='AbortError')return}}}
+  /* computadora: el mensaje lleva los enlaces de descarga del PDF y del XML */
+  const pl=facLink(f.pdf),xl=facLink(f.xml);if(!pl){toast('No encuentro el archivo de la factura');return}
+  const links=`\n\n📄 Factura (PDF): ${pl}${xl?`\n🧾 XML: ${xl}`:''}`;
+  const url=via==='wa'?`https://wa.me/${waNum(tel0||f.tel)}?text=${encodeURIComponent(msg+links)}`:`mailto:${encodeURIComponent(f.correo||'')}?subject=${encodeURIComponent('Tu factura de Pasteli')}&body=${encodeURIComponent(msg+links+'\n\nPasteli · Blvd. Ortiz Mena 3311-3, Chihuahua')}`;
+  window.open(url,'_blank','noopener');toast(via==='wa'?'Se abrió el chat con los enlaces de tu factura. Solo presiona enviar.':'Se abrió el correo con los enlaces de la factura. Solo presiona enviar.');await done_()}
 function facZipMenu(){const meses=[...new Set(S.facCli.map(f=>(f.fechaCompra||f.creado||'').slice(0,7)).filter(Boolean))].sort().reverse();
   pane(`<div class="sheet-head"><h2>Descargar facturas</h2><button class="iconbtn" data-act="close" aria-label="Cerrar">${ICON.x}</button></div>
   <p class="muted">Un ZIP con carpetas por mes, el PDF y XML de cada cliente y un resumen en Excel (CSV), listo para guardar en la carpeta de la empresa.</p>
