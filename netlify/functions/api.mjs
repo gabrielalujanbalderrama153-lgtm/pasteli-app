@@ -237,6 +237,40 @@ export default async (req) => {
     const cpAllowed = isCp ? cpCols(who.cpRec) : null;
     const cpCfgOk = id => id === 'app' || id === 'archivos';
 
+    // Envío de facturas por correo con PDF y XML adjuntos (SMTP del correo de facturación: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM opcional).
+    if (route === 'mail/status') return json({ enabled: !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS), from: process.env.SMTP_FROM || process.env.SMTP_USER || '' });
+    if (route === 'fac/mail' && req.method === 'POST') {
+      if (!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)) return err('no_smtp', 503);
+      const id = String(body.id || '');
+      if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) return err('bad_request');
+      const doc = await st('db').get(dkey('facturas_cli', id), { type: 'json' });
+      if (!doc) return err('not_found', 404);
+      const to = String(body.to || doc.correo || '').trim().slice(0, 160);
+      if (!/^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/.test(to)) return err('bad_email');
+      const safe = s => String(s || '').normalize('NFKD').replace(/[^\w.-]+/g, '_').slice(0, 40);
+      const base = `Factura_Pasteli_${safe(doc.rfc)}_${String(doc.fechaCompra || '').replace(/-/g, '')}`;
+      const HEAD = 'PASTELI-ARCHIVO-1\n';
+      const att = [];
+      for (const [a, ext, ct] of [[doc.pdf, 'pdf', 'application/pdf'], [doc.xml, 'xml', 'application/xml']]) {
+        if (!a || !/^[a-f0-9]{32}$/.test(String(a.id || ''))) continue;
+        const raw = await st('assets').get(a.id, { type: 'arrayBuffer' });
+        if (!raw) continue;
+        let buf = Buffer.from(raw);
+        if (buf.subarray(0, HEAD.length).toString('utf8') === HEAD) { const txt = buf.toString('utf8'); const i = txt.indexOf('\n', HEAD.length); buf = Buffer.from(txt.slice(i + 1), 'base64'); }
+        att.push({ filename: `${base}.${ext}`, content: buf, contentType: ct });
+      }
+      if (!att.some(x => x.filename.endsWith('.pdf'))) return err('no_files');
+      const port = Number(process.env.SMTP_PORT) || 465;
+      try {
+        const nodemailer = (await import('nodemailer')).default;
+        const tr = nodemailer.createTransport({ host: process.env.SMTP_HOST, port, secure: port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+        await tr.sendMail({ from: process.env.SMTP_FROM || `Facturación Pasteli <${process.env.SMTP_USER}>`, to, subject: String(body.subject || 'Tu factura de Pasteli').slice(0, 160), text: String(body.text || '').slice(0, 4000), attachments: att });
+      } catch (e) { console.warn('smtp', e && e.message); return err('smtp_failed', 502, { msg: String((e && e.message) || '').slice(0, 200) }); }
+      const fecha = /^\d{4}-\d{2}-\d{2}$/.test(String(body.fecha || '')) ? body.fecha : new Date().toISOString().slice(0, 10);
+      await writeDoc('facturas_cli', id, { estado: 'enviada', enviadaEl: fecha, via: 'correo', ...(to !== doc.correo ? { correo: to } : {}) }, 'update');
+      return json({ ok: true, to, n: att.length });
+    }
+
     // Lectura con IA (PDF, Excel, fotos). Necesita ANTHROPIC_API_KEY en Netlify; tope diario para controlar el gasto.
     if (route === 'ai/status') {
       const lim = Number(process.env.AI_DAILY_LIMIT) || 40; const day = new Date().toISOString().slice(0, 10);
